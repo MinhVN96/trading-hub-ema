@@ -73,7 +73,7 @@ var int bar_ = time
 
 //structure
 var bool isPrevBos   = na
-var bool findIDM =   false
+var bool findIDM =   true
 var bool isBosUp =   false
 var bool isBosDn =   false
 var bool isCocUp =   true
@@ -371,8 +371,36 @@ if low <= L
 //#endregion
 
 // #region structure mapping
+// Check for ChoCh — đặt TRƯỚC khối IDM để tránh dùng lastH/lastL vừa bị
+// khối IDM ghi đè trong cùng 1 bar (gây CHOCH bắn sai ngay sát IDM)
+if not findIDM and isCocDn and high > lastH
+    if structure_type == "Choch without IDM" and idmHigh == lastH and close > idmHigh
+        removeIdm()
+    if close > lastH
+        drawStructure(CHOCH_TEXT, true) //Confirm CocUp
+        findIDM := true
+        isBosUp := true
+        isCocUp := true
+        isBosDn := false
+        isCocDn := false
+        isPrevBos := false
+        L_lastL := getNLastValue(arrLastL, 1)
+
+if not findIDM and isCocUp and low < lastL
+    if structure_type == "Choch without IDM" and idmLow == lastL and close < idmLow
+        removeIdm()
+    if close < lastL
+        drawStructure(CHOCH_TEXT, false) //Confirm CocDn
+        findIDM := true
+        isBosUp := false
+        isCocUp := false
+        isBosDn := true
+        isCocDn := true
+        isPrevBos := false
+        H_lastH := getNLastValue(arrLastH, 1)
+
 // Check for IDM
-if findIDM and isCocUp and isCocUp
+if findIDM and isCocUp
     if low < idmLow
         findIDM := false
         isBosUp := false
@@ -436,33 +464,6 @@ if findIDM and isCocDn and isBosDn
             L_lastL := getNLastValue(arrLastL, 1)
 
 
-//Check for ChoCh
-if isCocDn and high > lastH
-    if structure_type == "Choch without IDM" and idmHigh == lastH and close > idmHigh
-        removeIdm()
-    if close > lastH
-        drawStructure(CHOCH_TEXT, true) //Confirm CocUp
-        findIDM := true
-        isBosUp := true
-        isCocUp := true
-        isBosDn := false
-        isCocDn := false
-        isPrevBos := false
-        L_lastL := getNLastValue(arrLastL, 1)
-
-if isCocUp and low < lastL
-    if structure_type == "Choch without IDM" and idmLow == lastL and close < idmLow
-        removeIdm()
-    if close < lastL
-        drawStructure(CHOCH_TEXT, false) //Confirm CocDn
-        findIDM := true
-        isBosUp := false
-        isCocUp := false
-        isBosDn := true
-        isCocDn := true
-        isPrevBos := false
-        H_lastH := getNLastValue(arrLastH, 1)
-
 //Check for BoS
 if not findIDM and not isBosUp and isCocUp
     if high > lastH
@@ -496,14 +497,26 @@ if not findIDM and not isBosDn and isCocDn
 //#endregion
 
 //#trigger update High and Low
-
-if high > lastH
-    lastH := high
-    lastHBar := time
-
-if low < lastL
-    lastL := low
-    lastLBar := time
+// Trong phase tìm IDM (findIDM=true): cả hai cập nhật để track HH/LL hiện tại
+// Trong phase tìm BOS/CHOCH (findIDM=false): chỉ cập nhật chiều ngược xu hướng
+//   - Bullish: lastH cố định (mức BOS), lastL cập nhật (track HL cho CHOCH)
+//   - Bearish: lastL cố định (mức BOS), lastH cập nhật (track LH cho CHOCH)
+if findIDM
+    if high > lastH
+        lastH := high
+        lastHBar := time
+    if low < lastL
+        lastL := low
+        lastLBar := time
+else
+    if isCocUp
+        if low < lastL
+            lastL := low
+            lastLBar := time
+    else if isCocDn
+        if high > lastH
+            lastH := high
+            lastHBar := time
 
 //#endregion
 if showPOI
