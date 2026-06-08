@@ -11,40 +11,23 @@ mergeRatio = input.float(defval=0, minval=0, maxval=0.5, step=0.02, title="Merge
 maxBarHistory = input.int(2000, title="Max IPA age", group="POI settings")
 
 structure_type = input.string ("Choch without IDM",title='Structure type', group="Structure", options=["Choch without IDM", "Choch with IDM"])
-showHL = input.bool(false, "Mark H/L", inline = "HL", group = "Structure")
-showCircleHL = input.bool(true, "Mark Circle", inline = "HL", group = "Structure")
 showMn = input.bool(false, "Show pullback", group = "Structure")
 showBOS = input.bool(true, "Show B O S", group = "Structure")
 showChoCh = input.bool(true, "Show CHoCH", group = "Structure")
 showIDM = input.bool(true,"Show IDM", group = "Structure")
-showPdhl = input.bool(false,"Show PDH/L", inline = "PDHL", group = "Structure")
-lengPdhl = input.int(40, title="", inline = "PDHL", group="Structure")
-showMid = input.bool(true, "Show Equilibrium", inline = "mid", group = "Structure")
-lengMid = input.int(40, title="", inline = "mid", group="Structure")
-showSw = input.bool(true, "Show H/L sweeping lines", inline = "sweep", group = "Structure")
-markX = input.bool(false, 'Mark "X"', inline = "sweep", group = "Structure")
-showTP = input.bool(false, 'Show Target profit',group = 'Structure')
 showliveBOS = input.bool(true,"Show live BOS", inline = "liveB", group = "Structure")
 lengBos = input.int(40, title="", inline = "liveB", group="Structure")
 showliveChoch = input.bool(true,"Show live ChoCh", inline = "liveCho", group = "Structure")
 lengChoch = input.int(40, title="", inline = "liveCho", group="Structure")
 showliveIDM = input.bool(true,"Show live IDM", inline = "liveI", group = "Structure")
 lengIDM = input.int(15, title="", inline = "liveI", group="Structure")
-showSCOB = input.bool(true, "Show SCOB", inline = "Bar", group = "Structure")
-showISB = input.bool(false, 'Show ISB', inline = "Bar", group = "Structure")
-showOSB = input.bool(false, 'Show OSB', inline = "Bar", group = "Structure")
+showSCOB = input.bool(true, "Show SCOB", group = "Structure")
 
-colorHL = input.color(color.yellow, "High/Low", group = "Structure | Color")
 bull = input.color(color.green, "Bullish", group = "Structure | Color")
 bear = input.color(color.red , "Bearish", group = "Structure | Color")
 scobUp = input.color(#0b3ff9   , "Bullish SCOB", group = "Structure | Color")
 scobDn = input.color(#da781d, "Bearish SCOB", group = "Structure | Color")
-colorISB = input.color(#bb06f7,'Inside Bar', group = "Structure | Color")
-colorOSB_up = input.color(#0b3ff9,'Bullish OSB', group = "Structure | Color")
-colorOSB_down = input.color(#da781d,'Bearish OSB', group = "Structure | Color")
 colorIDM = input.color(color.rgb(255, 255, 255, 20), "IDM", group = "Structure | Color")
-colorSweep = input.color(color.gray, "Sweeping line", group = "Structure | Color")
-colorTP = input.color(color.purple, 'Target profit', group = "Structure | Color")
 colorDemand = input.color(color.rgb(47, 130, 96, 80), 'Demand', group = "Structure | Color")
 colorSupply = input.color(color.rgb(205, 92, 72, 80), 'Supply', group = "Structure | Color")
 colorMitigated = input.color(color.rgb(192, 192, 192, 80), 'Mitigated', group ="Structure | Color")
@@ -54,9 +37,6 @@ colorMitigated = input.color(color.rgb(192, 192, 192, 80), 'Mitigated', group ="
 const string IDM_TEXT = "I D M"
 const string CHOCH_TEXT = "CHoCH"
 const string BOS_TEXT = "B O S"
-const string PDH_TEXT = "PDH"
-const string PDL_TEXT = "PDL"
-const string MID_TEXT = "0.5"
 
 //high low
 var L = low
@@ -132,11 +112,8 @@ var arrHLCircle = array.new_label(0)
 color transp = color.new(color.gray,100)
 
 //Caculate
-int curTf  = timeframe.in_seconds(timeframe.period)
-int dayTf  = timeframe.in_seconds("D")
-int i_loop = int(2 * dayTf / curTf)
-[pdh, pdl] = request.security(syminfo.tickerid, 'D', [high[1], low[1]])
-int len    = curTf * 1000
+int curTf = timeframe.in_seconds(timeframe.period)
+int len   = curTf * 1000
 
 //#endregion
 
@@ -149,33 +126,17 @@ motherBar  := isb ? motherBar : time
 //#endregion
 
 //#region drawing function
-isGreenBar(int bar) => close[bar] > open[bar]
-
 textCenter(int left, int right) => int(math.avg(left,right))
 
 getStyleLabel(bool style) => style ? label.style_label_down : label.style_label_up
 getStyleArrow(bool style) => style ? label.style_arrowdown : label.style_arrowup
 
-getYloc(bool style) =>   style ? yloc.abovebar : yloc.belowbar
+getYloc(bool style) => style ? yloc.abovebar : yloc.belowbar
 
 getDirection(bool trend, int HBar, int LBar, float H, float L) =>
     x = trend ? HBar : LBar
     y = trend ? H : L
     [x, y]
-
-getPdhlBar(float value) =>
-    int x = na
-    if value == pdh
-        for i = i_loop to 1 by 1
-            if high[i] == pdh
-                x := time[i]
-                break
-    else
-        for i = i_loop to 1 by 1
-            if low[i] == pdl
-                x := time[i]
-                break
-    x
 
 updateLastH() =>
     array.push(arrLastH,lastH)
@@ -260,14 +221,11 @@ drawLiveStrc(bool condition, bool trend, color color1, color color2, string txt,
     colorText = trend ? color1 : color2
     if barstate.islast and condition
         [x, y] = switch
-            txt == BOS_TEXT => [trend ? lastHBar : lastLBar, trend ? lastH : lastL]
+            txt == BOS_TEXT   => [trend ? lastHBar : lastLBar, trend ? lastH : lastL]
             txt == CHOCH_TEXT => [trend ? lastHBar : lastLBar, trend ? lastH : lastL]
-            txt == IDM_TEXT => [trend ? idmLBar : idmHBar, trend ? idmLow : idmHigh]
-            txt == MID_TEXT => [math.min(lastHBar, lastLBar), math.avg(lastH, lastL)]
-            txt == PDH_TEXT => [getPdhlBar(pdh), pdh]
-            txt == PDL_TEXT => [getPdhlBar(pdl), pdl]
+            txt == IDM_TEXT   => [trend ? idmLBar : idmHBar, trend ? idmLow : idmHigh]
         _txt = txt + " - " + str.tostring(y)
-        ln := line.new(x, y, x2, y, xloc.bar_time, color = colorIDM, style = line.style_dotted)
+        ln  := line.new(x, y, x2, y, xloc.bar_time, color = colorIDM, style = line.style_dotted)
         lbl := label.new(x2, y, _txt, xloc.bar_time, color = transp, textcolor = colorText, style = label.style_label_left, size = size.small)
     line.delete(ln[1])
     label.delete(lbl[1])
@@ -278,27 +236,7 @@ drawPullback(int x, float y, bool trend) =>
         label.new(x, y, "", xloc.bar_time, getYloc(trend), color, getStyleArrow(trend), size = size.tiny)
 
 drawHL(bool trend, string txt) =>
-    [x, y] = getDirection(trend, HBar, LBar, H, L)
-    if showHL
-        lbl = label.new(x, y, txt, xloc.bar_time, color = transp, textcolor = colorHL, style = getStyleLabel(trend))
-        array.push(arrHLLabel, lbl)
-    if showCircleHL
-        colorCircle = trend ? color.new(bull, 55) : color.new(bear, 55)
-        lbl2 = label.new(x, y, '', xloc.bar_time, getYloc(trend), color = colorCircle, style = label.style_circle, size = size.tiny)
-        array.push(arrHLCircle, lbl2)
-
-drawSweep(bool trend) =>
-    [x, y] = getDirection(trend, lastHBar, lastLBar, lastH, lastL)
-    if showSw
-        line.new(x, y, time, y, xloc.bar_time, color = colorSweep, style = line.style_dotted)
-        if markX
-            label.new(textCenter(time, x), y, "X", xloc.bar_time, color = transp, textcolor = colorSweep, style = getStyleLabel(trend), size = size.small)
-
-drawTP(H, L) =>
-    target = isCocUp ? high + math.abs(H - L) : low - math.abs(H - L)
-    target := target < 0 ? 0 : target
-    if showTP
-        line.new(bar_index, isCocUp ? high : low, bar_index, target, color = colorTP, style = line.style_arrow_right)
+    float(na)
 
 createBox(left, right, top, bottom, color) =>
     box.new(left=left, right=right, top=top, bottom=bottom, xloc = xloc.bar_time, bgcolor=color, border_color=color, extend = extend.right)
@@ -363,10 +301,6 @@ scob(zones, isSupply) =>
             scobDn
         else
             na
-//#endregion
-//#region Outside Bar
-osb = high > top and low < bot
-
 //#endregion
 
 //#region Pullback
@@ -515,9 +449,6 @@ if isCocDn and high > lastH
         isCocDn := false
         isPrevBos := false
         L_lastL := getNLastValue(arrLastL, 1)
-        drawTP(lastH,lastL)
-    else
-        drawSweep(true)
 
 if isCocUp and low < lastL
     if structure_type == "Choch without IDM" and idmLow == lastL and close < idmLow
@@ -531,9 +462,6 @@ if isCocUp and low < lastL
         isCocDn := true
         isPrevBos := false
         H_lastH := getNLastValue(arrLastH, 1)
-        drawTP(lastH,lastL)
-    else
-        drawSweep(false)
 
 //Check for BoS
 if not findIDM and not isBosUp and isCocUp
@@ -550,9 +478,6 @@ if not findIDM and not isBosUp and isCocUp
             lastL := L
             lastLBar := LBar
             L_lastL := L
-            drawTP(lastH,lastL)
-        else
-            drawSweep(true)
 
 if not findIDM and not isBosDn and isCocDn
     if low < lastL
@@ -568,9 +493,6 @@ if not findIDM and not isBosDn and isCocDn
             lastH := H
             lastHBar := HBar
             H_lastH := H
-            drawTP(lastH,lastL)
-        else
-            drawSweep(false)
 //#endregion
 
 //#trigger update High and Low
@@ -629,18 +551,13 @@ if showPOI
 //#region run function
 barcolor(showSCOB ? scob(supplyZone, true) : na, -1)
 barcolor(showSCOB ? scob(demandZone, false) : na, -1)
-barcolor(showISB and isb ? colorISB : na, 0,title="InSide Bar")
-barcolor(osb and isGreenBar(0) and showOSB ? colorOSB_up : na)
-barcolor(osb and not isGreenBar(0) and showOSB ? colorOSB_down : na)
 processZones(supplyZone, true)
 processZones(demandZone, false)
 drawLiveStrc(showliveIDM and findIDM, isCocUp, colorIDM, colorIDM, IDM_TEXT, lengIDM)
 drawLiveStrc(showliveChoch, not isCocUp, bull, bear, CHOCH_TEXT, lengChoch)
 drawLiveStrc(showliveBOS and not findIDM, isCocUp, bull, bear, BOS_TEXT, lengBos)
-drawLiveStrc(showPdhl, true, bull, bear, PDH_TEXT, lengPdhl)
-drawLiveStrc(showPdhl, false, bull, bear, PDL_TEXT, lengPdhl)
-drawLiveStrc(showMid, true, colorIDM, colorIDM, MID_TEXT, lengMid)
 //#endregion
+
 shortest = ta.ema(close, 20)
 short     = ta.ema(close, 50)
 longer    = ta.ema(close, 100)
