@@ -5,7 +5,7 @@
 indicator("Trading Hub 3 - EMA", "Trading Hub 3 - EMA", true, max_bars_back = 5000, max_labels_count = 500, max_lines_count = 500, max_boxes_count = 500)
 
 //drawing options
-showPOI = input.bool(true, "Show POI", group="POI settings")
+showPOI = input.bool(false, "Show POI", group="POI settings")
 poi_type = input.string ("---",title='POI type', group="POI settings", options=["---", "Mother Bar"])
 mergeRatio = input.float(defval=0, minval=0, maxval=0.5, step=0.02, title="MergeRatio", group="POI settings" )
 maxBarHistory = input.int(2000, title="Max IPA age", group="POI settings")
@@ -23,6 +23,7 @@ showliveIDM = input.bool(true,"Show live IDM", inline = "liveI", group = "Struct
 lengIDM = input.int(15, title="", inline = "liveI", group="Structure")
 showSCOB = input.bool(true, "Show SCOB", group = "Structure")
 showOF   = input.bool(true, "Show OF",   group = "Structure")
+showZigzag = input.bool(true, "Show pullback line", group = "Structure")
 
 showEMA20   = input.bool(false, "EMA 20",  inline = "ema20",  group = "EMA")
 colorEMA20  = input.color(color.red,    "", inline = "ema20",  group = "EMA")
@@ -37,7 +38,9 @@ bull = input.color(color.green, "Bullish", group = "Structure | Color")
 bear = input.color(color.red , "Bearish", group = "Structure | Color")
 scobUp = input.color(#0b3ff9   , "Bullish SCOB", group = "Structure | Color")
 scobDn = input.color(#da781d, "Bearish SCOB", group = "Structure | Color")
-colorOF = input.color(color.new(color.blue, 80), "OF",          group = "Structure | Color")
+colorOFBull = input.color(color.new(color.blue, 80), "OF Bullish", group = "Structure | Color")
+colorOFBear = input.color(color.new(color.orange, 80), "OF Bearish", group = "Structure | Color")
+colorZigzag = input.color(color.white, "Pullback line", group = "Structure | Color")
 colorIDM = input.color(color.rgb(255, 255, 255, 20), "IDM", group = "Structure | Color")
 colorDemand = input.color(color.rgb(47, 130, 96, 80), 'Demand', group = "Structure | Color")
 colorSupply = input.color(color.rgb(205, 92, 72, 80), 'Supply', group = "Structure | Color")
@@ -121,6 +124,10 @@ var arrHLCircle = array.new_label(0)
 var ofZone = array.new_box(0)
 var ofLabel = array.new_label(0)
 var ofZoneBarIdx = array.new_int(0)
+var ofZoneIsBull = array.new_bool(0)
+var arrZigLine = array.new_line(0)
+var arrZigLineBarIdx = array.new_int(0)
+var arrLastZig = array.new_float(2, na)
 
 //color
 color transp = color.new(color.gray,100)
@@ -252,6 +259,25 @@ drawPullback(int x, float y, bool trend) =>
 drawHL(bool trend, string txt) =>
     float(na)
 
+addZigPoint(int x, float y) =>
+    if showZigzag
+        prevBar = array.get(arrLastZig, 0)
+        prevPrice = array.get(arrLastZig, 1)
+        if not na(prevBar) and not (prevBar == x and prevPrice == y)
+            ln = line.new(int(prevBar), prevPrice, x, y, xloc.bar_time, color = colorZigzag)
+            array.push(arrZigLine, ln)
+            array.push(arrZigLineBarIdx, bar_index)
+        array.set(arrLastZig, 0, x)
+        array.set(arrLastZig, 1, y)
+
+processZigLines() =>
+    if array.size(arrZigLine) > 0
+        for i = array.size(arrZigLine) - 1 to 0 by 1
+            if bar_index - array.get(arrZigLineBarIdx, i) > 1999
+                line.delete(array.get(arrZigLine, i))
+                array.remove(arrZigLine, i)
+                array.remove(arrZigLineBarIdx, i)
+
 createBox(left, right, top, bottom, color) =>
     box.new(left=left, right=right, top=top, bottom=bottom, xloc = xloc.bar_time, bgcolor=color, border_color=color, extend = extend.right)
 
@@ -305,23 +331,52 @@ processZones(zones, isSupply) =>
             if (time - leftZone > len*maxBarHistory) or (isSupply and high >= topZone) or (not isSupply and low <= botZone)
                 removeZone(zones, zone)
 
-createOFBox(int left, float top, float bot) =>
-    box.new(left=left, right=time, top=top, bottom=bot, xloc=xloc.bar_time, bgcolor=colorOF, border_color=colorOF, extend=extend.right)
+createOFBox(int left, float top, float bot, color col) =>
+    box.new(left=left, right=time, top=top, bottom=bot, xloc=xloc.bar_time, bgcolor=col, border_color=col, extend=extend.right)
 
-addOFZone(int left, float top, float bot) =>
-    array.push(ofZone, createOFBox(left, top, bot))
-    array.push(ofLabel, label.new(left, top, "OF", xloc.bar_time, yloc.price, color = transp, textcolor = colorOF, style = label.style_label_down, size = size.tiny))
-    array.push(ofZoneBarIdx, bar_index)
+removeOFZone(int i) =>
+    box.delete(array.get(ofZone, i))
+    label.delete(array.get(ofLabel, i))
+    array.remove(ofZone, i)
+    array.remove(ofLabel, i)
+    array.remove(ofZoneBarIdx, i)
+    array.remove(ofZoneIsBull, i)
+
+addOFZone(int left, float top, float bot, bool isBull) =>
+    bool contained = false
+    if array.size(ofZone) > 0
+        for i = array.size(ofZone) - 1 to 0 by 1
+            if array.get(ofZoneIsBull, i) == isBull
+                [t, b, l] = marginZone(array.get(ofZone, i))
+                if top <= t and bot >= b
+                    contained := true
+                else if t <= top and b >= bot
+                    removeOFZone(i)
+    if not contained
+        color col = isBull ? colorOFBull : colorOFBear
+        array.push(ofZone, createOFBox(left, top, bot, col))
+        array.push(ofLabel, label.new(left, top, "OF", xloc.bar_time, yloc.price, color = transp, textcolor = col, style = label.style_label_down, size = size.tiny))
+        array.push(ofZoneBarIdx, bar_index)
+        array.push(ofZoneIsBull, isBull)
 
 processOFZones() =>
     if array.size(ofZone) > 0
         for i = array.size(ofZone) - 1 to 0 by 1
-            if bar_index - array.get(ofZoneBarIdx, i) > 99
-                box.delete(array.get(ofZone, i))
-                label.delete(array.get(ofLabel, i))
-                array.remove(ofZone, i)
-                array.remove(ofLabel, i)
-                array.remove(ofZoneBarIdx, i)
+            [t, b, l] = marginZone(array.get(ofZone, i))
+            isBull = array.get(ofZoneIsBull, i)
+            invalidated = isBull ? low < b : high > t
+            expired = bar_index - array.get(ofZoneBarIdx, i) > 1999
+            if invalidated or expired
+                removeOFZone(i)
+
+addLastPullbackOF(bool isBull) =>
+    if showOF
+        float ofT = getNLastValue(puHigh, 1)
+        int ofTBar = getNLastValue(puHBar, 1)
+        float ofB = getNLastValue(puLow, 1)
+        int ofBBar = getNLastValue(puLBar, 1)
+        if not na(ofT) and not na(ofB)
+            addOFZone(math.min(ofTBar, ofBBar), ofT, ofB, isBull)
 
 scob(zones, isSupply) =>
     [topZone, botZone, leftZone] = marginZone(getNLastValue(zones, 1))
@@ -355,19 +410,22 @@ if high >= top and low > bot //uptrend
         array.push(puLow, bot)
         drawPullback(bar_, top_, true)
         drawPullback(bar, bot, false)
+        addZigPoint(bar_, top_)
+        addZigPoint(bar, bot)
         if showOF and isCocUp
-            addOFZone(bar_, top_, bot)
+            addOFZone(bar_, top_, bot, true)
     else if (not prevMnStrc and na(mnStrc)) or not mnStrc
         array.push(puLBar, bar)
         array.push(puLow, bot)
         drawPullback(bar, bot, false)
+        addZigPoint(bar, bot)
         if showOF and isCocUp
             float ofTop = getNLastValue(puHigh, 1)
             int ofTopBar = getNLastValue(puHBar, 1)
             if na(ofTop)
                 ofTop := top_
                 ofTopBar := bar_
-            addOFZone(math.min(ofTopBar, bar), ofTop, bot)
+            addOFZone(math.min(ofTopBar, bar), ofTop, bot, true)
 
     top := high
     bot := low
@@ -383,19 +441,22 @@ if high < top and low <= bot //downtrend
         array.push(puLow, bot_)
         drawPullback(bar, top, true)
         drawPullback(bar_, bot_, false)
+        addZigPoint(bar_, bot_)
+        addZigPoint(bar, top)
         if showOF and isCocDn
-            addOFZone(bar_, top, bot_)
+            addOFZone(bar_, top, bot_, false)
     else if (prevMnStrc and na(mnStrc)) or mnStrc
         array.push(puHBar, bar)
         array.push(puHigh, top)
         drawPullback(bar, top, true)
+        addZigPoint(bar, top)
         if showOF and isCocDn
             float ofBot = getNLastValue(puLow, 1)
             int ofBotBar = getNLastValue(puLBar, 1)
             if na(ofBot)
                 ofBot := bot_
                 ofBotBar := bar_
-            addOFZone(math.min(ofBotBar, bar), top, ofBot)
+            addOFZone(math.min(ofBotBar, bar), top, ofBot, false)
 
     top := high
     bot := low
@@ -428,6 +489,7 @@ if not findIDM and isCocDn and high > lastH
         removeIdm()
     if close > lastH
         drawStructure(CHOCH_TEXT, true) //Confirm CocUp
+        addLastPullbackOF(true)
         findIDM := true
         isBosUp := true
         isCocUp := true
@@ -441,6 +503,7 @@ if not findIDM and isCocUp and low < lastL
         removeIdm()
     if close < lastL
         drawStructure(CHOCH_TEXT, false) //Confirm CocDn
+        addLastPullbackOF(false)
         findIDM := true
         isBosUp := false
         isCocUp := false
@@ -549,8 +612,14 @@ if not findIDM and not isBosDn and isCocDn
 //#trigger update High and Low
 // Trong phase tìm IDM (findIDM=true): cả hai cập nhật để track HH/LL hiện tại
 // Trong phase tìm BOS/CHOCH (findIDM=false): chỉ cập nhật chiều ngược xu hướng
-//   - Bullish: lastH cố định (mức BOS), lastL cập nhật (track HL cho CHOCH)
-//   - Bearish: lastL cố định (mức BOS), lastH cập nhật (track LH cho CHOCH)
+//   - Bullish: lastH cố định (mức BOS), lastL bám theo swing pullback gần nhất (HL cho CHOCH)
+//   - Bearish: lastL cố định (mức BOS), lastH bám theo swing pullback gần nhất (LH cho CHOCH)
+// Dùng puHigh/puLow (đỉnh/đáy pullback đã xác nhận) thay vì running max/min của high/low,
+// để lastH/lastL giữ cố định tại swing thực sự cho đến khi có pivot mới, tránh bị "ratchet"
+// theo từng cây nến khiến CHOCH không bao giờ thoả close > lastH / close < lastL.
+// Chỉ cho phép lastH dịch XUỐNG (Lower High mới thấp hơn) và lastL dịch LÊN (Higher Low mới
+// cao hơn) — đúng chiều của xu hướng hiện tại — để tránh CHOCH bắn liên tục theo từng pullback
+// nhỏ khi các đỉnh/đáy hồi chỉ nhích nhẹ ngược chiều xu hướng.
 if findIDM
     if high > lastH
         lastH := high
@@ -560,13 +629,15 @@ if findIDM
         lastLBar := time
 else
     if isCocUp
-        if low < lastL
-            lastL := low
-            lastLBar := time
+        float newLastL = getNLastValue(puLow, 1)
+        if not na(newLastL) and newLastL > lastL
+            lastL := newLastL
+            lastLBar := getNLastValue(puLBar, 1)
     else if isCocDn
-        if high > lastH
-            lastH := high
-            lastHBar := time
+        float newLastH = getNLastValue(puHigh, 1)
+        if not na(newLastH) and newLastH < lastH
+            lastH := newLastH
+            lastHBar := getNLastValue(puHBar, 1)
 
 //#endregion
 if showPOI
@@ -617,6 +688,7 @@ barcolor(showSCOB ? scob(demandZone, false) : na, -1)
 processZones(supplyZone, true)
 processZones(demandZone, false)
 processOFZones()
+processZigLines()
 drawLiveStrc(showliveIDM and findIDM, isCocUp, colorIDM, colorIDM, IDM_TEXT, lengIDM)
 drawLiveStrc(showliveChoch, not isCocUp, bull, bear, CHOCH_TEXT, lengChoch)
 drawLiveStrc(showliveBOS and not findIDM, isCocUp, bull, bear, BOS_TEXT, lengBos)
