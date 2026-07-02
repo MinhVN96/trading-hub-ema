@@ -11,6 +11,8 @@ mergeRatio = input.float(defval=0, minval=0, maxval=0.5, step=0.02, title="Merge
 maxBarHistory = input.int(2000, title="Max IPA age", group="POI settings")
 
 structure_type = input.string ("Choch without IDM",title='Structure type', group="Structure", options=["Choch without IDM", "Choch with IDM"])
+// showHL = input.bool(true, "Mark H/L (Trading Hub swing)", inline = "HL", group = "Structure")
+// showCircleHL = input.bool(true, "Circle", inline = "HL", group = "Structure")
 showMn = input.bool(false, "Show pullback", group = "Structure")
 showBOS = input.bool(true, "Show B O S", group = "Structure")
 showChoCh = input.bool(true, "Show CHoCH", group = "Structure")
@@ -34,6 +36,7 @@ colorEMA100 = input.color(color.aqua,   "", inline = "ema100", group = "EMA")
 showEMA200  = input.bool(true,  "EMA 200", inline = "ema200", group = "EMA")
 colorEMA200 = input.color(color.blue,   "", inline = "ema200", group = "EMA")
 
+// colorHL = input.color(color.yellow, "High/Low", group = "Structure | Color")
 bull = input.color(color.green, "Bullish", group = "Structure | Color")
 bear = input.color(color.red , "Bearish", group = "Structure | Color")
 scobUp = input.color(#0b3ff9   , "Bullish SCOB", group = "Structure | Color")
@@ -45,6 +48,20 @@ colorIDM = input.color(color.rgb(255, 255, 255, 20), "IDM", group = "Structure |
 colorDemand = input.color(color.rgb(47, 130, 96, 80), 'Demand', group = "Structure | Color")
 colorSupply = input.color(color.rgb(205, 92, 72, 80), 'Supply', group = "Structure | Color")
 colorMitigated = input.color(color.rgb(192, 192, 192, 80), 'Mitigated', group ="Structure | Color")
+
+//LuxAlgo - Market Structure with Inducements & Sweeps [LuxAlgo] (CC BY-NC-SA 4.0)
+lxEnable    = input.bool(true, "Enable LuxAlgo Market Structure", group = 'LuxAlgo MS')
+chochLen    = input(50, 'CHoCH Detection Period', group = 'LuxAlgo MS')
+shortLen    = input(3, 'IDM Detection Period', group = 'LuxAlgo MS')
+bullCss     = input(#089981, 'Bullish Elements', group = 'LuxAlgo MS')
+bearCss     = input(#ff5252, 'Bearish Elements', group = 'LuxAlgo MS')
+lxShowChoch = input(false, "Show CHoCH", group = 'LuxAlgo MS')
+lxShowBos   = input(false, "Show BOS", group = 'LuxAlgo MS')
+lxShowIdm   = input(false, "Show Inducements", inline = 'lxidm', group = 'LuxAlgo MS')
+idmCss      = input(color.gray, "", inline = 'lxidm', group = 'LuxAlgo MS')
+showSweeps  = input(false, "Show Sweeps", inline = 'lxsweeps', group = 'LuxAlgo MS')
+sweepsCss   = input(color.gray, "", inline = 'lxsweeps', group = 'LuxAlgo MS')
+showCircles = input(true, "Show Swings", group = 'LuxAlgo MS')
 
 //#region variable declaration
 //Constant
@@ -256,8 +273,16 @@ drawPullback(int x, float y, bool trend) =>
     if showMn
         label.new(x, y, "", xloc.bar_time, getYloc(trend), color, getStyleArrow(trend), size = size.tiny)
 
-drawHL(bool trend, string txt) =>
-    float(na)
+// Swing của Trading Hub — ĐÃ COMMENT (tắt nhãn HH/HL/LH/LL + chấm tròn)
+// drawHL(bool trend, string txt) =>
+//     [x, y] = getDirection(trend, HBar, LBar, H, L)
+//     if showHL
+//         lbl = label.new(x, y, txt, xloc.bar_time, color = transp, textcolor = colorHL, style = getStyleLabel(trend))
+//         array.push(arrHLLabel, lbl)
+//     if showCircleHL
+//         colorCircle = trend ? color.new(bull, 55) : color.new(bear, 55)
+//         lbl2 = label.new(x, y, '', xloc.bar_time, getYloc(trend), color = colorCircle, style = label.style_circle, size = size.tiny)
+//         array.push(arrHLCircle, lbl2)
 
 addZigPoint(int x, float y) =>
     if showZigzag
@@ -342,6 +367,14 @@ removeOFZone(int i) =>
     array.remove(ofZoneBarIdx, i)
     array.remove(ofZoneIsBull, i)
 
+// Đẩy thẳng 1 vùng OF mới (không qua merge/containment). Dùng cho lúc tạo lẫn lúc lật breaker.
+pushOFZone(int left, float top, float bot, bool isBull) =>
+    color col = isBull ? colorOFBull : colorOFBear
+    array.push(ofZone, createOFBox(left, top, bot, col))
+    array.push(ofLabel, label.new(left, top, "OF", xloc.bar_time, yloc.price, color = transp, textcolor = col, style = label.style_label_down, size = size.tiny))
+    array.push(ofZoneBarIdx, bar_index)
+    array.push(ofZoneIsBull, isBull)
+
 addOFZone(int left, float top, float bot, bool isBull) =>
     bool contained = false
     if array.size(ofZone) > 0
@@ -353,20 +386,31 @@ addOFZone(int left, float top, float bot, bool isBull) =>
                 else if t <= top and b >= bot
                     removeOFZone(i)
     if not contained
-        color col = isBull ? colorOFBull : colorOFBear
-        array.push(ofZone, createOFBox(left, top, bot, col))
-        array.push(ofLabel, label.new(left, top, "OF", xloc.bar_time, yloc.price, color = transp, textcolor = col, style = label.style_label_down, size = size.tiny))
-        array.push(ofZoneBarIdx, bar_index)
-        array.push(ofZoneIsBull, isBull)
+        pushOFZone(left, top, bot, isBull)
 
 processOFZones() =>
     if array.size(ofZone) > 0
         for i = array.size(ofZone) - 1 to 0 by 1
-            [t, b, l] = marginZone(array.get(ofZone, i))
-            isBull = array.get(ofZoneIsBull, i)
-            invalidated = isBull ? low < b : high > t
-            expired = bar_index - array.get(ofZoneBarIdx, i) > 1999
-            if invalidated or expired
+            box zone = array.get(ofZone, i)
+            [t, b, l] = marginZone(zone)
+            bool isBull = array.get(ofZoneIsBull, i)
+            bool expired = bar_index - array.get(ofZoneBarIdx, i) > 1999
+
+            // Breaker: giá phá XUYÊN hẳn (râu vượt 1 biên + đóng cửa vượt biên kia) => lật loại + đổi màu
+            if not isBull and low < b and close > t
+                pushOFZone(l, t, b, true)    // OF cam (bear) bị phá LÊN  => thành OF xanh (bull)
+            else if isBull and high > t and close < b
+                pushOFZone(l, t, b, false)   // OF xanh (bull) bị phá XUỐNG => thành OF cam (bear)
+            // Mitigated: giá chạm vào vùng nhưng chưa phá => tô xám, dừng kéo dài
+            else if (not isBull and high >= b and high < t) or (isBull and low <= t and low > b)
+                box.set_right(zone, time)
+                box.set_extend(zone, extend.none)
+                box.set_bgcolor(zone, colorMitigated)
+                box.set_border_color(zone, colorMitigated)
+                label.set_textcolor(array.get(ofLabel, i), colorMitigated)
+
+            // Xóa khi bị quét hẳn hoặc hết hạn (vùng gốc bị phá cũng xóa ở đây, chỉ giữ vùng lật)
+            if expired or (not isBull and high >= t) or (isBull and low <= b)
                 removeOFZone(i)
 
 addLastPullbackOF(bool isBull) =>
@@ -527,7 +571,7 @@ if findIDM and isCocUp
                 lastH := H
                 lastHBar := HBar
                 drawIDM(true)
-                drawHL(true, 'HH')
+                // drawHL(true, 'HH')
                 updateLastH()
                 updateLastL()
                 H_lastH := getNLastValue(arrLastH, 1)
@@ -539,7 +583,7 @@ if findIDM and isCocUp
             lastH := H
             lastHBar := HBar
             drawIDM(true)
-            drawHL(true, 'HH')
+            // drawHL(true, 'HH')
             updateLastH()
             updateLastL()
             H_lastH := getNLastValue(arrLastH, 1)
@@ -559,7 +603,7 @@ if findIDM and isCocDn and isBosDn
                 lastL := L
                 lastLBar := LBar
                 drawIDM(false)
-                drawHL(false, 'LL')
+                // drawHL(false, 'LL')
                 updateLastH()
                 updateLastL()
                 L_lastL := getNLastValue(arrLastL, 1)
@@ -571,7 +615,7 @@ if findIDM and isCocDn and isBosDn
             lastL := L
             lastLBar := LBar
             drawIDM(false)
-            drawHL(false, 'LL')
+            // drawHL(false, 'LL')
             updateLastH()
             updateLastL()
             L_lastL := getNLastValue(arrLastL, 1)
@@ -588,7 +632,7 @@ if not findIDM and not isBosUp and isCocUp
             isBosDn := false
             isCocDn := false
             isPrevBos := true
-            drawHL(false, 'HL')
+            // drawHL(false, 'HL')
             lastL := L
             lastLBar := LBar
             L_lastL := L
@@ -603,7 +647,7 @@ if not findIDM and not isBosDn and isCocDn
             isBosDn := true
             isCocDn := true
             isPrevBos := true
-            drawHL(true, 'LH')
+            // drawHL(true, 'LH')
             lastH := H
             lastHBar := HBar
             H_lastH := H
@@ -640,6 +684,8 @@ else
             lastHBar := getNLastValue(puHBar, 1)
 
 //#endregion
+
+
 if showPOI
     if not isSweepOBS
         high_MOBS := high[3]
@@ -703,3 +749,174 @@ plot(showEMA20  ? shortest : na, color = colorEMA20,  title = "EMA 20")
 plot(showEMA50  ? short    : na, color = colorEMA50,  title = "EMA 50")
 plot(showEMA100 ? longer   : na, color = colorEMA100, title = "EMA 100")
 plot(showEMA200 ? longest  : na, color = colorEMA200, title = "EMA 200")
+
+//#region LuxAlgo - Market Structure with Inducements & Sweeps
+// Nguồn: © LuxAlgo (CC BY-NC-SA 4.0). Module độc lập, bật/tắt bằng lxEnable.
+// Dùng thuật toán swing riêng (ta.highest/lowest) — KHÔNG ảnh hưởng cấu trúc/OF của Trading Hub.
+n = bar_index
+
+lxSwings(lkbk) =>
+    var os = 0
+    var int topx = na
+    var int btmx = na
+
+    upper = ta.highest(lkbk)
+    lower = ta.lowest(lkbk)
+
+    os := high[lkbk] > upper ? 0 : low[lkbk] < lower ? 1 : os[1]
+
+    top = os == 0 and os[1] != 0 ? high[lkbk] : na
+    topx := os == 0 and os[1] != 0 ? n[lkbk] : topx
+
+    btm = os == 1 and os[1] != 1 ? low[lkbk] : na
+    btmx := os == 1 and os[1] != 1 ? n[lkbk] : btmx
+
+    [top, topx, btm, btmx]
+
+[lxTop, topx, btm, btmx] = lxSwings(chochLen)
+[stop, stopx, sbtm, sbtmx] = lxSwings(shortLen)
+
+var os = 0
+var top_crossed = false
+var btm_crossed = false
+
+var float max = na
+var float min = na
+
+var int max_x1 = na
+var int min_x1 = na
+
+var float topy = na
+var float btmy = na
+var stop_crossed = false
+var sbtm_crossed = false
+
+//CHoCH Detection
+if lxTop
+    topy := lxTop
+    top_crossed := false
+if btm
+    btmy := btm
+    btm_crossed := false
+
+//Test for CHoCH
+if close > topy and not top_crossed
+    os := 1
+    top_crossed := true
+if close < btmy and not btm_crossed
+    os := 0
+    btm_crossed := true
+
+//Display CHoCH
+if os != os[1]
+    max := high
+    min := low
+    max_x1 := n
+    min_x1 := n
+    stop_crossed := false
+    sbtm_crossed := false
+
+    if os == 1 and lxEnable and lxShowChoch
+        line.new(topx, topy, n, topy, color = bullCss, style = line.style_dashed)
+        label.new(int(math.avg(n, topx)), topy, 'CHoCH', color = color(na), style = label.style_label_down, textcolor = bullCss, size = size.tiny)
+    else if lxEnable and lxShowChoch
+        line.new(btmx, btmy, n, btmy, color = bearCss, style = line.style_dashed)
+        label.new(int(math.avg(n, btmx)), btmy, 'CHoCH', color = color(na), style = label.style_label_up, textcolor = bearCss, size = size.tiny)
+
+stopy = fixnan(stop)
+sbtmy = fixnan(sbtm)
+
+//Bullish BOS
+//IDM
+if low < sbtmy and not sbtm_crossed and os == 1 and sbtmy != btmy
+    if lxEnable and lxShowIdm
+        line.new(sbtmx, sbtmy, n, sbtmy, color = idmCss, style = line.style_dotted)
+        label.new(int(math.avg(n, sbtmx)), sbtmy, 'IDM', color = color(na), style = label.style_label_up, textcolor = idmCss, size = size.tiny)
+    sbtm_crossed := true
+
+//BOS
+if close > max and sbtm_crossed and os == 1
+    if lxEnable and lxShowBos
+        line.new(max_x1, max, n, max, color = bullCss)
+        label.new(int(math.avg(n, max_x1)), max, 'BOS', color = color(na), style = label.style_label_down, textcolor = bullCss, size = size.tiny)
+    sbtm_crossed := false
+
+//Bearish BOS
+//IDM
+if high > stopy and not stop_crossed and os == 0 and stopy != topy
+    if lxEnable and lxShowIdm
+        line.new(stopx, stopy, n, stopy, color = color.gray, style = line.style_dotted)
+        label.new(int(math.avg(n, stopx)), stopy, 'IDM', color = color(na), style = label.style_label_down, textcolor = color.gray, size = size.tiny)
+    stop_crossed := true
+
+//BOS
+if close < min and stop_crossed and os == 0
+    if lxEnable and lxShowBos
+        line.new(min_x1, min, n, min, color = bearCss)
+        label.new(int(math.avg(n, min_x1)), min, 'BOS', color = color(na), style = label.style_label_up, textcolor = bearCss, size = size.tiny)
+    stop_crossed := false
+
+//Sweeps
+if high > max and close < max and os == 1 and n - max_x1 > 1 and lxEnable and showSweeps
+    line.new(max_x1, max, n, max, color = sweepsCss, style = line.style_dotted)
+    label.new(int(math.avg(n, max_x1)), max, 'x', color = color(na), style = label.style_label_down, textcolor = sweepsCss)
+
+if low < min and close > min and os == 0 and n - min_x1 > 1 and lxEnable and showSweeps
+    line.new(min_x1, min, n, min, color = sweepsCss, style = line.style_dotted)
+    label.new(int(math.avg(n, min_x1)), min, 'x', color = color(na), style = label.style_label_up, textcolor = sweepsCss)
+
+//Trailing max/min
+max := math.max(high, max)
+min := math.min(low, min)
+
+if max > max[1]
+    max_x1 := n
+if min < min[1]
+    min_x1 := n
+
+//Extensions
+var ext_choch = line.new(na, na, na, na, style = line.style_dashed)
+var ext_bos   = line.new(na, na, na, na)
+var ext_idm   = line.new(na, na, na, na, style = line.style_dotted, color = idmCss)
+
+var ext_choch_lbl = label.new(na, na, 'CHoCH', color = color(na), size = size.tiny)
+var ext_bos_lbl   = label.new(na, na, 'BOS', color = color(na), size = size.tiny)
+var ext_idm_lbl   = label.new(na, na, 'IDM', color = color(na), size = size.tiny, textcolor = idmCss)
+
+if barstate.islast and lxEnable
+    if os == 1
+        if lxShowChoch
+            ext_choch.set_xy1(btmx, btmy), ext_choch.set_xy2(n, btmy), ext_choch.set_color(bearCss)
+            ext_choch_lbl.set_xy(n, btmy), ext_choch_lbl.set_style(label.style_label_up), ext_choch_lbl.set_textcolor(bearCss)
+
+        if lxShowBos
+            ext_bos.set_xy1(max_x1, max), ext_bos.set_xy2(n, max), ext_bos.set_color(bullCss)
+            ext_bos_lbl.set_xy(n, max), ext_bos_lbl.set_style(label.style_label_down), ext_bos_lbl.set_textcolor(bullCss)
+
+        if not sbtm_crossed and lxShowIdm
+            ext_idm.set_xy1(sbtmx, sbtmy), ext_idm.set_xy2(n + 15, sbtmy)
+            ext_idm_lbl.set_xy(n + 15, sbtmy), ext_idm_lbl.set_style(label.style_label_up)
+            ext_idm.set_color(idmCss), ext_idm_lbl.set_textcolor(idmCss)
+        else
+            ext_idm.set_color(na)
+            ext_idm_lbl.set_textcolor(na)
+    else
+        if lxShowChoch
+            ext_choch.set_xy1(topx, topy), ext_choch.set_xy2(n, topy), ext_choch.set_color(bullCss)
+            ext_choch_lbl.set_xy(n, topy), ext_choch_lbl.set_style(label.style_label_down), ext_choch_lbl.set_textcolor(bullCss)
+
+        if lxShowBos
+            ext_bos.set_xy1(min_x1, min), ext_bos.set_xy2(n, min), ext_bos.set_color(bearCss)
+            ext_bos_lbl.set_xy(n, min), ext_bos_lbl.set_style(label.style_label_up), ext_bos_lbl.set_textcolor(bearCss)
+
+        if not stop_crossed and lxShowIdm
+            ext_idm.set_xy1(stopx, stopy), ext_idm.set_xy2(n + 15, stopy)
+            ext_idm_lbl.set_xy(n + 15, stopy), ext_idm_lbl.set_style(label.style_label_down)
+            ext_idm.set_color(idmCss), ext_idm_lbl.set_textcolor(idmCss)
+        else
+            ext_idm.set_color(na)
+            ext_idm_lbl.set_textcolor(na)
+
+plot(lxEnable and showCircles ? lxTop : na, 'LX Swing High', color.new(bearCss, 50), 8, plot.style_circles, offset = -chochLen)
+plot(lxEnable and showCircles ? btm   : na, 'LX Swing Low',  color.new(bullCss, 50), 8, plot.style_circles, offset = -chochLen)
+//#endregion
