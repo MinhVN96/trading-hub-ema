@@ -26,6 +26,8 @@ lengIDM = input.int(15, title="", inline = "liveI", group="Structure")
 showSCOB = input.bool(true, "Show SCOB", group = "Structure")
 showOF   = input.bool(true, "Show OF",   group = "Structure")
 minOFAge = input.int(20, "OF chỉ hiện sau (nến)", minval = 0, group = "Structure")
+showMitOF = input.bool(false, "Hiện OF đã mitigated (xám)", group = "Structure")
+maxOFShow = input.int(3, "Số OF hiển thị mỗi chiều", minval = 1, group = "Structure")
 showZigzag = input.bool(true, "Show pullback line", group = "Structure")
 
 showEMA20   = input.bool(false, "EMA 20",  inline = "ema20",  group = "EMA")
@@ -103,8 +105,11 @@ var float bot_ = low
 var int bar = time
 var int bar_ = time
 
-//OF filter: so pivot mới với pivot cùng loại liền trước để bỏ chân sóng ĐÂM VÀO đỉnh/đáy đảo chiều
-// (HH/LL = chân impulse vào cực trị, KHÔNG phải OF; chỉ LH/HL sau điểm đảo chiều mới vẽ OF)
+//OF filter: so pivot mới với pivot cùng loại liền trước, KẾT HỢP với cấu trúc (isCocUp/isCocDn).
+// Chỉ chặn OF khi pivot vừa là HH/LL vừa NGƯỢC cấu trúc (= chân impulse chạy theo trend:
+// bull-OF tại đáy LL trong cấu trúc giảm, bear-OF tại đỉnh HH trong cấu trúc tăng).
+// Đáy LL trong cấu trúc TĂNG = quét đáy (sweep) rồi đi tiếp -> vẫn là pullback, VẪN vẽ OF;
+// đối xứng cho đỉnh HH trong cấu trúc giảm. OF tại CHOCH thì luôn vẽ (xem addLastPullbackOF).
 var float prevPivotHigh = na
 var float prevPivotLow = na
 var bool lastPivotHighIsHH = true
@@ -197,6 +202,20 @@ updateLastL() =>
 getNLastValue(arr, n) =>
     if array.size(arr) > n - 1
         array.get(arr, array.size(arr) - n)
+
+// Tìm pivot GẦN NHẤT hình thành TRƯỚC mốc refBar (theo bar time).
+// Dùng để ghép đúng cặp chân hồi cho OF: pivot đối diện phải có TRƯỚC pivot neo,
+// tránh lấy nhầm pivot vừa hình thành SAU đó trong chân đẩy (impulse) làm box bị kéo dài.
+findPivotBefore(arrVal, arrBar, int refBar) =>
+    float v = na
+    int b = na
+    if array.size(arrVal) > 0
+        for i = array.size(arrVal) - 1 to 0 by 1
+            if array.get(arrBar, i) < refBar
+                v := array.get(arrVal, i)
+                b := array.get(arrBar, i)
+                break
+    [v, b]
 
 removeNLastLabel(arr, n) =>
     if array.size(arr) > n - 1
@@ -379,7 +398,20 @@ removeOFZone(int i) =>
     array.remove(ofZoneActive, i)
     array.remove(ofZoneMit, i)
 
-// Đẩy thẳng 1 vùng OF mới (không qua merge/containment). Dùng cho lúc tạo lẫn lúc lật breaker.
+// Pivot MỚI xác nhận vượt qua biên giữ của vùng OF => cấu trúc đã phủ nhận vùng, xoá.
+// Khác với wick: râu nến chọc qua biên KHÔNG giết vùng (xem processOFZones), nhưng một
+// swing ĐÃ XÁC NHẬN vượt đỉnh vùng bear / thủng đáy vùng bull thì vùng hết giá trị —
+// tránh vùng cũ bị giá vượt mặt vẫn kéo dài mãi. Vùng mitigated (đã đóng băng) giữ nguyên.
+invalidateOFByPivot(bool isHighPivot, float p) =>
+    if array.size(ofZone) > 0
+        for i = array.size(ofZone) - 1 to 0 by 1
+            if not array.get(ofZoneMit, i)
+                [t, b, l] = marginZone(array.get(ofZone, i))
+                bool isBull = array.get(ofZoneIsBull, i)
+                if (isHighPivot and not isBull and t < p) or (not isHighPivot and isBull and b > p)
+                    removeOFZone(i)
+
+// Đẩy thẳng 1 vùng OF mới (không qua kiểm tra chứa/nuốt của addOFZone).
 pushOFZone(int left, float top, float bot, bool isBull) =>
     color col = isBull ? colorOFBull : colorOFBear
     array.push(ofZone, createOFBox(left, top, bot, col))
@@ -390,10 +422,13 @@ pushOFZone(int left, float top, float bot, bool isBull) =>
     array.push(ofZoneMit, false)
 
 addOFZone(int left, float top, float bot, bool isBull) =>
+    // Chỉ xét chứa/nuốt với vùng CÒN SỐNG (chưa mitigated): vùng mitigated là lịch sử đã
+    // đóng băng — không được chặn vùng mới tạo (từng làm mất OF hợp lệ vì một box xám cũ
+    // hàng tháng trước vẫn nằm trong mảng), và cũng không bị vùng mới nuốt mất.
     bool contained = false
     if array.size(ofZone) > 0
         for i = array.size(ofZone) - 1 to 0 by 1
-            if array.get(ofZoneIsBull, i) == isBull
+            if array.get(ofZoneIsBull, i) == isBull and not array.get(ofZoneMit, i)
                 [t, b, l] = marginZone(array.get(ofZone, i))
                 if top <= t and bot >= b
                     contained := true
@@ -410,6 +445,7 @@ processOFZones() =>
             bool isBull = array.get(ofZoneIsBull, i)
             bool active = array.get(ofZoneActive, i)
             bool expired = bar_index - array.get(ofZoneBarIdx, i) > 1999
+            bool matured = bar_index - array.get(ofZoneBarIdx, i) >= minOFAge
 
             if not active
                 // Pha 1: box vừa tạo, giá thường còn nằm trong vùng => GIỮ NGUYÊN MÀU,
@@ -422,43 +458,84 @@ processOFZones() =>
                 if expired or (isBull and close < b) or (not isBull and close > t)
                     removeOFZone(i)
             else
-                // Pha 2 (đã active): breaker / mitigated / xoá như cũ
-                // Breaker: giá phá XUYÊN hẳn (râu vượt 1 biên + đóng cửa vượt biên kia) => lật loại + đổi màu
-                if not isBull and low < b and close > t
-                    pushOFZone(l, t, b, true)    // OF cam (bear) bị phá LÊN  => thành OF xanh (bull)
-                else if isBull and high > t and close < b
-                    pushOFZone(l, t, b, false)   // OF xanh (bull) bị phá XUỐNG => thành OF cam (bear)
-                // Mitigated: giá quay lại chạm vào vùng nhưng chưa phá => tô xám, dừng kéo dài
-                else if (not isBull and high >= b and high < t) or (isBull and low <= t and low > b)
+                // Pha 2 (đã active): mitigated / xoá. ĐÃ BỎ breaker flip: box bị phá xuyên không
+                // lật màu thành vùng ngược hướng nữa — vùng lật giữ biên độ của chân hồi CŨ nên
+                // không phải OF thật của hướng mới; chân hồi mới sẽ tự tạo OF riêng (pullback/CHOCH).
+                // Mitigated: giá quay lại và ĐÓNG CỬA bên trong vùng => tô xám, dừng kéo dài.
+                // Wick chỉ quét râu vào vùng rồi đóng ngoài => BỎ QUA (vùng vẫn active, tiếp tục
+                // kéo dài) — tránh box bị đông cứng sớm bởi một cú retest râu nến rồi "biến mất".
+                // CHỈ tính khi vùng đã đủ tuổi minOFAge (đang hiển thị) — cú chạm khi vùng còn non
+                // (đang ẩn) là phản ứng của chính con sóng tạo vùng, cũng bỏ qua.
+                if matured and ((not isBull and close >= b and close < t) or (isBull and close <= t and close > b))
                     box.set_right(zone, time)
                     box.set_extend(zone, extend.none)
                     array.set(ofZoneMit, i, true)
 
-                // Xóa khi bị quét hẳn hoặc hết hạn (vùng gốc bị phá cũng xóa ở đây, chỉ giữ vùng lật)
-                if expired or (not isBull and high >= t) or (isBull and low <= b)
+                // Xóa khi nến ĐÓNG CỬA xuyên qua biên giữ hoặc hết hạn (vùng gốc bị phá cũng xóa
+                // ở đây, chỉ giữ vùng lật breaker). KHÔNG xoá theo wick: râu nến chọc qua biên chỉ
+                // là quét thanh khoản (sweep) — nến đóng lại trong/ngoài vùng thì vùng vẫn còn
+                // giá trị. Trước đây xoá theo wick khiến rất nhiều OF bị giết oan chỉ vì một râu
+                // chọc nhẹ vài tick qua đáy/đỉnh vùng.
+                if expired or (not isBull and close > t) or (isBull and close < b)
                     removeOFZone(i)
 
-    // Ẩn OF "trẻ" hơn minOFAge nến gần nhất; đủ tuổi thì hiện lại với đúng màu trạng thái
-    // (bull/bear hoặc xám nếu đã mitigated). Lifecycle vẫn chạy bình thường khi đang ẩn.
-    if array.size(ofZone) > 0
-        for i = array.size(ofZone) - 1 to 0 by 1
+    // HIỂN THỊ — chỉ tính ở nến cuối (màu box là trạng thái sau cùng nên không cần set từng nến):
+    //  - vùng non hơn minOFAge: ẩn
+    //  - vùng xám (mitigated): chỉ hiện khi bật showMitOF (lịch sử, không giao dịch được nữa)
+    //  - vùng active: mỗi chiều bull/bear chỉ hiện maxOFShow vùng GẦN GIÁ nhất; vùng xa tự ẩn,
+    //    khi giá quay lại gần thì tự hiện. Lifecycle vẫn chạy bình thường cho vùng đang ẩn.
+    if barstate.islast and array.size(ofZone) > 0
+        int zCnt = array.size(ofZone)
+        distArr = array.new_float(zCnt, 0.0)
+        for i = 0 to zCnt - 1
+            [t, b, l] = marginZone(array.get(ofZone, i))
+            array.set(distArr, i, close > t ? close - t : close < b ? b - close : 0.0)
+        for i = zCnt - 1 to 0 by 1
             box zone = array.get(ofZone, i)
             bool isBull = array.get(ofZoneIsBull, i)
-            color col = array.get(ofZoneMit, i) ? colorMitigated : isBull ? colorOFBull : colorOFBear
-            color shownCol = bar_index - array.get(ofZoneBarIdx, i) >= minOFAge ? col : color.new(col, 100)
+            bool isMit = array.get(ofZoneMit, i)
+            bool visible = bar_index - array.get(ofZoneBarIdx, i) >= minOFAge
+            if visible and isMit
+                visible := showMitOF
+            if visible and not isMit
+                // xếp hạng theo khoảng cách tới giá trong các vùng active cùng chiều, đã đủ tuổi
+                int nearer = 0
+                float di = array.get(distArr, i)
+                for j = 0 to zCnt - 1
+                    if j != i and array.get(ofZoneIsBull, j) == isBull and not array.get(ofZoneMit, j) and bar_index - array.get(ofZoneBarIdx, j) >= minOFAge
+                        float dj = array.get(distArr, j)
+                        if dj < di or (dj == di and j > i)
+                            nearer += 1
+                visible := nearer < maxOFShow
+            color col = isMit ? colorMitigated : isBull ? colorOFBull : colorOFBear
+            color shownCol = visible ? col : color.new(col, 100)
             box.set_bgcolor(zone, shownCol)
             box.set_border_color(zone, shownCol)
             label.set_textcolor(array.get(ofLabel, i), shownCol)
 
 addLastPullbackOF(bool isBull) =>
-    // Bỏ qua nếu chân hồi cuối là chân ĐÂM VÀO đỉnh/đáy đảo chiều (HH/LL) — OF chỉ hợp lệ SAU điểm đảo chiều
-    if showOF and (isBull ? not lastPivotLowIsLL : not lastPivotHighIsHH)
-        float ofT = getNLastValue(puHigh, 1)
-        int ofTBar = getNLastValue(puHBar, 1)
-        float ofB = getNLastValue(puLow, 1)
-        int ofBBar = getNLastValue(puLBar, 1)
-        if not na(ofT) and not na(ofB)
-            addOFZone(math.min(ofTBar, ofBBar), ofT, ofB, isBull)
+    // OF tại CHOCH luôn được vẽ, KHÔNG qua bộ lọc HH/LL: CHOCH đã tự xác nhận đảo chiều, nên
+    // chân sóng cuối đâm vào đáy/đỉnh đảo chiều CHÍNH LÀ vùng OF hợp lệ (nếu lọc HH/LL ở đây
+    // thì OF đảo chiều gần như không bao giờ được vẽ vì đáy trước CHOCH-up thường là LL và
+    // đỉnh trước CHOCH-down thường là HH). Bộ lọc HH/LL chỉ dành cho pullback giữa trend.
+    // Vùng OF = đúng CHÂN HỒI kết thúc tại pivot neo: bear = đáy TRƯỚC đỉnh LH -> đỉnh LH,
+    // bull = đỉnh TRƯỚC đáy HL -> đáy HL. Không ghép với pivot mới hình thành SAU pivot neo
+    // (đáy/đỉnh của chân đẩy) vì sẽ kéo box phủ cả chân impulse thay vì chỉ chân pullback.
+    if showOF
+        if isBull
+            float ofB = getNLastValue(puLow, 1)
+            int ofBBar = getNLastValue(puLBar, 1)
+            if not na(ofB)
+                [ofT, ofTBar] = findPivotBefore(puHigh, puHBar, ofBBar)
+                if not na(ofT)
+                    addOFZone(math.min(ofTBar, ofBBar), ofT, ofB, true)
+        else
+            float ofT = getNLastValue(puHigh, 1)
+            int ofTBar = getNLastValue(puHBar, 1)
+            if not na(ofT)
+                [ofB, ofBBar] = findPivotBefore(puLow, puLBar, ofTBar)
+                if not na(ofB)
+                    addOFZone(math.min(ofTBar, ofBBar), ofT, ofB, false)
 
 scob(zones, isSupply) =>
     [topZone, botZone, leftZone] = marginZone(getNLastValue(zones, 1))
@@ -490,25 +567,27 @@ if high >= top and low > bot //uptrend
         array.push(puHigh, top_)
         array.push(puLBar, bar)
         array.push(puLow, bot)
+        invalidateOFByPivot(true, top_)
+        invalidateOFByPivot(false, bot)
         drawPullback(bar_, top_, true)
         drawPullback(bar, bot, false)
         addZigPoint(bar_, top_)
         addZigPoint(bar, bot)
         lastPivotHighIsHH := na(prevPivotHigh) or top_ >= prevPivotHigh
         lastPivotLowIsLL  := na(prevPivotLow) or bot <= prevPivotLow
-        if showOF and not lastPivotLowIsLL
+        if showOF and (not lastPivotLowIsLL or isCocUp)
             addOFZone(bar_, top_, bot, true)
         prevPivotHigh := top_
         prevPivotLow  := bot
     else if (not prevMnStrc and na(mnStrc)) or not mnStrc
         array.push(puLBar, bar)
         array.push(puLow, bot)
+        invalidateOFByPivot(false, bot)
         drawPullback(bar, bot, false)
         addZigPoint(bar, bot)
         lastPivotLowIsLL := na(prevPivotLow) or bot <= prevPivotLow
-        if showOF and not lastPivotLowIsLL
-            float ofTop = getNLastValue(puHigh, 1)
-            int ofTopBar = getNLastValue(puHBar, 1)
+        if showOF and (not lastPivotLowIsLL or isCocUp)
+            [ofTop, ofTopBar] = findPivotBefore(puHigh, puHBar, bar) //đỉnh phải có TRƯỚC đáy vừa xác nhận
             if na(ofTop)
                 ofTop := top_
                 ofTopBar := bar_
@@ -527,25 +606,27 @@ if high < top and low <= bot //downtrend
         array.push(puHigh, top)
         array.push(puLBar, bar_)
         array.push(puLow, bot_)
+        invalidateOFByPivot(true, top)
+        invalidateOFByPivot(false, bot_)
         drawPullback(bar, top, true)
         drawPullback(bar_, bot_, false)
         addZigPoint(bar_, bot_)
         addZigPoint(bar, top)
         lastPivotHighIsHH := na(prevPivotHigh) or top >= prevPivotHigh
         lastPivotLowIsLL  := na(prevPivotLow) or bot_ <= prevPivotLow
-        if showOF and not lastPivotHighIsHH
+        if showOF and (not lastPivotHighIsHH or isCocDn)
             addOFZone(bar_, top, bot_, false)
         prevPivotHigh := top
         prevPivotLow  := bot_
     else if (prevMnStrc and na(mnStrc)) or mnStrc
         array.push(puHBar, bar)
         array.push(puHigh, top)
+        invalidateOFByPivot(true, top)
         drawPullback(bar, top, true)
         addZigPoint(bar, top)
         lastPivotHighIsHH := na(prevPivotHigh) or top >= prevPivotHigh
-        if showOF and not lastPivotHighIsHH
-            float ofBot = getNLastValue(puLow, 1)
-            int ofBotBar = getNLastValue(puLBar, 1)
+        if showOF and (not lastPivotHighIsHH or isCocDn)
+            [ofBot, ofBotBar] = findPivotBefore(puLow, puLBar, bar) //đáy phải có TRƯỚC đỉnh vừa xác nhận
             if na(ofBot)
                 ofBot := bot_
                 ofBotBar := bar_
