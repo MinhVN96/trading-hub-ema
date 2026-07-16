@@ -28,6 +28,7 @@ showOF   = input.bool(true, "Show OF",   group = "Structure")
 minOFAge = input.int(20, "OF chỉ hiện sau (nến)", minval = 0, group = "Structure")
 showMitOF = input.bool(false, "Hiện OF đã mitigated (xám)", group = "Structure")
 maxOFShow = input.int(3, "Số OF hiển thị mỗi chiều", minval = 1, group = "Structure")
+maxMitOFShow = input.int(2, "Số OF đã mitigated hiển thị gần giá nhất (mỗi phía, luôn hiện)", minval = 0, group = "Structure")
 show4hOF = input.bool(true, "Show OF khung 4H (chỉ áp dụng khi chart ở 15m)", group = "Structure")
 showZigzag = input.bool(true, "Show pullback line", group = "Structure")
 
@@ -160,6 +161,7 @@ var ofZoneBarIdx = array.new_int(0)
 var ofZoneIsBull = array.new_bool(0)
 var ofZoneActive = array.new_bool(0) // true khi giá đã thoát hẳn ra ngoài vùng => mới cho breaker/mitigation
 var ofZoneMit = array.new_bool(0)    // true khi vùng đã mitigated (để khôi phục đúng màu lúc hiện lại)
+var ofZoneBroken = array.new_bool(0) // true khi giá đã chạm tới biên XA của vùng (phá qua) => vùng chết, chỉ hiện khi bật showMitOF
 var arrZigLine = array.new_line(0)
 var arrZigLineBarIdx = array.new_int(0)
 var arrLastZig = array.new_float(2, na)
@@ -225,6 +227,7 @@ var ofZoneBarIdx4 = array.new_int(0)
 var ofZoneIsBull4 = array.new_bool(0)
 var ofZoneActive4 = array.new_bool(0)
 var ofZoneMit4 = array.new_bool(0)
+var ofZoneBroken4 = array.new_bool(0)
 // Đếm số nến 4H đã xử lý — tuổi/hạn của vùng OF 4H phải tính bằng NẾN 4H (không phải nến
 // 15m của chart) để minOFAge/expire có cùng ý nghĩa như khi xem trực tiếp chart 4H.
 var int h4barCnt = 0
@@ -457,6 +460,7 @@ removeOFZone(int i) =>
     array.remove(ofZoneIsBull, i)
     array.remove(ofZoneActive, i)
     array.remove(ofZoneMit, i)
+    array.remove(ofZoneBroken, i)
 
 // Pivot MỚI xác nhận vượt qua biên giữ của vùng OF => cấu trúc đã phủ nhận vùng, xoá.
 // Khác với wick: râu nến chọc qua biên KHÔNG giết vùng (xem processOFZones), nhưng một
@@ -480,6 +484,7 @@ pushOFZone(int left, float top, float bot, bool isBull) =>
     array.push(ofZoneIsBull, isBull)
     array.push(ofZoneActive, false)
     array.push(ofZoneMit, false)
+    array.push(ofZoneBroken, false)
 
 addOFZone(int left, float top, float bot, bool isBull) =>
     // Chỉ xét chứa/nuốt với vùng CÒN SỐNG (chưa mitigated): vùng mitigated là lịch sử đã
@@ -518,18 +523,27 @@ processOFZones() =>
                 if expired or (isBull and close < b) or (not isBull and close > t)
                     removeOFZone(i)
             else
-                // Pha 2 (đã active): mitigated / xoá. ĐÃ BỎ breaker flip: box bị phá xuyên không
-                // lật màu thành vùng ngược hướng nữa — vùng lật giữ biên độ của chân hồi CŨ nên
-                // không phải OF thật của hướng mới; chân hồi mới sẽ tự tạo OF riêng (pullback/CHOCH).
-                // Mitigated: giá quay lại và ĐÓNG CỬA bên trong vùng => tô xám, dừng kéo dài.
-                // Wick chỉ quét râu vào vùng rồi đóng ngoài => BỎ QUA (vùng vẫn active, tiếp tục
-                // kéo dài) — tránh box bị đông cứng sớm bởi một cú retest râu nến rồi "biến mất".
+                // Pha 2 (đã active): mitigated / phá qua / xoá. ĐÃ BỎ breaker flip: box bị phá
+                // xuyên không lật màu thành vùng ngược hướng nữa.
+                // Mitigated theo CHẠM: giá quay lại chạm vào vùng (kể cả chỉ bằng râu nến) =>
+                // tô xám. Trước đây đòi close bên trong vùng nên cú hồi quét râu sâu vào vùng
+                // rồi bật ra vẫn để vùng "như chưa test" — sai với thực tế vùng đã được tiêu thụ.
                 // CHỈ tính khi vùng đã đủ tuổi minOFAge (đang hiển thị) — cú chạm khi vùng còn non
-                // (đang ẩn) là phản ứng của chính con sóng tạo vùng, cũng bỏ qua.
-                if matured and ((not isBull and close >= b and close < t) or (isBull and close <= t and close > b))
+                // (đang ẩn) là phản ứng của chính con sóng tạo vùng, bỏ qua.
+                bool isBroken = array.get(ofZoneBroken, i)
+                if matured and not isBroken and ((not isBull and high >= b and close < t) or (isBull and low <= t and close > b))
                     box.set_right(zone, time)
                     box.set_extend(zone, extend.none)
                     array.set(ofZoneMit, i, true)
+
+                // Phá qua: vùng ĐÃ mitigated mà giá đi tới biên XA của vùng (chạm đỉnh vùng bear
+                // / chạm đáy vùng bull) => toàn bộ chiều sâu vùng đã bị tiêu thụ, vùng chết.
+                // Lưu cờ broken VĨNH VIỄN (sự kiện một lần, không suy từ vị trí giá hiện tại) và
+                // đóng băng cạnh phải tại đúng nến phá — về sau chỉ hiện khi bật showMitOF.
+                if array.get(ofZoneMit, i) and not isBroken and ((not isBull and high >= t) or (isBull and low <= b))
+                    array.set(ofZoneBroken, i, true)
+                    box.set_right(zone, time)
+                    box.set_extend(zone, extend.none)
 
                 // Xóa khi nến ĐÓNG CỬA xuyên qua biên giữ hoặc hết hạn (vùng gốc bị phá cũng xóa
                 // ở đây, chỉ giữ vùng lật breaker). KHÔNG xoá theo wick: râu nến chọc qua biên chỉ
@@ -554,16 +568,37 @@ processOFZones() =>
             box zone = array.get(ofZone, i)
             bool isBull = array.get(ofZoneIsBull, i)
             bool isMit = array.get(ofZoneMit, i)
+            [zt, zb, zl] = marginZone(zone)
             // Vùng mitigated mà giá HIỆN ĐANG nằm trong (đang khai thác, chưa phá qua biên giữ)
             // vẫn hiện với MÀU GỐC: nếu để xám/ẩn theo showMitOF thì vùng biến mất đúng lúc giá
             // đang phản ứng với nó. Chỉ ưu ái vùng đang khai thác; mitigated khác vẫn ẩn như cũ.
-            bool ofExploit = false
-            if isMit
-                [t, b, l] = marginZone(zone)
-                ofExploit := close <= t and close >= b
+            bool isBroken = array.get(ofZoneBroken, i)
+            bool ofExploit = isMit and not isBroken and close <= zt and close >= zb
             bool visible = bar_index - array.get(ofZoneBarIdx, i) >= minOFAge
             if visible and isMit
-                visible := ofExploit or showMitOF
+                if isBroken
+                    // vùng đã bị giá phá qua toàn bộ chiều sâu: chỉ hiện khi bật showMitOF
+                    visible := showMitOF
+                else if ofExploit
+                    visible := true
+                else
+                    // Dù showMitOF tắt, vẫn giữ hiện maxMitOFShow vùng mitigated GẦN GIÁ NHẤT
+                    // ở mỗi phía (trên/dưới giá hiện tại) — đây là các vùng vừa được test gần
+                    // đây nhất, không nên biến mất hoàn toàn khỏi chart. Vùng broken bị loại
+                    // khỏi xếp hạng (không hiện, không chiếm suất của vùng khác).
+                    bool isBelow = zt < close
+                    int nearerMit = 0
+                    float diMit = array.get(distArr, i)
+                    for j = 0 to zCnt - 1
+                        if j != i and array.get(ofZoneMit, j) and not array.get(ofZoneBroken, j) and bar_index - array.get(ofZoneBarIdx, j) >= minOFAge
+                            [tj, bj, lj] = marginZone(array.get(ofZone, j))
+                            bool jExploit = close <= tj and close >= bj
+                            bool sameSide = isBelow ? tj < close : bj > close
+                            if not jExploit and sameSide
+                                float dj = array.get(distArr, j)
+                                if dj < diMit or (dj == diMit and j > i)
+                                    nearerMit += 1
+                    visible := showMitOF or nearerMit < maxMitOFShow
             if visible and not isMit
                 // xếp hạng theo khoảng cách tới giá trong các vùng active cùng chiều, đã đủ tuổi
                 int nearer = 0
@@ -626,6 +661,7 @@ removeOFZone4(int i) =>
     array.remove(ofZoneIsBull4, i)
     array.remove(ofZoneActive4, i)
     array.remove(ofZoneMit4, i)
+    array.remove(ofZoneBroken4, i)
 
 invalidateOFByPivot4(bool isHighPivot, float p) =>
     if array.size(ofZone4) > 0
@@ -644,6 +680,7 @@ pushOFZone4(int left, float top, float bot, bool isBull) =>
     array.push(ofZoneIsBull4, isBull)
     array.push(ofZoneActive4, false)
     array.push(ofZoneMit4, false)
+    array.push(ofZoneBroken4, false)
 
 addOFZone4(int left, float top, float bot, bool isBull) =>
     bool contained = false
@@ -678,10 +715,18 @@ lifecycleOFZones4(float hh, float ll, float cc) =>
                 if expired or (isBull and cc < b) or (not isBull and cc > t)
                     removeOFZone4(i)
             else
-                if matured and ((not isBull and cc >= b and cc < t) or (isBull and cc <= t and cc > b))
+                // mitigated theo CHẠM của nến 4H (wick vào vùng là đủ) + cờ phá qua biên xa —
+                // cùng logic với processOFZones, xem giải thích ở đó.
+                bool isBroken = array.get(ofZoneBroken4, i)
+                if matured and not isBroken and ((not isBull and hh >= b and cc < t) or (isBull and ll <= t and cc > b))
                     box.set_right(zone, time)
                     box.set_extend(zone, extend.none)
                     array.set(ofZoneMit4, i, true)
+
+                if array.get(ofZoneMit4, i) and not isBroken and ((not isBull and hh >= t) or (isBull and ll <= b))
+                    array.set(ofZoneBroken4, i, true)
+                    box.set_right(zone, time)
+                    box.set_extend(zone, extend.none)
 
                 if expired or (not isBull and cc > t) or (isBull and cc < b)
                     removeOFZone4(i)
@@ -697,15 +742,34 @@ visibilityOFZones4() =>
             box zone = array.get(ofZone4, i)
             bool isBull = array.get(ofZoneIsBull4, i)
             bool isMit = array.get(ofZoneMit4, i)
+            [zt, zb, zl] = marginZone(zone)
             // Vùng mitigated đang được giá khai thác (giá nằm trong vùng, chưa phá qua) vẫn
             // hiện màu gốc — cùng logic với processOFZones, xem giải thích ở đó.
-            bool ofExploit = false
-            if isMit
-                [t, b, l] = marginZone(zone)
-                ofExploit := close <= t and close >= b
+            bool isBroken = array.get(ofZoneBroken4, i)
+            bool ofExploit = isMit and not isBroken and close <= zt and close >= zb
             bool visible = h4barCnt - array.get(ofZoneBarIdx4, i) >= minOFAge
             if visible and isMit
-                visible := ofExploit or showMitOF
+                if isBroken
+                    // vùng đã bị giá phá qua toàn bộ chiều sâu: chỉ hiện khi bật showMitOF
+                    visible := showMitOF
+                else if ofExploit
+                    visible := true
+                else
+                    // Giữ hiện maxMitOFShow vùng OF 4H mitigated GẦN GIÁ NHẤT mỗi phía, dù
+                    // showMitOF tắt — cùng logic với processOFZones, vùng broken bị loại.
+                    bool isBelow = zt < close
+                    int nearerMit = 0
+                    float diMit = array.get(distArr, i)
+                    for j = 0 to zCnt - 1
+                        if j != i and array.get(ofZoneMit4, j) and not array.get(ofZoneBroken4, j) and h4barCnt - array.get(ofZoneBarIdx4, j) >= minOFAge
+                            [tj, bj, lj] = marginZone(array.get(ofZone4, j))
+                            bool jExploit = close <= tj and close >= bj
+                            bool sameSide = isBelow ? tj < close : bj > close
+                            if not jExploit and sameSide
+                                float dj = array.get(distArr, j)
+                                if dj < diMit or (dj == diMit and j > i)
+                                    nearerMit += 1
+                    visible := showMitOF or nearerMit < maxMitOFShow
             if visible and not isMit
                 int nearer = 0
                 float di = array.get(distArr, i)
