@@ -1562,3 +1562,224 @@ if barstate.islast and lxEnable
 plot(lxEnable and showCircles ? lxTop : na, 'LX Swing High', color.new(bearCss, 50), 8, plot.style_circles, offset = -chochLen)
 plot(lxEnable and showCircles ? btm   : na, 'LX Swing Low',  color.new(bullCss, 50), 8, plot.style_circles, offset = -chochLen)
 //#endregion
+
+//#region SMC - Smart Money Concepts CHoCH/BOS [LuxAlgo] (CC BY-NC-SA 4.0)
+// Module độc lập, port riêng phần CHoCH/BOS + swing point + strong/weak high-low từ file gốc
+// "Smart Money Concepts [LuxAlgo]". Dùng thuật toán swing riêng (leg() dựa trên ta.highest/
+// ta.lowest trong N nến) — KHÔNG ảnh hưởng cấu trúc/OF của Trading Hub, cũng KHÔNG liên quan
+// gì tới module LuxAlgo MS ở trên. Bỏ khỏi bản gốc: Order Blocks, Fair Value Gaps, Equal
+// High/Low, Premium/Discount Zones, MTF Levels, tô màu nến theo trend, alertcondition — chỉ
+// giữ CHoCH/BOS (Internal + Swing Structure) và các tính năng dùng chung state với nó.
+SMC_BULLISH_LEG = 1
+SMC_BEARISH_LEG = 0
+SMC_BULLISH      = 1
+SMC_BEARISH      = -1
+color SMC_MONO_BULLISH = #b2b5be
+color SMC_MONO_BEARISH = #5d606b
+
+smcMode  = input.string("Historical", "Mode",  group = "SMC", options = ["Historical", "Present"])
+smcStyle = input.string("Colored",    "Style", group = "SMC", options = ["Colored", "Monochrome"])
+
+smcShowInternals            = input.bool(true, "Show Internal Structure", group = "SMC")
+smcShowInternalBull         = input.string("All", "Bullish Structure", group = "SMC", inline = "smcibull", options = ["All", "BOS", "CHoCH"])
+smcInternalBullColor        = input.color(#089981, "", group = "SMC", inline = "smcibull")
+smcShowInternalBear         = input.string("All", "Bearish Structure", group = "SMC", inline = "smcibear", options = ["All", "BOS", "CHoCH"])
+smcInternalBearColor        = input.color(#f23645, "", group = "SMC", inline = "smcibear")
+smcInternalFilterConfluence = input.bool(false, "Confluence Filter", group = "SMC")
+smcInternalStructureSize    = input.string(size.tiny, "Internal Label Size", group = "SMC", options = [size.tiny, size.small, size.normal])
+
+smcShowStructure    = input.bool(true, "Show Swing Structure", group = "SMC")
+smcShowSwingBull     = input.string("All", "Bullish Structure", group = "SMC", inline = "smcbull", options = ["All", "BOS", "CHoCH"])
+smcSwingBullColor    = input.color(#089981, "", group = "SMC", inline = "smcbull")
+smcShowSwingBear     = input.string("All", "Bearish Structure", group = "SMC", inline = "smcbear", options = ["All", "BOS", "CHoCH"])
+smcSwingBearColor    = input.color(#f23645, "", group = "SMC", inline = "smcbear")
+smcSwingStructureSize = input.string(size.small, "Swing Label Size", group = "SMC", options = [size.tiny, size.small, size.normal])
+smcShowSwings         = input.bool(false, "Show Swings Points", group = "SMC", inline = "smcswings")
+smcSwingsLength        = input.int(50, "", group = "SMC", minval = 10, inline = "smcswings")
+smcShowHighLowSwings   = input.bool(true, "Show Strong/Weak High/Low", group = "SMC")
+
+type smcPivot
+    float currentLevel
+    float lastLevel
+    bool  crossed
+    int   barTime  = time
+    int   barIndex = bar_index
+
+type smcTrendType
+    int bias
+
+type smcTrailingExtremes
+    float top
+    float bottom
+    int   barTime
+    int   barIndex
+    int   lastTopTime
+    int   lastBottomTime
+
+var smcPivot smcSwingHigh      = smcPivot.new(na, na, false)
+var smcPivot smcSwingLow       = smcPivot.new(na, na, false)
+var smcPivot smcInternalHigh   = smcPivot.new(na, na, false)
+var smcPivot smcInternalLow    = smcPivot.new(na, na, false)
+var smcTrendType smcSwingTrend    = smcTrendType.new(0)
+var smcTrendType smcInternalTrend = smcTrendType.new(0)
+var smcTrailingExtremes smcTrailing = smcTrailingExtremes.new()
+
+var color smcSwingBullishColorVal = smcStyle == "Monochrome" ? SMC_MONO_BULLISH : smcSwingBullColor
+var color smcSwingBearishColorVal = smcStyle == "Monochrome" ? SMC_MONO_BEARISH : smcSwingBearColor
+
+smcLeg(int size) =>
+    var int legVal = SMC_BEARISH_LEG
+    newLegHigh = high[size] > ta.highest(size)
+    newLegLow  = low[size]  < ta.lowest(size)
+    if newLegHigh
+        legVal := SMC_BEARISH_LEG
+    else if newLegLow
+        legVal := SMC_BULLISH_LEG
+    legVal
+
+smcStartOfNewLeg(int legVal)     => ta.change(legVal) != 0
+smcStartOfBearishLeg(int legVal) => ta.change(legVal) == -1
+smcStartOfBullishLeg(int legVal) => ta.change(legVal) == 1
+
+smcDrawLabel(int labelTime, float labelPrice, string tag, color labelColor, string labelStyle) =>
+    var label l_abel = na
+    if smcMode == "Present"
+        label.delete(l_abel)
+    l_abel := label.new(labelTime, labelPrice, tag, xloc.bar_time, color = color(na), textcolor = labelColor, style = labelStyle, size = size.small)
+
+smcDrawStructure(smcPivot p_ivot, string tag, color structureColor, string lineStyle, string labelStyle, string labelSize) =>
+    var line l_ine   = line.new(na, na, na, na, xloc = xloc.bar_time)
+    var label l_abel = label.new(na, na)
+    if smcMode == "Present"
+        line.delete(l_ine)
+        label.delete(l_abel)
+    l_ine  := line.new(p_ivot.barTime, p_ivot.currentLevel, time, p_ivot.currentLevel, xloc.bar_time, color = structureColor, style = lineStyle)
+    l_abel := label.new(textCenter(p_ivot.barTime, time), p_ivot.currentLevel, tag, xloc.bar_time, color = color(na), textcolor = structureColor, style = labelStyle, size = labelSize)
+
+smcGetCurrentStructure(int size, bool internal) =>
+    currentLeg = smcLeg(size)
+    newPivot   = smcStartOfNewLeg(currentLeg)
+    pivotLow   = smcStartOfBullishLeg(currentLeg)
+    pivotHigh  = smcStartOfBearishLeg(currentLeg)
+
+    if newPivot
+        if pivotLow
+            smcPivot p_ivot = internal ? smcInternalLow : smcSwingLow
+
+            p_ivot.lastLevel    := p_ivot.currentLevel
+            p_ivot.currentLevel := low[size]
+            p_ivot.crossed      := false
+            p_ivot.barTime      := time[size]
+            p_ivot.barIndex     := bar_index[size]
+
+            if not internal
+                smcTrailing.bottom         := p_ivot.currentLevel
+                smcTrailing.barTime        := p_ivot.barTime
+                smcTrailing.barIndex       := p_ivot.barIndex
+                smcTrailing.lastBottomTime := p_ivot.barTime
+
+            if smcShowSwings and not internal
+                smcDrawLabel(time[size], p_ivot.currentLevel, p_ivot.currentLevel < p_ivot.lastLevel ? "LL" : "HL", smcSwingBullishColorVal, label.style_label_up)
+        else
+            smcPivot p_ivot = internal ? smcInternalHigh : smcSwingHigh
+
+            p_ivot.lastLevel    := p_ivot.currentLevel
+            p_ivot.currentLevel := high[size]
+            p_ivot.crossed      := false
+            p_ivot.barTime      := time[size]
+            p_ivot.barIndex     := bar_index[size]
+
+            if not internal
+                smcTrailing.top         := p_ivot.currentLevel
+                smcTrailing.barTime     := p_ivot.barTime
+                smcTrailing.barIndex    := p_ivot.barIndex
+                smcTrailing.lastTopTime := p_ivot.barTime
+
+            if smcShowSwings and not internal
+                smcDrawLabel(time[size], p_ivot.currentLevel, p_ivot.currentLevel > p_ivot.lastLevel ? "HH" : "LH", smcSwingBearishColorVal, label.style_label_down)
+
+smcDisplayStructure(bool internal) =>
+    var bool bullishBar = true
+    var bool bearishBar = true
+
+    if smcInternalFilterConfluence
+        bullishBar := high - math.max(close, open) > math.min(close, open - low)
+        bearishBar := high - math.max(close, open) < math.min(close, open - low)
+
+    smcPivot p_ivot        = internal ? smcInternalHigh : smcSwingHigh
+    smcTrendType t_rend     = internal ? smcInternalTrend : smcSwingTrend
+
+    lineStyle       = internal ? line.style_dashed : line.style_solid
+    labelSize       = internal ? smcInternalStructureSize : smcSwingStructureSize
+
+    extraCondition  = internal ? smcInternalHigh.currentLevel != smcSwingHigh.currentLevel and bullishBar : true
+    bullishColorVal = smcStyle == "Monochrome" ? SMC_MONO_BULLISH : internal ? smcInternalBullColor : smcSwingBullColor
+
+    if ta.crossover(close, p_ivot.currentLevel) and not p_ivot.crossed and extraCondition
+        string tag = t_rend.bias == SMC_BEARISH ? "CHoCH" : "BOS"
+
+        p_ivot.crossed := true
+        t_rend.bias    := SMC_BULLISH
+
+        displayCondition = internal ? smcShowInternals and (smcShowInternalBull == "All" or (smcShowInternalBull == "BOS" and tag != "CHoCH") or (smcShowInternalBull == "CHoCH" and tag == "CHoCH")) : smcShowStructure and (smcShowSwingBull == "All" or (smcShowSwingBull == "BOS" and tag != "CHoCH") or (smcShowSwingBull == "CHoCH" and tag == "CHoCH"))
+
+        if displayCondition
+            smcDrawStructure(p_ivot, tag, bullishColorVal, lineStyle, label.style_label_down, labelSize)
+
+    p_ivot          := internal ? smcInternalLow : smcSwingLow
+    extraCondition  := internal ? smcInternalLow.currentLevel != smcSwingLow.currentLevel and bearishBar : true
+    bearishColorVal = smcStyle == "Monochrome" ? SMC_MONO_BEARISH : internal ? smcInternalBearColor : smcSwingBearColor
+
+    if ta.crossunder(close, p_ivot.currentLevel) and not p_ivot.crossed and extraCondition
+        string tag = t_rend.bias == SMC_BULLISH ? "CHoCH" : "BOS"
+
+        p_ivot.crossed := true
+        t_rend.bias    := SMC_BEARISH
+
+        displayCondition = internal ? smcShowInternals and (smcShowInternalBear == "All" or (smcShowInternalBear == "BOS" and tag != "CHoCH") or (smcShowInternalBear == "CHoCH" and tag == "CHoCH")) : smcShowStructure and (smcShowSwingBear == "All" or (smcShowSwingBear == "BOS" and tag != "CHoCH") or (smcShowSwingBear == "CHoCH" and tag == "CHoCH"))
+
+        if displayCondition
+            smcDrawStructure(p_ivot, tag, bearishColorVal, lineStyle, label.style_label_up, labelSize)
+
+smcUpdateTrailingExtremes() =>
+    smcTrailing.top            := math.max(high, smcTrailing.top)
+    smcTrailing.lastTopTime    := smcTrailing.top == high ? time : smcTrailing.lastTopTime
+    smcTrailing.bottom         := math.min(low, smcTrailing.bottom)
+    smcTrailing.lastBottomTime := smcTrailing.bottom == low ? time : smcTrailing.lastBottomTime
+
+smcDrawHighLowSwings() =>
+    var line topLine       = line.new(na, na, na, na, color = smcSwingBearishColorVal, xloc = xloc.bar_time)
+    var line bottomLine    = line.new(na, na, na, na, color = smcSwingBullishColorVal, xloc = xloc.bar_time)
+    var label topLabel     = label.new(na, na, color = color(na), textcolor = smcSwingBearishColorVal, xloc = xloc.bar_time, style = label.style_label_down, size = size.tiny)
+    var label bottomLabel  = label.new(na, na, color = color(na), textcolor = smcSwingBullishColorVal, xloc = xloc.bar_time, style = label.style_label_up, size = size.tiny)
+
+    rightTimeBar = last_bar_time + 20 * (time - time[1])
+
+    line.set_x1(topLine, smcTrailing.lastTopTime)
+    line.set_y1(topLine, smcTrailing.top)
+    line.set_x2(topLine, rightTimeBar)
+    line.set_y2(topLine, smcTrailing.top)
+    label.set_x(topLabel, rightTimeBar)
+    label.set_y(topLabel, smcTrailing.top)
+    label.set_text(topLabel, smcSwingTrend.bias == SMC_BEARISH ? "Strong High" : "Weak High")
+
+    line.set_x1(bottomLine, smcTrailing.lastBottomTime)
+    line.set_y1(bottomLine, smcTrailing.bottom)
+    line.set_x2(bottomLine, rightTimeBar)
+    line.set_y2(bottomLine, smcTrailing.bottom)
+    label.set_x(bottomLabel, rightTimeBar)
+    label.set_y(bottomLabel, smcTrailing.bottom)
+    label.set_text(bottomLabel, smcSwingTrend.bias == SMC_BULLISH ? "Strong Low" : "Weak Low")
+
+if smcShowHighLowSwings
+    smcUpdateTrailingExtremes()
+    smcDrawHighLowSwings()
+
+smcGetCurrentStructure(smcSwingsLength, false)
+smcGetCurrentStructure(5, true)
+
+if smcShowInternals
+    smcDisplayStructure(true)
+if smcShowStructure or smcShowHighLowSwings
+    smcDisplayStructure(false)
+//#endregion
