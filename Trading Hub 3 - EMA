@@ -56,20 +56,6 @@ colorDemand = input.color(color.rgb(47, 130, 96, 80), 'Demand', group = "Structu
 colorSupply = input.color(color.rgb(205, 92, 72, 80), 'Supply', group = "Structure | Color")
 colorMitigated = input.color(color.rgb(192, 192, 192, 80), 'Mitigated', group ="Structure | Color")
 
-//LuxAlgo - Market Structure with Inducements & Sweeps [LuxAlgo] (CC BY-NC-SA 4.0)
-lxEnable    = input.bool(true, "Enable LuxAlgo Market Structure", group = 'LuxAlgo MS')
-chochLen    = input(50, 'CHoCH Detection Period', group = 'LuxAlgo MS')
-shortLen    = input(3, 'IDM Detection Period', group = 'LuxAlgo MS')
-bullCss     = input(#089981, 'Bullish Elements', group = 'LuxAlgo MS')
-bearCss     = input(#ff5252, 'Bearish Elements', group = 'LuxAlgo MS')
-lxShowChoch = input(false, "Show CHoCH", group = 'LuxAlgo MS')
-lxShowBos   = input(false, "Show BOS", group = 'LuxAlgo MS')
-lxShowIdm   = input(false, "Show Inducements", inline = 'lxidm', group = 'LuxAlgo MS')
-idmCss      = input(color.gray, "", inline = 'lxidm', group = 'LuxAlgo MS')
-showSweeps  = input(false, "Show Sweeps", inline = 'lxsweeps', group = 'LuxAlgo MS')
-sweepsCss   = input(color.gray, "", inline = 'lxsweeps', group = 'LuxAlgo MS')
-showCircles = input(true, "Show Swings", group = 'LuxAlgo MS')
-
 //#region variable declaration
 //Constant
 const string IDM_TEXT = "I D M"
@@ -1392,182 +1378,13 @@ plot(showEMA50  ? short    : na, color = colorEMA50,  title = "EMA 50")
 plot(showEMA100 ? longer   : na, color = colorEMA100, title = "EMA 100")
 plot(showEMA200 ? longest  : na, color = colorEMA200, title = "EMA 200")
 
-//#region LuxAlgo - Market Structure with Inducements & Sweeps
-// Nguồn: © LuxAlgo (CC BY-NC-SA 4.0). Module độc lập, bật/tắt bằng lxEnable.
-// Dùng thuật toán swing riêng (ta.highest/lowest) — KHÔNG ảnh hưởng cấu trúc/OF của Trading Hub.
-n = bar_index
-
-lxSwings(lkbk) =>
-    var os = 0
-    var int topx = na
-    var int btmx = na
-
-    upper = ta.highest(lkbk)
-    lower = ta.lowest(lkbk)
-
-    os := high[lkbk] > upper ? 0 : low[lkbk] < lower ? 1 : os[1]
-
-    top = os == 0 and os[1] != 0 ? high[lkbk] : na
-    topx := os == 0 and os[1] != 0 ? n[lkbk] : topx
-
-    btm = os == 1 and os[1] != 1 ? low[lkbk] : na
-    btmx := os == 1 and os[1] != 1 ? n[lkbk] : btmx
-
-    [top, topx, btm, btmx]
-
-[lxTop, topx, btm, btmx] = lxSwings(chochLen)
-[stop, stopx, sbtm, sbtmx] = lxSwings(shortLen)
-
-var os = 0
-var top_crossed = false
-var btm_crossed = false
-
-var float max = na
-var float min = na
-
-var int max_x1 = na
-var int min_x1 = na
-
-var float topy = na
-var float btmy = na
-var stop_crossed = false
-var sbtm_crossed = false
-
-//CHoCH Detection
-if lxTop
-    topy := lxTop
-    top_crossed := false
-if btm
-    btmy := btm
-    btm_crossed := false
-
-//Test for CHoCH
-if close > topy and not top_crossed
-    os := 1
-    top_crossed := true
-if close < btmy and not btm_crossed
-    os := 0
-    btm_crossed := true
-
-//Display CHoCH
-if os != os[1]
-    max := high
-    min := low
-    max_x1 := n
-    min_x1 := n
-    stop_crossed := false
-    sbtm_crossed := false
-
-    if os == 1 and lxEnable and lxShowChoch
-        line.new(topx, topy, n, topy, color = bullCss, style = line.style_dashed)
-        label.new(int(math.avg(n, topx)), topy, 'CHoCH', color = color(na), style = label.style_label_down, textcolor = bullCss, size = size.tiny)
-    else if lxEnable and lxShowChoch
-        line.new(btmx, btmy, n, btmy, color = bearCss, style = line.style_dashed)
-        label.new(int(math.avg(n, btmx)), btmy, 'CHoCH', color = color(na), style = label.style_label_up, textcolor = bearCss, size = size.tiny)
-
-stopy = fixnan(stop)
-sbtmy = fixnan(sbtm)
-
-//Bullish BOS
-//IDM
-if low < sbtmy and not sbtm_crossed and os == 1 and sbtmy != btmy
-    if lxEnable and lxShowIdm
-        line.new(sbtmx, sbtmy, n, sbtmy, color = idmCss, style = line.style_dotted)
-        label.new(int(math.avg(n, sbtmx)), sbtmy, 'IDM', color = color(na), style = label.style_label_up, textcolor = idmCss, size = size.tiny)
-    sbtm_crossed := true
-
-//BOS
-if close > max and sbtm_crossed and os == 1
-    if lxEnable and lxShowBos
-        line.new(max_x1, max, n, max, color = bullCss)
-        label.new(int(math.avg(n, max_x1)), max, 'BOS', color = color(na), style = label.style_label_down, textcolor = bullCss, size = size.tiny)
-    sbtm_crossed := false
-
-//Bearish BOS
-//IDM
-if high > stopy and not stop_crossed and os == 0 and stopy != topy
-    if lxEnable and lxShowIdm
-        line.new(stopx, stopy, n, stopy, color = color.gray, style = line.style_dotted)
-        label.new(int(math.avg(n, stopx)), stopy, 'IDM', color = color(na), style = label.style_label_down, textcolor = color.gray, size = size.tiny)
-    stop_crossed := true
-
-//BOS
-if close < min and stop_crossed and os == 0
-    if lxEnable and lxShowBos
-        line.new(min_x1, min, n, min, color = bearCss)
-        label.new(int(math.avg(n, min_x1)), min, 'BOS', color = color(na), style = label.style_label_up, textcolor = bearCss, size = size.tiny)
-    stop_crossed := false
-
-//Sweeps
-if high > max and close < max and os == 1 and n - max_x1 > 1 and lxEnable and showSweeps
-    line.new(max_x1, max, n, max, color = sweepsCss, style = line.style_dotted)
-    label.new(int(math.avg(n, max_x1)), max, 'x', color = color(na), style = label.style_label_down, textcolor = sweepsCss)
-
-if low < min and close > min and os == 0 and n - min_x1 > 1 and lxEnable and showSweeps
-    line.new(min_x1, min, n, min, color = sweepsCss, style = line.style_dotted)
-    label.new(int(math.avg(n, min_x1)), min, 'x', color = color(na), style = label.style_label_up, textcolor = sweepsCss)
-
-//Trailing max/min
-max := math.max(high, max)
-min := math.min(low, min)
-
-if max > max[1]
-    max_x1 := n
-if min < min[1]
-    min_x1 := n
-
-//Extensions
-var ext_choch = line.new(na, na, na, na, style = line.style_dashed)
-var ext_bos   = line.new(na, na, na, na)
-var ext_idm   = line.new(na, na, na, na, style = line.style_dotted, color = idmCss)
-
-var ext_choch_lbl = label.new(na, na, 'CHoCH', color = color(na), size = size.tiny)
-var ext_bos_lbl   = label.new(na, na, 'BOS', color = color(na), size = size.tiny)
-var ext_idm_lbl   = label.new(na, na, 'IDM', color = color(na), size = size.tiny, textcolor = idmCss)
-
-if barstate.islast and lxEnable
-    if os == 1
-        if lxShowChoch
-            ext_choch.set_xy1(btmx, btmy), ext_choch.set_xy2(n, btmy), ext_choch.set_color(bearCss)
-            ext_choch_lbl.set_xy(n, btmy), ext_choch_lbl.set_style(label.style_label_up), ext_choch_lbl.set_textcolor(bearCss)
-
-        if lxShowBos
-            ext_bos.set_xy1(max_x1, max), ext_bos.set_xy2(n, max), ext_bos.set_color(bullCss)
-            ext_bos_lbl.set_xy(n, max), ext_bos_lbl.set_style(label.style_label_down), ext_bos_lbl.set_textcolor(bullCss)
-
-        if not sbtm_crossed and lxShowIdm
-            ext_idm.set_xy1(sbtmx, sbtmy), ext_idm.set_xy2(n + 15, sbtmy)
-            ext_idm_lbl.set_xy(n + 15, sbtmy), ext_idm_lbl.set_style(label.style_label_up)
-            ext_idm.set_color(idmCss), ext_idm_lbl.set_textcolor(idmCss)
-        else
-            ext_idm.set_color(na)
-            ext_idm_lbl.set_textcolor(na)
-    else
-        if lxShowChoch
-            ext_choch.set_xy1(topx, topy), ext_choch.set_xy2(n, topy), ext_choch.set_color(bullCss)
-            ext_choch_lbl.set_xy(n, topy), ext_choch_lbl.set_style(label.style_label_down), ext_choch_lbl.set_textcolor(bullCss)
-
-        if lxShowBos
-            ext_bos.set_xy1(min_x1, min), ext_bos.set_xy2(n, min), ext_bos.set_color(bearCss)
-            ext_bos_lbl.set_xy(n, min), ext_bos_lbl.set_style(label.style_label_up), ext_bos_lbl.set_textcolor(bearCss)
-
-        if not stop_crossed and lxShowIdm
-            ext_idm.set_xy1(stopx, stopy), ext_idm.set_xy2(n + 15, stopy)
-            ext_idm_lbl.set_xy(n + 15, stopy), ext_idm_lbl.set_style(label.style_label_down)
-            ext_idm.set_color(idmCss), ext_idm_lbl.set_textcolor(idmCss)
-        else
-            ext_idm.set_color(na)
-            ext_idm_lbl.set_textcolor(na)
-
-plot(lxEnable and showCircles ? lxTop : na, 'LX Swing High', color.new(bearCss, 50), 8, plot.style_circles, offset = -chochLen)
-plot(lxEnable and showCircles ? btm   : na, 'LX Swing Low',  color.new(bullCss, 50), 8, plot.style_circles, offset = -chochLen)
-//#endregion
-
 //#region SMC - Smart Money Concepts CHoCH/BOS [LuxAlgo] (CC BY-NC-SA 4.0)
 // Module độc lập, port riêng phần CHoCH/BOS + swing point + strong/weak high-low từ file gốc
 // "Smart Money Concepts [LuxAlgo]". Dùng thuật toán swing riêng (leg() dựa trên ta.highest/
-// ta.lowest trong N nến) — KHÔNG ảnh hưởng cấu trúc/OF của Trading Hub, cũng KHÔNG liên quan
-// gì tới module LuxAlgo MS ở trên. Bỏ khỏi bản gốc: Order Blocks, Fair Value Gaps, Equal
+// ta.lowest trong N nến) — KHÔNG ảnh hưởng cấu trúc/OF của Trading Hub. Module CHoCH/BOS
+// "LuxAlgo - Market Structure with Inducements & Sweeps" trùng chức năng đã bị GỘP vào đây:
+// Inducement + Sweep (xem smcUpdateInducementSweep) là 2 tính năng port từ module đó, áp
+// dụng cho lớp Swing Structure. Bỏ khỏi bản gốc SMC: Order Blocks, Fair Value Gaps, Equal
 // High/Low, Premium/Discount Zones, MTF Levels, tô màu nến theo trend, alertcondition — chỉ
 // giữ CHoCH/BOS (Internal + Swing Structure) và các tính năng dùng chung state với nó.
 SMC_BULLISH_LEG = 1
@@ -1596,6 +1413,10 @@ smcSwingBearColor    = input.color(#f23645, "", group = "SMC", inline = "smcbear
 smcSwingStructureSize = input.string(size.small, "Swing Label Size", group = "SMC", options = [size.tiny, size.small, size.normal])
 smcShowSwings         = input.bool(false, "Show Swings Points", group = "SMC", inline = "smcswings")
 smcSwingsLength        = input.int(50, "", group = "SMC", minval = 10, inline = "smcswings")
+smcShowIdm    = input.bool(false, "Show Inducement (IDM)", inline = "smcidm", group = "SMC")
+smcIdmColor   = input.color(color.gray, "", inline = "smcidm", group = "SMC")
+smcShowSweeps = input.bool(false, "Show Sweeps", inline = "smcsweep", group = "SMC")
+smcSweepColor = input.color(color.gray, "", inline = "smcsweep", group = "SMC")
 smcShowHighLowSwings   = input.bool(true, "Show Strong/Weak High/Low", group = "SMC")
 
 type smcPivot
@@ -1616,6 +1437,16 @@ type smcTrailingExtremes
     int   lastTopTime
     int   lastBottomTime
 
+// State cho Inducement (IDM) + Sweep, port từ LuxAlgo MS — chỉ áp dụng cho Swing Structure.
+// Gói vào UDT (thay vì biến scalar rời) vì Pine v5 không cho phép gán lại biến global đơn từ
+// bên trong function — chỉ field của một UDT instance mới sửa được ở đó (giống smcTrailing).
+type smcSweepState
+    float maxVal
+    float minVal
+    int   maxBar
+    int   minBar
+    bool  idmCrossed
+
 var smcPivot smcSwingHigh      = smcPivot.new(na, na, false)
 var smcPivot smcSwingLow       = smcPivot.new(na, na, false)
 var smcPivot smcInternalHigh   = smcPivot.new(na, na, false)
@@ -1623,6 +1454,7 @@ var smcPivot smcInternalLow    = smcPivot.new(na, na, false)
 var smcTrendType smcSwingTrend    = smcTrendType.new(0)
 var smcTrendType smcInternalTrend = smcTrendType.new(0)
 var smcTrailingExtremes smcTrailing = smcTrailingExtremes.new()
+var smcSweepState smcSweep = smcSweepState.new(na, na, na, na, false)
 
 var color smcSwingBullishColorVal = smcStyle == "Monochrome" ? SMC_MONO_BULLISH : smcSwingBullColor
 var color smcSwingBearishColorVal = smcStyle == "Monochrome" ? SMC_MONO_BEARISH : smcSwingBearColor
@@ -1642,10 +1474,15 @@ smcStartOfBearishLeg(int legVal) => ta.change(legVal) == -1
 smcStartOfBullishLeg(int legVal) => ta.change(legVal) == 1
 
 smcDrawLabel(int labelTime, float labelPrice, string tag, color labelColor, string labelStyle) =>
+    // Vẽ chấm tròn màu (nhạt hơn 55%, tách khỏi nến bằng yloc.abovebar/belowbar thay vì đúng
+    // giá trị pivot) thay vì nhãn chữ HH/HL/LH/LL — tham số tag giữ lại để không đổi chữ ký
+    // hàm/lệnh gọi, nhưng không còn dùng tới.
     var label l_abel = na
     if smcMode == "Present"
         label.delete(l_abel)
-    l_abel := label.new(labelTime, labelPrice, tag, xloc.bar_time, color = color(na), textcolor = labelColor, style = labelStyle, size = size.small)
+    yl = labelStyle == label.style_label_down ? yloc.abovebar : yloc.belowbar
+    color faded = color.new(labelColor, 55)
+    l_abel := label.new(labelTime, labelPrice, '', xloc.bar_time, yl, color = faded, textcolor = faded, style = label.style_circle, size = size.tiny)
 
 smcDrawStructure(smcPivot p_ivot, string tag, color structureColor, string lineStyle, string labelStyle, string labelSize) =>
     var line l_ine   = line.new(na, na, na, na, xloc = xloc.bar_time)
@@ -1720,6 +1557,12 @@ smcDisplayStructure(bool internal) =>
 
         p_ivot.crossed := true
         t_rend.bias    := SMC_BULLISH
+        if not internal
+            smcSweep.maxVal := high
+            smcSweep.minVal := low
+            smcSweep.maxBar := bar_index
+            smcSweep.minBar := bar_index
+            smcSweep.idmCrossed := false
 
         displayCondition = internal ? smcShowInternals and (smcShowInternalBull == "All" or (smcShowInternalBull == "BOS" and tag != "CHoCH") or (smcShowInternalBull == "CHoCH" and tag == "CHoCH")) : smcShowStructure and (smcShowSwingBull == "All" or (smcShowSwingBull == "BOS" and tag != "CHoCH") or (smcShowSwingBull == "CHoCH" and tag == "CHoCH"))
 
@@ -1735,6 +1578,12 @@ smcDisplayStructure(bool internal) =>
 
         p_ivot.crossed := true
         t_rend.bias    := SMC_BEARISH
+        if not internal
+            smcSweep.maxVal := high
+            smcSweep.minVal := low
+            smcSweep.maxBar := bar_index
+            smcSweep.minBar := bar_index
+            smcSweep.idmCrossed := false
 
         displayCondition = internal ? smcShowInternals and (smcShowInternalBear == "All" or (smcShowInternalBear == "BOS" and tag != "CHoCH") or (smcShowInternalBear == "CHoCH" and tag == "CHoCH")) : smcShowStructure and (smcShowSwingBear == "All" or (smcShowSwingBear == "BOS" and tag != "CHoCH") or (smcShowSwingBear == "CHoCH" and tag == "CHoCH"))
 
@@ -1746,6 +1595,47 @@ smcUpdateTrailingExtremes() =>
     smcTrailing.lastTopTime    := smcTrailing.top == high ? time : smcTrailing.lastTopTime
     smcTrailing.bottom         := math.min(low, smcTrailing.bottom)
     smcTrailing.lastBottomTime := smcTrailing.bottom == low ? time : smcTrailing.lastBottomTime
+
+// Inducement + Sweep — port từ LuxAlgo MS, chỉ áp dụng cho Swing Structure (LuxAlgo MS gốc
+// chỉ có 1 lớp cấu trúc, tương ứng lớp Swing của SMC).
+smcUpdateInducementSweep() =>
+    // Inducement: quét mức pivot Internal đối lập TRƯỚC KHI Swing tiếp tục phá — dùng pivot
+    // Internal (lớp swing ngắn có sẵn của SMC) thay cho lxSwings(shortLen) riêng của LuxAlgo
+    // MS, tránh phải tính thêm 1 thuật toán swing thứ hai song song.
+    if smcSwingTrend.bias == SMC_BULLISH and low < smcInternalLow.currentLevel and not smcSweep.idmCrossed
+        if smcShowIdm
+            line.new(smcInternalLow.barTime, smcInternalLow.currentLevel, time, smcInternalLow.currentLevel, xloc.bar_time, color = smcIdmColor, style = line.style_dotted)
+            label.new(textCenter(smcInternalLow.barTime, time), smcInternalLow.currentLevel, "IDM", xloc.bar_time, color = color(na), textcolor = smcIdmColor, style = label.style_label_up, size = size.tiny)
+        smcSweep.idmCrossed := true
+    if smcSwingTrend.bias == SMC_BEARISH and high > smcInternalHigh.currentLevel and not smcSweep.idmCrossed
+        if smcShowIdm
+            line.new(smcInternalHigh.barTime, smcInternalHigh.currentLevel, time, smcInternalHigh.currentLevel, xloc.bar_time, color = smcIdmColor, style = line.style_dotted)
+            label.new(textCenter(smcInternalHigh.barTime, time), smcInternalHigh.currentLevel, "IDM", xloc.bar_time, color = color(na), textcolor = smcIdmColor, style = label.style_label_down, size = size.tiny)
+        smcSweep.idmCrossed := true
+
+    // Sweep: râu nến vượt đỉnh/đáy Swing cao/thấp nhất kể từ lần đảo chiều gần nhất, nhưng
+    // đóng cửa quay lại trong — quét thanh khoản/giả breakout, giống hệt logic gốc LuxAlgo MS.
+    if smcSwingTrend.bias == SMC_BULLISH and high > smcSweep.maxVal and close < smcSweep.maxVal and bar_index - smcSweep.maxBar > 1
+        if smcShowSweeps
+            line.new(smcSweep.maxBar, smcSweep.maxVal, bar_index, smcSweep.maxVal, xloc.bar_index, color = smcSweepColor, style = line.style_dotted)
+            label.new(int(math.avg(bar_index, smcSweep.maxBar)), smcSweep.maxVal, "x", xloc.bar_index, color = color(na), textcolor = smcSweepColor, style = label.style_label_down)
+    if smcSwingTrend.bias == SMC_BEARISH and low < smcSweep.minVal and close > smcSweep.minVal and bar_index - smcSweep.minBar > 1
+        if smcShowSweeps
+            line.new(smcSweep.minBar, smcSweep.minVal, bar_index, smcSweep.minVal, xloc.bar_index, color = smcSweepColor, style = line.style_dotted)
+            label.new(int(math.avg(bar_index, smcSweep.minBar)), smcSweep.minVal, "x", xloc.bar_index, color = color(na), textcolor = smcSweepColor, style = label.style_label_up)
+
+    // Trailing max/min kể từ lần đảo chiều gần nhất (giống "Trailing max/min" của LuxAlgo MS).
+    // Dùng biến local lưu giá trị TRƯỚC khi update để so sánh, thay vì history-index trên
+    // field UDT (smcSweep.maxVal[1]) — tránh phụ thuộc vào tính năng chưa chắc được hỗ trợ ổn
+    // định trên field của user-defined type.
+    float prevMax = smcSweep.maxVal
+    float prevMin = smcSweep.minVal
+    smcSweep.maxVal := math.max(high, smcSweep.maxVal)
+    smcSweep.minVal := math.min(low, smcSweep.minVal)
+    if smcSweep.maxVal > prevMax
+        smcSweep.maxBar := bar_index
+    if smcSweep.minVal < prevMin
+        smcSweep.minBar := bar_index
 
 smcDrawHighLowSwings() =>
     var line topLine       = line.new(na, na, na, na, color = smcSwingBearishColorVal, xloc = xloc.bar_time)
@@ -1782,4 +1672,6 @@ if smcShowInternals
     smcDisplayStructure(true)
 if smcShowStructure or smcShowHighLowSwings
     smcDisplayStructure(false)
+if smcShowIdm or smcShowSweeps
+    smcUpdateInducementSweep()
 //#endregion
