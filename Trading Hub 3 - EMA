@@ -160,6 +160,10 @@ color transp = color.new(color.gray,100)
 //Caculate
 int curTf = timeframe.in_seconds(timeframe.period)
 int len   = curTf * 1000
+// Khai báo sớm để processOFZones() (định nghĩa phía dưới nhưng đứng TRƯỚC trong file so với
+// nơi is15m từng được gán trong OF 4H engine) có thể tham chiếu — Pine yêu cầu biến được gán
+// trước vị trí hàm dùng nó trong file, kể cả bên trong thân hàm.
+is15m = timeframe.period == "15"
 
 //#endregion
 
@@ -501,7 +505,6 @@ processOFZones() =>
             bool isBull = array.get(ofZoneIsBull, i)
             bool active = array.get(ofZoneActive, i)
             bool expired = bar_index - array.get(ofZoneBarIdx, i) > 1999
-            bool matured = bar_index - array.get(ofZoneBarIdx, i) >= minOFAge
 
             if not active
                 // Pha 1: box vừa tạo, giá thường còn nằm trong vùng => GIỮ NGUYÊN MÀU,
@@ -519,11 +522,13 @@ processOFZones() =>
                 // Mitigated theo CHẠM: giá quay lại chạm vào vùng (kể cả chỉ bằng râu nến) =>
                 // tô xám. Trước đây đòi close bên trong vùng nên cú hồi quét râu sâu vào vùng
                 // rồi bật ra vẫn để vùng "như chưa test" — sai với thực tế vùng đã được tiêu thụ.
-                // CHỈ tính khi vùng đã đủ tuổi minOFAge (đang hiển thị) — cú chạm khi vùng còn non
-                // (đang ẩn) là phản ứng của chính con sóng tạo vùng, bỏ qua.
+                // Ghi nhận NGAY khi chạm, không chờ đủ tuổi minOFAge — minOFAge chỉ trì hoãn
+                // HIỂN THỊ (đỡ rối mắt vùng vừa tạo), không được phép làm mất trạng thái mitigate
+                // thật của vùng (nếu không, cú chạm sớm trong 20 nến đầu bị bỏ qua vĩnh viễn dù
+                // giá đã thực sự quay lại test vùng).
                 bool isBroken = array.get(ofZoneBroken, i)
                 bool wasMit = array.get(ofZoneMit, i)
-                if matured and not isBroken and ((not isBull and high >= b and close < t) or (isBull and low <= t and close > b))
+                if not isBroken and ((not isBull and high >= b and close < t) or (isBull and low <= t and close > b))
                     array.set(ofZoneMit, i, true)
                     // Đóng băng cạnh phải MỘT LẦN DUY NHẤT tại lần chạm ĐẦU TIÊN — không đẩy
                     // dài thêm khi giá chạm lại các nến sau (trước đây set_right mỗi nến còn
@@ -642,7 +647,9 @@ processOFZones() =>
                         if dj < di or (dj == di and j > i)
                             nearer += 1
                 visible := nearer < maxOFShow
-            color col = ofExploitFinal ? colorOFExploit : isMit and not ofExploitFinal ? colorMitigated : isBull ? colorOFBull : colorOFBear
+            // Màu hồng "đang khai thác" chỉ dùng cho khung khác 15m — trên khung 15m vẫn để
+            // xám mitigated như bình thường (đỡ rối mắt ở khung theo dõi chính).
+            color col = ofExploitFinal ? (is15m ? colorMitigated : colorOFExploit) : isMit and not ofExploitFinal ? colorMitigated : isBull ? colorOFBull : colorOFBear
             color shownCol = visible ? col : color.new(col, 100)
             box.set_bgcolor(zone, shownCol)
             box.set_border_color(zone, shownCol)
@@ -742,7 +749,6 @@ lifecycleOFZones4(float hh, float ll, float cc) =>
             bool isBull = array.get(ofZoneIsBull4, i)
             bool active = array.get(ofZoneActive4, i)
             bool expired = h4barCnt - array.get(ofZoneBarIdx4, i) > 1999
-            bool matured = h4barCnt - array.get(ofZoneBarIdx4, i) >= minOFAge
 
             if not active
                 if (isBull and ll > t) or (not isBull and hh < b)
@@ -754,7 +760,7 @@ lifecycleOFZones4(float hh, float ll, float cc) =>
                 // cùng logic với processOFZones, xem giải thích ở đó.
                 bool isBroken = array.get(ofZoneBroken4, i)
                 bool wasMit = array.get(ofZoneMit4, i)
-                if matured and not isBroken and ((not isBull and hh >= b and cc < t) or (isBull and ll <= t and cc > b))
+                if not isBroken and ((not isBull and hh >= b and cc < t) or (isBull and ll <= t and cc > b))
                     array.set(ofZoneMit4, i, true)
                     // Đóng băng cạnh phải MỘT LẦN tại lần chạm đầu — cùng logic với
                     // processOFZones, xem giải thích ở đó.
@@ -848,6 +854,8 @@ visibilityOFZones4() =>
                         if dj < di or (dj == di and j > i)
                             nearer += 1
                 visible := nearer < maxOFShow
+            // OF 4H vẫn tô hồng "đang khai thác" như bình thường — chỉ riêng OF khung hiện tại
+            // (native, xem processOFZones) mới chuyển xám khi chart đang ở 15m.
             color col = ofExploitFinal ? colorOFExploit : isMit and not ofExploitFinal ? colorMitigated : isBull ? colorOF4Bull : colorOF4Bear
             color shownCol = visible ? col : color.new(col, 100)
             box.set_bgcolor(zone, shownCol)
@@ -1140,7 +1148,7 @@ else
 
 //#region OF 4H engine (bản sao độc lập, chạy trên dữ liệu 4H đã đóng nến qua request.security,
 // chỉ để sinh vùng OF của khung 4H khi chart đang ở 15m — không vẽ BOS/CHoCH/IDM/zigzag)
-is15m = timeframe.period == "15"
+// is15m đã khai báo sớm hơn ở đầu file (xem //Caculate) để processOFZones() dùng được.
 f_htf(src) => request.security(syminfo.tickerid, "240", src[1], lookahead = barmerge.lookahead_off)
 h4 = f_htf(high)
 l4 = f_htf(low)
