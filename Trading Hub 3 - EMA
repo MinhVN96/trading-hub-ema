@@ -164,6 +164,15 @@ int len   = curTf * 1000
 // nơi is15m từng được gán trong OF 4H engine) có thể tham chiếu — Pine yêu cầu biến được gán
 // trước vị trí hàm dùng nó trong file, kể cả bên trong thân hàm.
 is15m = timeframe.period == "15"
+// Dữ liệu 4H (nến đã đóng) — khai báo sớm ở đây (thay vì trong OF 4H engine cuối file) để
+// scanLastPullback (định nghĩa trong drawing function, đứng TRƯỚC engine 4H trong file) tham
+// chiếu được h4/l4/t4 — cùng lý do thứ tự khai báo với is15m ở trên.
+f_htf(src) => request.security(syminfo.tickerid, "240", src[1], lookahead = barmerge.lookahead_off)
+h4 = f_htf(high)
+l4 = f_htf(low)
+c4 = f_htf(close)
+t4 = f_htf(time)
+newH4bar = ta.change(t4) != 0
 
 //#endregion
 
@@ -272,6 +281,74 @@ findPivotBefore(arrVal, arrBar, int refBar) =>
                 b := array.get(arrBar, i)
                 break
     [v, b]
+
+// Tìm pivot CỰC TRỊ (thấp nhất/cao nhất) trong số các pivot hình thành TỪ mốc sinceBar trở đi
+// (theo bar time). Dùng để neo đúng CHÂN HỒI cuối cùng trước khi CHOCH xác nhận: nếu giữa
+// pivot đối diện (sinceBar) và lúc CHOCH xác nhận có nhiều pivot hồi phụ (các nhịp bật nhẹ),
+// tất cả đều thuộc CÙNG một chân hồi — phải lấy đúng điểm cực trị của cả chân đó làm đáy/đỉnh
+// vùng OF, không phải chỉ pivot được đẩy vào mảng SAU CÙNG (có thể là 1 nhịp bật nhỏ, không
+// phải điểm đảo chiều thật). Mảng luôn tăng dần theo bar time nên có thể break sớm khi gặp
+// pivot cũ hơn sinceBar.
+findExtremeSince(arrVal, arrBar, int sinceBar, bool findMin) =>
+    float v = na
+    int b = na
+    if array.size(arrVal) > 0
+        for i = array.size(arrVal) - 1 to 0 by 1
+            if array.get(arrBar, i) < sinceBar
+                break
+            float cur = array.get(arrVal, i)
+            if na(v) or (findMin and cur < v) or (not findMin and cur > v)
+                v := cur
+                b := array.get(arrBar, i)
+    [v, b]
+
+// Quét NẾN THÔ lùi từ nến hiện tại (nến vừa xác nhận CHOCH) để tìm CHÂN HỒI CUỐI ngay trước
+// nhịp đẩy phá cấu trúc — KHÔNG phụ thuộc pivot của engine pullback. Lý do phải quét thô:
+// engine pullback (//#region Pullback) chỉ ghi pivot khi có nến phá high/low của nến đã xử lý
+// trước đó trong leg; một cú hồi nằm GỌN TRONG BIÊN của một nến lớn trước nó (không thủng
+// low, không vượt high nến đó) không rơi vào nhánh nào cả -> không sinh pivot, zigzag không
+// có đỉnh/đáy tại đó, và mọi cách neo OF theo puHigh/puLow đều vô vọng (case BTCUSDT 4H đầu
+// tháng 7: nến 2/7 biên độ ~58.9k-61k rất lớn, cú hồi 61k->59.9k ngay sau nằm gọn bên trong
+// nên hoàn toàn vô hình với engine).
+//   pha 0: lùi dần, gom CỰC TRỊ của chân đẩy phá cấu trúc (min low nếu bull / max high nếu
+//     bear) = điểm NEO của vùng OF; chuyển pha khi gặp nến (cũ hơn) không còn mở rộng cực trị.
+//   pha 1: tiếp tục lùi, gom cực trị ĐỐI DIỆN (đỉnh chân hồi nếu bull / đáy nếu bear); dừng
+//     tại đỉnh/đáy cục bộ đầu tiên (nến cũ hơn không còn mở rộng) hoặc khi lùi tới nến thuộc
+//     chân trước đó (vượt qua điểm neo). Nến vượt neo vẫn được lấy high/low nếu đang mở rộng
+//     — xử lý nến engulfing lớn chứa cả đỉnh chân hồi lẫn phần chân cũ.
+// use4h = true: quét trên chuỗi 4H (h4/l4/t4, khai báo ở //Caculate) — dùng cho engine OF 4H;
+// giá trị 4H lặp lại trên nhiều nến chart nhưng logic so sánh >=/<= tự dung hoà các lần lặp.
+// Trả về [neo, barNeo, đốiDiện, barĐốiDiện] (bull: neo = đáy vùng; bear: neo = đỉnh vùng).
+scanLastPullback(bool isBull, bool use4h) =>
+    float pbA = na
+    int   pbABar = na
+    float pbB = na
+    int   pbBBar = na
+    int   phase = 0
+    for j = 0 to 4500
+        if j >= bar_index
+            break
+        float hi = use4h ? h4[j] : high[j]
+        float lo = use4h ? l4[j] : low[j]
+        int   tj = use4h ? t4[j] : time[j]
+        if na(hi) or na(lo)
+            break
+        if phase == 0
+            if na(pbA) or (isBull ? lo <= pbA : hi >= pbA)
+                pbA := isBull ? lo : hi
+                pbABar := tj
+            else
+                phase := 1
+                pbB := isBull ? hi : lo
+                pbBBar := tj
+        else
+            bool ext = isBull ? hi >= pbB : lo <= pbB
+            if ext
+                pbB := isBull ? hi : lo
+                pbBBar := tj
+            if (isBull ? lo < pbA : hi > pbA) or not ext
+                break
+    [pbA, pbABar, pbB, pbBBar]
 
 removeNLastLabel(arr, n) =>
     if array.size(arr) > n - 1
@@ -657,26 +734,32 @@ processOFZones() =>
 
 addLastPullbackOF(bool isBull) =>
     // OF tại CHOCH luôn được vẽ, KHÔNG qua bộ lọc HH/LL: CHOCH đã tự xác nhận đảo chiều, nên
-    // chân sóng cuối đâm vào đáy/đỉnh đảo chiều CHÍNH LÀ vùng OF hợp lệ (nếu lọc HH/LL ở đây
-    // thì OF đảo chiều gần như không bao giờ được vẽ vì đáy trước CHOCH-up thường là LL và
-    // đỉnh trước CHOCH-down thường là HH). Bộ lọc HH/LL chỉ dành cho pullback giữa trend.
-    // Vùng OF = đúng CHÂN HỒI kết thúc tại pivot neo: bear = đáy TRƯỚC đỉnh LH -> đỉnh LH,
-    // bull = đỉnh TRƯỚC đáy HL -> đáy HL. Không ghép với pivot mới hình thành SAU pivot neo
-    // (đáy/đỉnh của chân đẩy) vì sẽ kéo box phủ cả chân impulse thay vì chỉ chân pullback.
+    // chân hồi cuối trước nhịp phá cấu trúc CHÍNH LÀ vùng OF hợp lệ (nếu lọc HH/LL ở đây thì
+    // OF đảo chiều gần như không bao giờ được vẽ). Bộ lọc HH/LL chỉ dành cho pullback giữa trend.
+    // NEO BẰNG QUÉT NẾN THÔ (scanLastPullback): vùng OF = chân hồi cuối ngay trước nhịp đẩy
+    // phá cấu trúc — gốc của impulse tạo CHOCH. KHÔNG neo theo pivot puHigh/puLow nữa vì
+    // engine pullback bỏ sót mọi cú hồi nằm gọn trong biên nến lớn trước đó (không sinh
+    // pivot) — OF từng bị thiếu/neo sai ở chính chỗ đảo chiều vì vậy. Pivot chỉ còn là DỰ
+    // PHÒNG khi quét thô thất bại (sát đầu lịch sử nạp).
     if showOF
-        if isBull
-            float ofB = getNLastValue(puLow, 1)
-            int ofBBar = getNLastValue(puLBar, 1)
-            if not na(ofB)
-                [ofT, ofTBar] = findPivotBefore(puHigh, puHBar, ofBBar)
-                if not na(ofT)
-                    addOFZone(math.min(ofTBar, ofBBar), ofT, ofB, true)
-        else
+        [pbA, pbABar, pbB, pbBBar] = scanLastPullback(isBull, false)
+        float scanTop = isBull ? pbB : pbA
+        float scanBot = isBull ? pbA : pbB
+        if not na(scanTop) and not na(scanBot) and scanTop > scanBot
+            addOFZone(math.min(pbABar, pbBBar), scanTop, scanBot, isBull)
+        else if isBull
             float ofT = getNLastValue(puHigh, 1)
             int ofTBar = getNLastValue(puHBar, 1)
             if not na(ofT)
-                [ofB, ofBBar] = findPivotBefore(puLow, puLBar, ofTBar)
+                [ofB, ofBBar] = findExtremeSince(puLow, puLBar, ofTBar, true)
                 if not na(ofB)
+                    addOFZone(math.min(ofTBar, ofBBar), ofT, ofB, true)
+        else
+            float ofB = getNLastValue(puLow, 1)
+            int ofBBar = getNLastValue(puLBar, 1)
+            if not na(ofB)
+                [ofT, ofTBar] = findExtremeSince(puHigh, puHBar, ofBBar, false)
+                if not na(ofT)
                     addOFZone(math.min(ofTBar, ofBBar), ofT, ofB, false)
 
 scob(zones, isSupply) =>
@@ -863,19 +946,26 @@ visibilityOFZones4() =>
             label.set_textcolor(array.get(ofLabel4, i), shownCol)
 
 addLastPullbackOF4(bool isBull) =>
-    if isBull
-        float ofB = getNLastValue(puLow4, 1)
-        int ofBBar = getNLastValue(puLBar4, 1)
-        if not na(ofB)
-            [ofT, ofTBar] = findPivotBefore(puHigh4, puHBar4, ofBBar)
-            if not na(ofT)
-                addOFZone4(math.min(ofTBar, ofBBar), ofT, ofB, true)
-    else
+    // Bản 4H của addLastPullbackOF — xem giải thích ở đó. Quét thô trên chuỗi 4H (use4h=true)
+    // vì engine 4H có cùng điểm mù pivot; pivot 4H chỉ còn là dự phòng.
+    [pbA, pbABar, pbB, pbBBar] = scanLastPullback(isBull, true)
+    float scanTop = isBull ? pbB : pbA
+    float scanBot = isBull ? pbA : pbB
+    if not na(scanTop) and not na(scanBot) and scanTop > scanBot
+        addOFZone4(math.min(pbABar, pbBBar), scanTop, scanBot, isBull)
+    else if isBull
         float ofT = getNLastValue(puHigh4, 1)
         int ofTBar = getNLastValue(puHBar4, 1)
         if not na(ofT)
-            [ofB, ofBBar] = findPivotBefore(puLow4, puLBar4, ofTBar)
+            [ofB, ofBBar] = findExtremeSince(puLow4, puLBar4, ofTBar, true)
             if not na(ofB)
+                addOFZone4(math.min(ofTBar, ofBBar), ofT, ofB, true)
+    else
+        float ofB = getNLastValue(puLow4, 1)
+        int ofBBar = getNLastValue(puLBar4, 1)
+        if not na(ofB)
+            [ofT, ofTBar] = findExtremeSince(puHigh4, puHBar4, ofBBar, false)
+            if not na(ofT)
                 addOFZone4(math.min(ofTBar, ofBBar), ofT, ofB, false)
 //#endregion
 
@@ -1148,13 +1238,8 @@ else
 
 //#region OF 4H engine (bản sao độc lập, chạy trên dữ liệu 4H đã đóng nến qua request.security,
 // chỉ để sinh vùng OF của khung 4H khi chart đang ở 15m — không vẽ BOS/CHoCH/IDM/zigzag)
-// is15m đã khai báo sớm hơn ở đầu file (xem //Caculate) để processOFZones() dùng được.
-f_htf(src) => request.security(syminfo.tickerid, "240", src[1], lookahead = barmerge.lookahead_off)
-h4 = f_htf(high)
-l4 = f_htf(low)
-c4 = f_htf(close)
-t4 = f_htf(time)
-newH4bar = ta.change(t4) != 0
+// is15m và bộ dữ liệu 4H (f_htf/h4/l4/c4/t4/newH4bar) đã khai báo sớm ở đầu file (xem
+// //Caculate) vì scanLastPullback — đứng trước engine này trong file — cần tham chiếu h4/l4/t4.
 
 if show4hOF and is15m and newH4bar and not na(t4)
     h4barCnt += 1
