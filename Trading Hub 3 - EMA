@@ -30,6 +30,12 @@ showMitOF = input.bool(false, "Hiện OF đã mitigated (xám)", group = "Struct
 maxOFShow = input.int(3, "Số OF hiển thị mỗi chiều", minval = 1, group = "Structure")
 maxMitOFShow = input.int(2, "Số OF đã mitigated hiển thị gần giá nhất (mỗi phía, luôn hiện)", minval = 0, group = "Structure")
 markExtremeOF = input.bool(true, "Đánh dấu Extreme OF (viền nổi + nhãn Ex OF)", group = "Structure")
+ofConfirmBars = input.int(10, "OF phải được xác nhận trong vòng (nến)", minval = 1, group = "Structure", tooltip = "QUY TẮC #1 BẮT BUỘC của BankTrap (mục 1.5 — Điều Kiện OF Hợp Lệ): 'Bearish OF: giá phải PHÁ KHỎI ĐÁY của OF' / 'Bullish OF: giá phải PHÁ KHỎI ĐỈNH của OF'. Chưa phá thì CHƯA phải OF, không vẽ.\nXác nhận = 1 nến CƯƠNG LỰC/TIÊU CHUẨN ĐÓNG CỬA vượt hẳn biên xa của vùng (bear: đóng dưới đáy vùng; bull: đóng trên đỉnh vùng).\nPHẢI XẢY RA TRONG VÒNG số nến này kể từ lúc vùng hình thành — vì định nghĩa OF là 'chuyển động hồi cuối cùng TRƯỚC KHI TIẾP DIỄN xu hướng', nhịp tiếp diễn phải đến NGAY. Nếu giá đi ngang trong vùng cả chục nến rồi mới thủng thì đó không phải nhịp tiếp diễn, chỉ là biên độ range => vùng vô hiệu vĩnh viễn, không vẽ.\nTăng lên nếu thấy OF hợp lệ bị bỏ sót; giảm xuống nếu chart còn vùng rác trong nhịp đi ngang.")
+ofEscapeBars = input.int(5, "Số nến thoát hẳn khỏi OF cũ mới cho vẽ OF mới bên trong", inline = "escOF", minval = 1, group = "Structure", tooltip = "QUY TẮC #2 của BankTrap: 'OF KHÔNG ĐƯỢC NẰM TRONG OF TRƯỚC ĐÓ'. Giá đi ngang bên trong một vùng OF (lên chạm đỉnh rồi vòng xuống, chưa chạm biên xa) = vùng đó vẫn đang bị khai thác, mọi 'chân hồi' sinh ra trong đó chỉ là nhiễu => KHÔNG tạo OF mới nằm lọt trong nó.\nChỉ khi giá VỌT HẲN ra ngoài vùng cũ (cả cây nến nằm ngoài, đúng chiều vùng đẩy) đủ số nến bên cạnh, và là nến CƯƠNG LỰC/TIÊU CHUẨN (thân >= tỉ lệ ô kế bên), thì vùng cũ mới hết quyền chi phối và OF mới gần giá nhất bên trong nó được phép vẽ.\nNến chạm lại vào vùng khi chưa đủ => đếm lại từ 0; đủ một lần rồi thì giữ vĩnh viễn.\nLƯU Ý: ngưỡng này CHỈ dùng cho luật vùng-lọt-trong-vùng, KHÔNG phải điều kiện OF hợp lệ (xem 'OF phải được xác nhận trong vòng' ở trên).")
+ofEscapeBody = input.float(0.5, "", inline = "escOF", minval = 0.0, maxval = 1.0, step = 0.05, group = "Structure", tooltip = "Tỉ lệ THÂN / BIÊN ĐỘ tối thiểu để một nến được tính là cương lực/tiêu chuẩn. 0.5 = thân phải chiếm >= 50% biên độ nến; nến do dự / rút chân dài (thân nhỏ) không được tính vào số nến thoát, nhưng cũng không làm mất số đã đếm.")
+hideChopOF = input.bool(false, "Ẩn OF khi giá đi ngang trong vùng", inline = "chopOF", group = "Structure", tooltip = "BỘ LỌC PHỤ, mặc định TẮT — việc xử lý sideway chính đã nằm ở khâu TẠO vùng (xem 'Số nến thoát hẳn khỏi OF cũ...'), vùng mà giá đang khai thác bên trong vẫn nên hiện để còn nhìn thấy nó.\nBật lên nếu muốn dọn nốt: đếm CHUỖI NẾN LIÊN TIẾP mà giá còn kẹt trong vùng (nến giao với vùng), nến ra hẳn ngoài thì đếm lại từ 0; đủ ngưỡng bên cạnh thì ẩn hẳn vùng đó vĩnh viễn (đè cả Extreme OF lẫn vùng đang khai thác). Đếm bằng nến của chính khung vùng đó.")
+chopOFBars = input.int(15, "", inline = "chopOF", minval = 2, group = "Structure")
+chochOFAnchor = input.string("OF - chân hồi cuối", "Neo vùng OF tại CHoCH", options = ["OF - chân hồi cuối", "OB - cụm nến cực trị"], group = "Structure", tooltip = "OF - chân hồi cuối (ĐÚNG ĐỊNH NGHĨA BankTrap, mặc định): 'Order flow là chuyển động HỒI CUỐI CÙNG trước khi tiếp diễn xu hướng', bản chất = TOÀN BỘ vùng retracement. Tài liệu cũng nói rõ: sau CHoCH phải đánh dấu ORDER FLOW trước, KHÔNG phải order block.\nOB - cụm nến cực trị: chỉ lấy cụm nến ngược chiều cuối ngay tại đỉnh/đáy — theo tài liệu đây là OB (nến cụ thể NẰM TRONG OF, cấp thấp hơn, dùng để tinh chỉnh entry), không phải OF. Để lại làm tuỳ chọn nếu muốn box mỏng.")
 show4hOF = input.bool(true, "Show OF khung 4H (chỉ áp dụng khi chart ở 15m)", group = "Structure")
 showZigzag = input.bool(true, "Show pullback line", group = "Structure")
 
@@ -56,7 +62,10 @@ colorIDM = input.color(color.rgb(255, 255, 255, 20), "IDM", group = "Structure |
 colorDemand = input.color(color.rgb(47, 130, 96, 80), 'Demand', group = "Structure | Color")
 colorSupply = input.color(color.rgb(205, 92, 72, 80), 'Supply', group = "Structure | Color")
 colorMitigated = input.color(color.rgb(192, 192, 192, 80), 'Mitigated', group ="Structure | Color")
-colorOFExploit = input.color(color.new(#ff69b4, 80), "OF đang khai thác (real-time)", group = "Structure | Color")
+// Vùng OF ĐANG BỊ KHAI THÁC (giá đang nằm trong vùng, real-time) — tô theo CHIỀU của vùng chứ
+// không dùng một màu riêng nữa: chạm OF bán (supply) = ĐỎ, chạm OF mua (demand) = XANH LÁ.
+colorOFExploitBear = input.color(color.new(color.red, 80),   "OF đang khai thác: bán / mua", inline = "expl", group = "Structure | Color")
+colorOFExploitBull = input.color(color.new(color.green, 80), "", inline = "expl", group = "Structure | Color")
 colorExtremeOF = input.color(color.new(color.yellow, 0), "Viền Extreme OF", group = "Structure | Color")
 
 // ===== OF Entry (vào lệnh với OF: HTF 4H = POI + trend SMC, LTF 15m = vùng vào lệnh) =====
@@ -195,6 +204,9 @@ var ofZoneActive = array.new_bool(0) // true khi giá đã thoát hẳn ra ngoà
 var ofZoneMit = array.new_bool(0)    // true khi vùng đã mitigated (để khôi phục đúng màu lúc hiện lại)
 var ofZoneBroken = array.new_bool(0) // true khi giá đã chạm tới biên XA của vùng (phá qua) => vùng chết, chỉ hiện khi bật showMitOF
 var ofZoneTouchTime = array.new_int(0) // thời điểm (time) chạm lần ĐẦU TIÊN, ghi 1 lần duy nhất — dùng xếp hạng vùng "active" trong nhóm OF chồng lấn, xem processOFZones
+var ofZoneInside = array.new_int(0)  // chuỗi nến LIÊN TIẾP giá còn kẹt trong vùng — vượt chopOFBars = vùng đi ngang (bộ lọc phụ hideChopOF, xem processOFZones)
+var ofZoneOut = array.new_int(0)     // số nến CƯƠNG LỰC/TIÊU CHUẨN nằm HẲN ngoài vùng (reset khi giá chạm lại, nhưng đủ ngưỡng rồi thì giữ luôn) — đủ ofEscapeBars = vùng hết quyền chặn OF mới bên trong nó (Quy tắc #2, xem addOFZone)
+var ofZoneConf = array.new_bool(0)   // QUY TẮC #1: đã có nến đóng cửa phá hẳn biên xa của vùng TRONG ofConfirmBars nến đầu => OF hợp lệ, mới được vẽ (xem processOFZones)
 var arrZigLine = array.new_line(0)
 var arrZigLineBarIdx = array.new_int(0)
 var arrLastZig = array.new_float(2, na)
@@ -236,6 +248,7 @@ f_htf(src) => request.security(syminfo.tickerid, "240", src[1], lookahead = barm
 h4 = f_htf(high)
 l4 = f_htf(low)
 c4 = f_htf(close)
+o4 = f_htf(open)   // dùng cho scanExtremeOF (xác định nến tăng/giảm của khung 4H)
 t4 = f_htf(time)
 newH4bar = ta.change(t4) != 0
 
@@ -296,6 +309,9 @@ var ofZoneMit4 = array.new_bool(0)
 var ofZoneBroken4 = array.new_bool(0)
 var ofZoneTouchTime4 = array.new_int(0) // thời điểm chạm lần ĐẦU TIÊN, cùng vai trò với ofZoneTouchTime
 var ofZone4Setup = array.new_bool(0)    // true khi vùng OF 4H này ĐÃ tạo 1 setup lệnh (mỗi vùng 1 lần)
+var ofZoneInside4 = array.new_int(0)    // chuỗi NẾN 4H giá kẹt trong vùng, cùng vai trò với ofZoneInside
+var ofZoneOut4 = array.new_int(0)       // số NẾN 4H cương lực/tiêu chuẩn nằm hẳn ngoài vùng, cùng vai trò với ofZoneOut
+var ofZoneConf4 = array.new_bool(0)     // cờ OF hợp lệ (Quy tắc #1), cùng vai trò với ofZoneConf
 // Đếm số nến 4H đã xử lý — tuổi/hạn của vùng OF 4H phải tính bằng NẾN 4H (không phải nến
 // 15m của chart) để minOFAge/expire có cùng ý nghĩa như khi xem trực tiếp chart 4H.
 var int h4barCnt = 0
@@ -428,6 +444,99 @@ scanLastPullback(bool isBull, bool use4h) =>
             if (isBull ? lo < pbA : hi > pbA) or not ext
                 break
     [pbA, pbABar, pbB, pbBBar]
+
+// NEO "OB CỰC TRỊ" — dùng cho vùng OF sinh ra tại CHoCH (xem addLastPullbackOF).
+// Vùng OF = CỤM NẾN NGƯỢC CHIỀU CUỐI CÙNG ngay tại đỉnh/đáy khởi phát nhịp đẩy phá cấu trúc:
+// CHoCH giảm => cụm nến TĂNG cuối cùng trước khi giá đổ; CHoCH tăng => cụm nến GIẢM cuối cùng
+// trước khi giá bật. Đây chính là chỗ tổ chức đảo hàng (order block kinh điển) — vùng NHỎ, nằm
+// ngay cực trị của nhịp tạo CHoCH.
+// LÝ DO KHÔNG DÙNG scanLastPullback Ở CHoCH NỮA: hàm đó lấy TRỌN chân hồi (từ cực trị nhịp đẩy
+// xuống tới đáy/đỉnh của cả chân hồi trước đó). Khi thị trường ĐI NGANG, chân hồi trải đúng
+// bằng biên độ sideway => vùng OF phình ra trùm cả cái range, vừa vô dụng để vào lệnh vừa nuốt
+// hết các vùng nhỏ sát giá sinh ra sau nó.
+// Trả về [top, bot, barTime]; na nếu không tìm được cụm nến ngược chiều (caller tự fallback).
+scanExtremeOF(bool isBull, bool use4h) =>
+    float ext  = na   // cực trị khởi phát nhịp đẩy: bear = high cao nhất, bull = low thấp nhất
+    int   extJ = na
+    // Pha 1: lùi từ nến vừa xác nhận CHoCH về GỐC nhịp đẩy — dừng ở nến (cũ hơn) đầu tiên không
+    // còn mở rộng cực trị. Cùng cách với pha 0 của scanLastPullback.
+    for j = 0 to 500
+        if j >= bar_index
+            break
+        float hi = na
+        float lo = na
+        if use4h
+            hi := h4[j]
+            lo := l4[j]
+        else
+            hi := high[j]
+            lo := low[j]
+        if na(hi) or na(lo)
+            break
+        if na(ext) or (isBull ? lo <= ext : hi >= ext)
+            ext  := isBull ? lo : hi
+            extJ := j
+        else
+            break
+    float zTop = na
+    float zBot = na
+    int   zBar = na
+    if not na(extJ)
+        // Pha 2: lùi dần từ nến cực trị, gom CỤM NẾN NGƯỢC CHIỀU liền kề (tối đa 5) làm vùng OB.
+        // Nến cực trị thường chính là nến đảo chiều (nến giảm tạo đỉnh) nên cho phép lùi tối đa
+        // 3 nến để gặp nến ngược chiều đầu tiên; quá đó coi như không có OB rõ ràng => trả na.
+        // LỌC NẾN TRÙNG (prevT): khi use4h, một nến 4H lặp lại trên ~16 nến chart (giá trị
+        // request.security giữ nguyên) — không lọc thì "cụm 5 nến" thực chất chỉ là 1 nến 4H.
+        int   nBar  = 0    // số nến THẬT đã xét kể từ nến cực trị
+        int   nOpp  = 0    // số nến ngược chiều đã gom
+        int   prevT = na
+        float cTop  = na
+        float cBot  = na
+        int   cBar  = na
+        for m = 0 to 500
+            int k = extJ + m
+            if k >= bar_index or nBar > 7 or nOpp >= 5
+                break
+            float hi = na
+            float lo = na
+            float op = na
+            float cl = na
+            int   tj = na
+            if use4h
+                hi := h4[k]
+                lo := l4[k]
+                op := o4[k]
+                cl := c4[k]
+                tj := t4[k]
+            else
+                hi := high[k]
+                lo := low[k]
+                op := open[k]
+                cl := close[k]
+                tj := time[k]
+            if na(hi) or na(lo) or na(op) or na(cl) or na(tj)
+                break
+            if not na(prevT) and tj == prevT
+                continue                      // vẫn là nến cũ lặp lại (chỉ xảy ra khi use4h)
+            prevT := tj
+            nBar += 1
+            if isBull ? cl < op : cl > op
+                nOpp += 1
+                cTop := na(cTop) ? hi : math.max(cTop, hi)
+                cBot := na(cBot) ? lo : math.min(cBot, lo)
+                cBar := tj
+            else if nOpp > 0
+                break                         // đã gom xong cụm, gặp nến cùng chiều => dừng
+            else if nBar > 3
+                break                         // lùi quá xa vẫn chưa có nến ngược chiều => bỏ
+        if not na(cTop) and not na(cBot)
+            // Biên XA của vùng neo tại CHÍNH CỰC TRỊ (đỉnh/đáy vừa bị từ chối) — kể cả khi cực
+            // trị nằm ở cây nến đảo chiều không thuộc cụm OB — để SL luôn nằm ngoài cây nến quét
+            // thanh khoản. Biên GẦN giá lấy theo cụm OB.
+            zTop := isBull ? cTop : math.max(ext, cTop)
+            zBot := isBull ? math.min(ext, cBot) : cBot
+            zBar := cBar
+    [zTop, zBot, zBar]
 
 // Bias cấu trúc theo THUẬT TOÁN SWING CỦA SMC (leg dựa ta.highest/ta.lowest N nến, crossover/
 // crossunder xác nhận CHoCH/BOS) — self-contained để gọi qua request.security trên 4H.
@@ -643,6 +752,13 @@ processZones(zones, isSupply) =>
             if (time - leftZone > len*maxBarHistory) or (isSupply and high >= topZone) or (not isSupply and low <= botZone)
                 removeZone(zones, zone)
 
+// Nến CƯƠNG LỰC / TIÊU CHUẨN: thân chiếm >= ofEscapeBody biên độ nến. Nến do dự / rút chân dài
+// (thân nhỏ so với râu) KHÔNG tính — cú vọt ra khỏi vùng OF phải bằng nến có lực thật thì mới
+// coi là giá đã rời hẳn vùng, chứ không phải một cái râu quét lên rồi thụt về.
+isDecisiveBar(float o, float h, float l, float c) =>
+    float rng = h - l
+    rng > 0 and math.abs(c - o) / rng >= ofEscapeBody
+
 createOFBox(int left, float top, float bot, color col) =>
     box.new(left=left, right=time, top=top, bottom=bot, xloc=xloc.bar_time, bgcolor=col, border_color=col, extend=extend.right)
 
@@ -657,6 +773,9 @@ removeOFZone(int i) =>
     array.remove(ofZoneMit, i)
     array.remove(ofZoneBroken, i)
     array.remove(ofZoneTouchTime, i)
+    array.remove(ofZoneInside, i)
+    array.remove(ofZoneOut, i)
+    array.remove(ofZoneConf, i)
 
 // Pivot MỚI xác nhận vượt qua biên giữ của vùng OF => cấu trúc đã phủ nhận vùng, xoá.
 // Khác với wick: râu nến chọc qua biên KHÔNG giết vùng (xem processOFZones), nhưng một
@@ -682,19 +801,41 @@ pushOFZone(int left, float top, float bot, bool isBull) =>
     array.push(ofZoneMit, false)
     array.push(ofZoneBroken, false)
     array.push(ofZoneTouchTime, na)
+    array.push(ofZoneInside, 0)
+    array.push(ofZoneOut, 0)
+    array.push(ofZoneConf, false)
 
 addOFZone(int left, float top, float bot, bool isBull) =>
-    // Chỉ xét chứa/nuốt với vùng CÒN SỐNG (chưa mitigated): vùng mitigated là lịch sử đã
-    // đóng băng — không được chặn vùng mới tạo (từng làm mất OF hợp lệ vì một box xám cũ
-    // hàng tháng trước vẫn nằm trong mảng), và cũng không bị vùng mới nuốt mất.
+    // LUẬT VÙNG LỌT TRONG VÙNG (cốt lõi cho thị trường đi ngang):
+    // Giá đi ngang bên trong một vùng OF — lên chạm đỉnh vùng rồi vòng xuống, CHƯA chạm tới
+    // biên XA — nghĩa là vùng đó VẪN ĐANG BỊ KHAI THÁC DỞ. Mọi "chân hồi" sinh ra trong lúc đó
+    // chỉ là nhiễu của chính nhịp sideway, KHÔNG phải mất cân bằng mới => KHÔNG tạo OF nằm lọt
+    // trong nó. Vùng cũ chỉ hết quyền chi phối khi giá đã VỌT HẲN ra ngoài (cả cây nến ở ngoài,
+    // đúng chiều vùng đẩy) đủ ofEscapeBars nến CƯƠNG LỰC/TIÊU CHUẨN — lúc đó nhịp mới mới là
+    // nhịp thật, và OF mới gần giá nhất bên trong biên vùng cũ được phép vẽ.
+    // Bộ đếm ofZoneOut do processOFZones cập nhật mỗi nến; đủ ngưỡng thì giữ vĩnh viễn.
+    //
+    // KHÁC BẢN CŨ: trước đây chỉ vùng CHƯA mitigated mới chặn, nên đúng ca đang nói (giá đã
+    // chạm vùng rồi quay đầu đi ngang bên trong = vùng ĐÃ mitigated) thì luật chặn mất tác dụng
+    // và OF rác mọc đầy trong range. Nay vùng mitigated-nhưng-chưa-broken vẫn chặn; đổi lại
+    // phải có cổng ofZoneOut để vùng cũ không chặn vĩnh viễn.
     bool contained = false
     if array.size(ofZone) > 0
         for i = array.size(ofZone) - 1 to 0 by 1
-            if array.get(ofZoneIsBull, i) == isBull and not array.get(ofZoneMit, i)
+            if array.get(ofZoneIsBull, i) == isBull
+                bool mitI = array.get(ofZoneMit, i)
                 [t, b, l] = marginZone(array.get(ofZone, i))
                 if top <= t and bot >= b
-                    contained := true
-                else if t <= top and b >= bot
+                    // Vùng cha CÒN quyền chặn khi: chưa bị phá hết chiều sâu (chưa broken) VÀ
+                    // giá chưa từng vọt ra hẳn khỏi nó đủ ofEscapeBars nến cương lực/tiêu chuẩn.
+                    // Vùng ĐÃ MITIGATED NHƯNG CHƯA BROKEN VẪN CHẶN — đây đúng là ca giá chạm vào
+                    // vùng rồi đi ngang bên trong: vùng đang bị khai thác dở, chưa chạm biên xa.
+                    // (Vùng broken = đã bị tiêu thụ hết => hết quyền chặn. Vùng cũ mà giá đã bỏ
+                    // đi từ lâu thì bộ đếm ofZoneOut cũng đã vượt ngưỡng nên không chặn nữa.)
+                    if not array.get(ofZoneBroken, i) and array.get(ofZoneOut, i) < ofEscapeBars
+                        contained := true
+                else if not mitI and t <= top and b >= bot
+                    // vùng mitigated là lịch sử đã đóng băng: không bị vùng mới nuốt mất
                     removeOFZone(i)
     if not contained
         pushOFZone(left, top, bot, isBull)
@@ -707,6 +848,53 @@ processOFZones() =>
             bool isBull = array.get(ofZoneIsBull, i)
             bool active = array.get(ofZoneActive, i)
             bool expired = bar_index - array.get(ofZoneBarIdx, i) > 1999
+
+            // ĐẾM SIDEWAY: đếm CHUỖI NẾN LIÊN TIẾP mà giá còn kẹt trong vùng (nến giao với vùng);
+            // nến nào ra hẳn ngoài vùng thì reset về 0. Đủ chopOFBars nến liên tiếp => cờ ĐÓNG
+            // VĨNH VIỄN (không reset nữa) = vùng chỉ là biên độ đi ngang, tầng hiển thị ẩn hẳn.
+            //   Vì sao dùng CHUỖI LIÊN TIẾP chứ không cộng dồn: vùng OF NHỎ sát giá trong một
+            //   range cũng bị giá chạm đi chạm lại nhiều lần, cộng dồn thì nó cũng bị ẩn oan —
+            //   trong khi đây chính là vùng đáng giữ nhất. Vùng nhỏ luôn có nến ra hẳn ngoài nên
+            //   chuỗi bị reset liên tục; chỉ vùng RỘNG trùm cả range mới giữ được chuỗi dài.
+            // Chỉ ảnh hưởng HIỂN THỊ; lifecycle (mitigate/broken/xoá) vẫn chạy y nguyên.
+            bool touching = high >= b and low <= t
+            if touching
+                array.set(ofZoneInside, i, array.get(ofZoneInside, i) + 1)
+            else if array.get(ofZoneInside, i) < chopOFBars
+                array.set(ofZoneInside, i, 0)
+
+            // ĐẾM NẾN VỌT RA HẲN NGOÀI VÙNG — điều kiện để vùng này thôi chặn OF mới nằm lọt
+            // bên trong nó (xem addOFZone). "Ra hẳn" = CẢ CÂY NẾN nằm ngoài, về ĐÚNG PHÍA vùng
+            // đẩy giá đi (bull/demand: nến nằm trên đỉnh vùng; bear/supply: nằm dưới đáy vùng)
+            // — giống hệt điều kiện kích hoạt ofZoneActive. Chỉ nến CƯƠNG LỰC/TIÊU CHUẨN mới
+            // được +1; nến do dự nằm ngoài thì không cộng nhưng cũng không xoá số đã đếm. Giá
+            // chạm lại vào vùng khi CHƯA đủ số nến => đếm lại từ 0 (vùng vẫn đang bị khai thác).
+            // ĐỦ ofEscapeBars RỒI THÌ GIỮ LUÔN, không reset nữa: giá đã một lần rời hẳn vùng thì
+            // vùng hết quyền chi phối vĩnh viễn — nếu reset, cú hồi quay lại vùng cũ để tạo OF
+            // mới (đúng ca ảnh 2) sẽ tự tay xoá điều kiện vừa thoả và OF mới lại bị chặn.
+            if array.get(ofZoneOut, i) < ofEscapeBars
+                if touching
+                    array.set(ofZoneOut, i, 0)
+                else if (isBull and low > t) or (not isBull and high < b)
+                    if isDecisiveBar(open, high, low, close)
+                        array.set(ofZoneOut, i, array.get(ofZoneOut, i) + 1)
+
+            // QUY TẮC #1 BẮT BUỘC (BankTrap 1.5) — XÁC NHẬN OF: "Bearish OF: giá phải PHÁ KHỎI
+            // ĐÁY của OF" / "Bullish OF: giá phải PHÁ KHỎI ĐỈNH của OF". Xác nhận = 1 nến cương
+            // lực/tiêu chuẩn ĐÓNG CỬA vượt hẳn biên XA của vùng. Cờ sticky, chỉ set 1 lần.
+            //   CỬA SỔ ofConfirmBars: phải phá TRONG những nến đầu sau khi vùng hình thành. OF
+            //   theo định nghĩa là "chuyển động hồi cuối cùng TRƯỚC KHI TIẾP DIỄN xu hướng" —
+            //   nhịp tiếp diễn đến NGAY sau chân hồi. Nếu giá lởn vởn trong vùng cả chục nến rồi
+            //   mới thủng thì cú thủng đó không phải nhịp tiếp diễn của chân hồi này, chỉ là dao
+            //   động của một cái range => vùng vô hiệu vĩnh viễn.
+            //   ĐÂY LÀ ĐIỀU KIỆN KHÁC HẲN ofZoneOut/ofEscapeBars: cái kia (5 nến nằm hẳn ngoài)
+            //   chỉ dùng cho Quy tắc #2 (vùng lọt trong vùng). Dùng nhầm ngưỡng 5 nến làm điều
+            //   kiện hợp lệ sẽ giết oan các OF mà giá phá đáy rồi bật lại ngay — đúng ca BTCUSDT
+            //   4H 29-30/7/26: đổ 65.4k -> 62.8k xuyên đáy vùng rồi hồi lên liền, không bao giờ
+            //   có nổi 5 nến nằm dưới đáy.
+            if not array.get(ofZoneConf, i) and bar_index - array.get(ofZoneBarIdx, i) <= ofConfirmBars
+                if ((isBull and close > t) or (not isBull and close < b)) and isDecisiveBar(open, high, low, close)
+                    array.set(ofZoneConf, i, true)
 
             if not active
                 // Pha 1: box vừa tạo, giá thường còn nằm trong vùng => GIỮ NGUYÊN MÀU,
@@ -767,6 +955,23 @@ processOFZones() =>
         for i = 0 to zCnt - 1
             [t, b, l] = marginZone(array.get(ofZone, i))
             array.set(distArr, i, close > t ? close - t : close < b ? b - close : 0.0)
+        // chopArr[i] = vùng đã bị giá đi ngang bên trong quá lâu (>= chopOFBars nến nằm trong
+        // vùng). Vùng này bị ẩn HOÀN TOÀN và bị loại khỏi mọi xếp hạng bên dưới: không chiếm
+        // suất hiển thị của vùng khác, không được tính là "vùng bên trong" bắt vùng bao ngoài
+        // phải nhường chỗ, và không được chọn làm Extreme OF.
+        chopArr = array.new_bool(zCnt, false)
+        for i = 0 to zCnt - 1
+            array.set(chopArr, i, hideChopOF and array.get(ofZoneInside, i) >= chopOFBars)
+        // validArr[i] = OF ĐÃ ĐƯỢC XÁC NHẬN theo QUY TẮC #1 BẮT BUỘC của BankTrap (mục 1.5) —
+        // cờ ofZoneConf, set trong lifecycle phía trên (xem giải thích đầy đủ ở đó).
+        // Đây là điều kiện code TỪNG THIẾU HOÀN TOÀN: trước đây vẽ vùng ngay khi vừa tạo, nên
+        // trong nhịp đi ngang mỗi pivot đẻ ra một box mà giá CHƯA HỀ phá khỏi nó — vùng chưa hợp
+        // lệ nhưng vẫn nằm chình ình trên chart. Vùng chưa xác nhận: KHÔNG vẽ, KHÔNG chiếm suất
+        // hiển thị của vùng khác, KHÔNG được chọn làm Extreme OF — nhưng vẫn sống trong mảng để
+        // chặn OF rác sinh ra bên trong nó (Quy tắc #2, xem addOFZone) và để lifecycle chạy tiếp.
+        validArr = array.new_bool(zCnt, false)
+        for i = 0 to zCnt - 1
+            array.set(validArr, i, array.get(ofZoneConf, i))
         // containsArr[i] = vùng i bao trọn (chặt) một vùng khác đã đủ tuổi hiển thị — vùng
         // "thô" cũ hơn, rộng hơn, đã mitigated và giá đi ngang bên trong nó. Vùng mitigated
         // bao trùm như vậy tự ẩn, nhường chỗ cho vùng nhỏ/mới hơn bên trong (ví dụ OF vàng
@@ -775,7 +980,7 @@ processOFZones() =>
         for i = 0 to zCnt - 1
             [ti, bi, li] = marginZone(array.get(ofZone, i))
             for j = 0 to zCnt - 1
-                if j != i and bar_index - array.get(ofZoneBarIdx, j) >= minOFAge
+                if j != i and array.get(validArr, j) and not array.get(chopArr, j) and bar_index - array.get(ofZoneBarIdx, j) >= minOFAge
                     [tj, bj, lj] = marginZone(array.get(ofZone, j))
                     if ti >= tj and bi <= bj and not (ti == tj and bi == bj)
                         array.set(containsArr, i, true)
@@ -787,7 +992,7 @@ processOFZones() =>
         float exBullBot = na
         float exBearTop = na
         for i = 0 to zCnt - 1
-            if not array.get(ofZoneMit, i) and not array.get(ofZoneBroken, i)
+            if array.get(validArr, i) and not array.get(ofZoneMit, i) and not array.get(ofZoneBroken, i) and not array.get(chopArr, i)
                 [ti, bi, li] = marginZone(array.get(ofZone, i))
                 if array.get(ofZoneIsBull, i)
                     if na(exBullBot) or bi < exBullBot
@@ -809,9 +1014,9 @@ processOFZones() =>
             bool ofExploit = isMit and not isBroken and close <= zt and close >= zb
             // Mỗi vùng OF tự đóng băng cạnh phải tại đúng lần nó được test cuối cùng (xử lý ở
             // khối mitigate/broken phía trên) — KHÔNG ép cạnh theo vùng khác. Chỉ riêng MÀU
-            // "đang khai thác" (hồng) mới cần ưu tiên: nếu giá hiện đứng đúng dải GIAO NHAU của
-            // 2+ vùng OF cùng chiều đang exploit cùng lúc, chỉ vùng được chạm GẦN ĐÂY NHẤT mới
-            // tô hồng — tránh 2 vùng chồng lấn cùng tô hồng khi giá đứng đúng chỗ giao nhau.
+            // "đang khai thác" (đỏ/xanh) mới cần ưu tiên: nếu giá hiện đứng đúng dải GIAO NHAU
+            // của 2+ vùng OF cùng chiều đang exploit cùng lúc, chỉ vùng được chạm GẦN ĐÂY NHẤT
+            // mới được tô — tránh 2 vùng chồng lấn cùng sáng khi giá đứng đúng chỗ giao nhau.
             bool isPinkActive = ofExploit
             if ofExploit
                 for j = 0 to zCnt - 1
@@ -828,7 +1033,9 @@ processOFZones() =>
             if isMit and not na(firstTouch)
                 box.set_right(zone, ofExploitFinal ? time : firstTouch)
                 box.set_extend(zone, extend.none)
-            bool visible = bar_index - array.get(ofZoneBarIdx, i) >= minOFAge
+            // QUY TẮC #1 (validArr) đứng TRƯỚC mọi luật hiển thị khác: chưa phá khỏi đáy/đỉnh
+            // của chính nó thì chưa phải OF hợp lệ, không bàn tới chuyện hiện hay ẩn.
+            bool visible = array.get(validArr, i) and bar_index - array.get(ofZoneBarIdx, i) >= minOFAge
             if visible and isMit
                 if isBroken
                     // vùng đã bị giá phá qua toàn bộ chiều sâu: chỉ hiện khi bật showMitOF
@@ -848,7 +1055,7 @@ processOFZones() =>
                     int nearerMit = 0
                     float diMit = array.get(distArr, i)
                     for j = 0 to zCnt - 1
-                        if j != i and array.get(ofZoneMit, j) and not array.get(ofZoneBroken, j) and not array.get(containsArr, j) and bar_index - array.get(ofZoneBarIdx, j) >= minOFAge
+                        if j != i and array.get(validArr, j) and array.get(ofZoneMit, j) and not array.get(ofZoneBroken, j) and not array.get(containsArr, j) and not array.get(chopArr, j) and bar_index - array.get(ofZoneBarIdx, j) >= minOFAge
                             [tj, bj, lj] = marginZone(array.get(ofZone, j))
                             bool jExploit = close <= tj and close >= bj
                             bool sameSide = isBelow ? tj < close : bj > close
@@ -862,18 +1069,25 @@ processOFZones() =>
                 int nearer = 0
                 float di = array.get(distArr, i)
                 for j = 0 to zCnt - 1
-                    if j != i and array.get(ofZoneIsBull, j) == isBull and not array.get(ofZoneMit, j) and bar_index - array.get(ofZoneBarIdx, j) >= minOFAge
+                    if j != i and array.get(validArr, j) and array.get(ofZoneIsBull, j) == isBull and not array.get(ofZoneMit, j) and not array.get(chopArr, j) and bar_index - array.get(ofZoneBarIdx, j) >= minOFAge
                         float dj = array.get(distArr, j)
                         if dj < di or (dj == di and j > i)
                             nearer += 1
                 visible := nearer < maxOFShow
-            // Màu hồng "đang khai thác" chỉ dùng cho khung khác 15m — trên khung 15m vẫn để
-            // xám mitigated như bình thường (đỡ rối mắt ở khung theo dõi chính).
+            // Màu "đang khai thác" (ĐỎ nếu là OF bán, XANH LÁ nếu là OF mua — theo chiều vùng,
+            // không còn dùng màu hồng/tím riêng) chỉ áp cho khung khác 15m; trên khung 15m vẫn
+            // để xám mitigated như bình thường (đỡ rối mắt ở khung theo dõi chính).
             // Extreme OF luôn hiện (level quan trọng nhất) + viền nổi bật + nhãn "Ex OF".
             bool isExtreme = markExtremeOF and (i == exBullIdx or i == exBearIdx)
             if isExtreme
                 visible := true
-            color col = ofExploitFinal ? (is15m ? colorMitigated : colorOFExploit) : isMit and not ofExploitFinal ? colorMitigated : isBull ? colorOFBull : colorOFBear
+            // Bộ lọc PHỤ (mặc định TẮT — xem hideChopOF): ẩn hẳn vùng mà giá kẹt bên trong quá
+            // lâu. Việc xử lý sideway chính đã chuyển xuống khâu TẠO vùng (xem addOFZone), nên
+            // bộ lọc này chỉ dùng khi vẫn muốn dọn nốt cái box mà giá đang quanh quẩn bên trong.
+            if array.get(chopArr, i)
+                visible := false
+            color colExploit = isBull ? colorOFExploitBull : colorOFExploitBear
+            color col = ofExploitFinal ? (is15m ? colorMitigated : colExploit) : isMit and not ofExploitFinal ? colorMitigated : isBull ? colorOFBull : colorOFBear
             color shownCol = visible ? col : color.new(col, 100)
             box.set_bgcolor(zone, shownCol)
             box.set_border_color(zone, isExtreme and visible ? colorExtremeOF : shownCol)
@@ -885,17 +1099,32 @@ addLastPullbackOF(bool isBull) =>
     // OF tại CHOCH luôn được vẽ, KHÔNG qua bộ lọc HH/LL: CHOCH đã tự xác nhận đảo chiều, nên
     // chân hồi cuối trước nhịp phá cấu trúc CHÍNH LÀ vùng OF hợp lệ (nếu lọc HH/LL ở đây thì
     // OF đảo chiều gần như không bao giờ được vẽ). Bộ lọc HH/LL chỉ dành cho pullback giữa trend.
-    // NEO BẰNG QUÉT NẾN THÔ (scanLastPullback): vùng OF = chân hồi cuối ngay trước nhịp đẩy
-    // phá cấu trúc — gốc của impulse tạo CHOCH. KHÔNG neo theo pivot puHigh/puLow nữa vì
-    // engine pullback bỏ sót mọi cú hồi nằm gọn trong biên nến lớn trước đó (không sinh
-    // pivot) — OF từng bị thiếu/neo sai ở chính chỗ đảo chiều vì vậy. Pivot chỉ còn là DỰ
-    // PHÒNG khi quét thô thất bại (sát đầu lịch sử nạp).
+    // NEO BẰNG QUÉT NẾN THÔ, chọn kiểu neo bằng input chochOFAnchor:
+    //   "OB cực trị" (mặc định, scanExtremeOF) — cụm nến ngược chiều cuối ngay tại đỉnh/đáy tạo
+    //     CHoCH: vùng nhỏ, sát giá, không phình theo biên độ sideway.
+    //   "Chân hồi cuối" (scanLastPullback) — trọn chân hồi trước nhịp đẩy phá cấu trúc.
+    // KHÔNG neo theo pivot puHigh/puLow nữa vì engine pullback bỏ sót mọi cú hồi nằm gọn trong
+    // biên nến lớn trước đó (không sinh pivot) — OF từng bị thiếu/neo sai ở chính chỗ đảo chiều
+    // vì vậy. Pivot chỉ còn là DỰ PHÒNG khi cả 2 cách quét thô đều thất bại (sát đầu lịch sử nạp).
     if showOF
-        [pbA, pbABar, pbB, pbBBar] = scanLastPullback(isBull, false)
-        float scanTop = isBull ? pbB : pbA
-        float scanBot = isBull ? pbA : pbB
+        // Ưu tiên neo "OB cực trị" (vùng nhỏ ngay tại đỉnh/đáy tạo CHoCH — xem scanExtremeOF);
+        // thất bại (không có nến ngược chiều nào tại cực trị) thì rơi về chân hồi cuối.
+        float scanTop = na
+        float scanBot = na
+        int   scanBar = na
+        if chochOFAnchor == "OB - cụm nến cực trị"
+            [exT, exB, exBar] = scanExtremeOF(isBull, false)
+            if not na(exT) and not na(exB) and exT > exB
+                scanTop := exT
+                scanBot := exB
+                scanBar := exBar
+        if na(scanTop)
+            [pbA, pbABar, pbB, pbBBar] = scanLastPullback(isBull, false)
+            scanTop := isBull ? pbB : pbA
+            scanBot := isBull ? pbA : pbB
+            scanBar := int(math.min(pbABar, pbBBar))
         if not na(scanTop) and not na(scanBot) and scanTop > scanBot
-            addOFZone(math.min(pbABar, pbBBar), scanTop, scanBot, isBull)
+            addOFZone(scanBar, scanTop, scanBot, isBull)
         else if isBull
             float ofT = getNLastValue(puHigh, 1)
             int ofTBar = getNLastValue(puHBar, 1)
@@ -936,6 +1165,9 @@ removeOFZone4(int i) =>
     array.remove(ofZoneBroken4, i)
     array.remove(ofZoneTouchTime4, i)
     array.remove(ofZone4Setup, i)
+    array.remove(ofZoneInside4, i)
+    array.remove(ofZoneOut4, i)
+    array.remove(ofZoneConf4, i)
 
 invalidateOFByPivot4(bool isHighPivot, float p) =>
     if array.size(ofZone4) > 0
@@ -957,16 +1189,23 @@ pushOFZone4(int left, float top, float bot, bool isBull) =>
     array.push(ofZoneBroken4, false)
     array.push(ofZoneTouchTime4, na)
     array.push(ofZone4Setup, false)
+    array.push(ofZoneInside4, 0)
+    array.push(ofZoneOut4, 0)
+    array.push(ofZoneConf4, false)
 
 addOFZone4(int left, float top, float bot, bool isBull) =>
+    // Vùng lọt trong vùng chỉ được tạo khi vùng cũ đã bị giá vọt ra hẳn đủ ofEscapeBars nến 4H
+    // cương lực/tiêu chuẩn — cùng logic với addOFZone, xem giải thích đầy đủ ở đó.
     bool contained = false
     if array.size(ofZone4) > 0
         for i = array.size(ofZone4) - 1 to 0 by 1
-            if array.get(ofZoneIsBull4, i) == isBull and not array.get(ofZoneMit4, i)
+            if array.get(ofZoneIsBull4, i) == isBull
+                bool mitI = array.get(ofZoneMit4, i)
                 [t, b, l] = marginZone(array.get(ofZone4, i))
                 if top <= t and bot >= b
-                    contained := true
-                else if t <= top and b >= bot
+                    if not array.get(ofZoneBroken4, i) and array.get(ofZoneOut4, i) < ofEscapeBars
+                        contained := true
+                else if not mitI and t <= top and b >= bot
                     removeOFZone4(i)
     if not contained
         pushOFZone4(left, top, bot, isBull)
@@ -975,7 +1214,7 @@ addOFZone4(int left, float top, float bot, bool isBull) =>
 // nến 15m: vùng 4H rộng theo biên độ chân hồi 4H, nếu xét close 15m thì chỉ vài giờ là có
 // nến 15m đóng trong vùng -> mitigated/xoá oan hàng loạt, không còn vùng nào hiển thị.
 // Xét theo close 4H thì hành vi giống hệt khi xem vùng đó trên chart 4H.
-lifecycleOFZones4(float hh, float ll, float cc) =>
+lifecycleOFZones4(float oo, float hh, float ll, float cc) =>
     if array.size(ofZone4) > 0
         for i = array.size(ofZone4) - 1 to 0 by 1
             box zone = array.get(ofZone4, i)
@@ -983,6 +1222,29 @@ lifecycleOFZones4(float hh, float ll, float cc) =>
             bool isBull = array.get(ofZoneIsBull4, i)
             bool active = array.get(ofZoneActive4, i)
             bool expired = h4barCnt - array.get(ofZoneBarIdx4, i) > 1999
+
+            // Đếm sideway bằng NẾN 4H (hàm này chỉ chạy khi 1 nến 4H đóng) — chuỗi liên tiếp,
+            // reset khi nến ra hẳn ngoài vùng, cùng logic với processOFZones (xem ở đó).
+            bool touching = hh >= b and ll <= t
+            if touching
+                array.set(ofZoneInside4, i, array.get(ofZoneInside4, i) + 1)
+            else if array.get(ofZoneInside4, i) < chopOFBars
+                array.set(ofZoneInside4, i, 0)
+
+            // Đếm nến 4H vọt ra hẳn ngoài vùng (đủ ngưỡng thì giữ vĩnh viễn, không reset) —
+            // cùng logic với processOFZones, xem giải thích ở đó.
+            if array.get(ofZoneOut4, i) < ofEscapeBars
+                if touching
+                    array.set(ofZoneOut4, i, 0)
+                else if (isBull and ll > t) or (not isBull and hh < b)
+                    if isDecisiveBar(oo, hh, ll, cc)
+                        array.set(ofZoneOut4, i, array.get(ofZoneOut4, i) + 1)
+
+            // QUY TẮC #1 — xác nhận OF bằng 1 nến 4H đóng cửa phá hẳn biên xa, trong cửa sổ
+            // ofConfirmBars nến 4H đầu. Cùng logic với processOFZones, xem giải thích ở đó.
+            if not array.get(ofZoneConf4, i) and h4barCnt - array.get(ofZoneBarIdx4, i) <= ofConfirmBars
+                if ((isBull and cc > t) or (not isBull and cc < b)) and isDecisiveBar(oo, hh, ll, cc)
+                    array.set(ofZoneConf4, i, true)
 
             if not active
                 if (isBull and ll > t) or (not isBull and hh < b)
@@ -1016,12 +1278,21 @@ visibilityOFZones4() =>
         for i = 0 to zCnt - 1
             [t, b, l] = marginZone(array.get(ofZone4, i))
             array.set(distArr, i, close > t ? close - t : close < b ? b - close : 0.0)
+        // chopArr — vùng OF 4H bị giá đi ngang bên trong quá lâu, cùng logic với processOFZones.
+        chopArr = array.new_bool(zCnt, false)
+        for i = 0 to zCnt - 1
+            array.set(chopArr, i, hideChopOF and array.get(ofZoneInside4, i) >= chopOFBars)
+        // validArr — QUY TẮC #1 BankTrap: OF chỉ hợp lệ sau khi giá đóng nến phá khỏi đáy/đỉnh
+        // của chính nó, trong cửa sổ ofConfirmBars. Cùng logic với processOFZones, xem ở đó.
+        validArr = array.new_bool(zCnt, false)
+        for i = 0 to zCnt - 1
+            array.set(validArr, i, array.get(ofZoneConf4, i))
         // containsArr — cùng logic với processOFZones, xem giải thích ở đó.
         containsArr = array.new_bool(zCnt, false)
         for i = 0 to zCnt - 1
             [ti, bi, li] = marginZone(array.get(ofZone4, i))
             for j = 0 to zCnt - 1
-                if j != i and h4barCnt - array.get(ofZoneBarIdx4, j) >= minOFAge
+                if j != i and array.get(validArr, j) and not array.get(chopArr, j) and h4barCnt - array.get(ofZoneBarIdx4, j) >= minOFAge
                     [tj, bj, lj] = marginZone(array.get(ofZone4, j))
                     if ti >= tj and bi <= bj and not (ti == tj and bi == bj)
                         array.set(containsArr, i, true)
@@ -1031,7 +1302,7 @@ visibilityOFZones4() =>
         float exBullBot = na
         float exBearTop = na
         for i = 0 to zCnt - 1
-            if not array.get(ofZoneMit4, i) and not array.get(ofZoneBroken4, i)
+            if array.get(validArr, i) and not array.get(ofZoneMit4, i) and not array.get(ofZoneBroken4, i) and not array.get(chopArr, i)
                 [ti, bi, li] = marginZone(array.get(ofZone4, i))
                 if array.get(ofZoneIsBull4, i)
                     if na(exBullBot) or bi < exBullBot
@@ -1050,7 +1321,7 @@ visibilityOFZones4() =>
             // hiện màu gốc — cùng logic với processOFZones, xem giải thích ở đó.
             bool isBroken = array.get(ofZoneBroken4, i)
             bool ofExploit = isMit and not isBroken and close <= zt and close >= zb
-            // Chỉ ưu tiên MÀU hồng cho vùng được chạm gần đây nhất khi 2+ vùng cùng chiều đang
+            // Chỉ ưu tiên MÀU khai thác cho vùng được chạm gần đây nhất khi 2+ vùng cùng chiều đang
             // exploit tại đúng dải giao nhau — KHÔNG ép cạnh phải theo nhóm. Cùng logic với
             // processOFZones, xem giải thích ở đó.
             bool isPinkActive = ofExploit
@@ -1068,7 +1339,8 @@ visibilityOFZones4() =>
             if isMit and not na(firstTouch)
                 box.set_right(zone, ofExploitFinal ? time : firstTouch)
                 box.set_extend(zone, extend.none)
-            bool visible = h4barCnt - array.get(ofZoneBarIdx4, i) >= minOFAge
+            // QUY TẮC #1 đứng trước mọi luật hiển thị khác — xem processOFZones.
+            bool visible = array.get(validArr, i) and h4barCnt - array.get(ofZoneBarIdx4, i) >= minOFAge
             if visible and isMit
                 if isBroken
                     // vùng đã bị giá phá qua toàn bộ chiều sâu: chỉ hiện khi bật showMitOF
@@ -1086,7 +1358,7 @@ visibilityOFZones4() =>
                     int nearerMit = 0
                     float diMit = array.get(distArr, i)
                     for j = 0 to zCnt - 1
-                        if j != i and array.get(ofZoneMit4, j) and not array.get(ofZoneBroken4, j) and not array.get(containsArr, j) and h4barCnt - array.get(ofZoneBarIdx4, j) >= minOFAge
+                        if j != i and array.get(validArr, j) and array.get(ofZoneMit4, j) and not array.get(ofZoneBroken4, j) and not array.get(containsArr, j) and not array.get(chopArr, j) and h4barCnt - array.get(ofZoneBarIdx4, j) >= minOFAge
                             [tj, bj, lj] = marginZone(array.get(ofZone4, j))
                             bool jExploit = close <= tj and close >= bj
                             bool sameSide = isBelow ? tj < close : bj > close
@@ -1099,17 +1371,21 @@ visibilityOFZones4() =>
                 int nearer = 0
                 float di = array.get(distArr, i)
                 for j = 0 to zCnt - 1
-                    if j != i and array.get(ofZoneIsBull4, j) == isBull and not array.get(ofZoneMit4, j) and h4barCnt - array.get(ofZoneBarIdx4, j) >= minOFAge
+                    if j != i and array.get(validArr, j) and array.get(ofZoneIsBull4, j) == isBull and not array.get(ofZoneMit4, j) and not array.get(chopArr, j) and h4barCnt - array.get(ofZoneBarIdx4, j) >= minOFAge
                         float dj = array.get(distArr, j)
                         if dj < di or (dj == di and j > i)
                             nearer += 1
                 visible := nearer < maxOFShow
-            // OF 4H vẫn tô hồng "đang khai thác" như bình thường — chỉ riêng OF khung hiện tại
-            // (native, xem processOFZones) mới chuyển xám khi chart đang ở 15m.
+            // OF 4H vẫn tô màu "đang khai thác" (đỏ = OF bán, xanh lá = OF mua) như bình thường
+            // — chỉ riêng OF khung hiện tại (native, xem processOFZones) mới chuyển xám khi
+            // chart đang ở 15m.
             bool isExtreme = markExtremeOF and (i == exBullIdx or i == exBearIdx)
             if isExtreme
                 visible := true
-            color col = ofExploitFinal ? colorOFExploit : isMit and not ofExploitFinal ? colorMitigated : isBull ? colorOF4Bull : colorOF4Bear
+            // Bộ lọc phụ ẩn vùng giá kẹt bên trong (mặc định tắt) — cùng logic với processOFZones.
+            if array.get(chopArr, i)
+                visible := false
+            color col = ofExploitFinal ? (isBull ? colorOFExploitBull : colorOFExploitBear) : isMit and not ofExploitFinal ? colorMitigated : isBull ? colorOF4Bull : colorOF4Bear
             color shownCol = visible ? col : color.new(col, 100)
             box.set_bgcolor(zone, shownCol)
             box.set_border_color(zone, isExtreme and visible ? colorExtremeOF : shownCol)
@@ -1120,11 +1396,22 @@ visibilityOFZones4() =>
 addLastPullbackOF4(bool isBull) =>
     // Bản 4H của addLastPullbackOF — xem giải thích ở đó. Quét thô trên chuỗi 4H (use4h=true)
     // vì engine 4H có cùng điểm mù pivot; pivot 4H chỉ còn là dự phòng.
-    [pbA, pbABar, pbB, pbBBar] = scanLastPullback(isBull, true)
-    float scanTop = isBull ? pbB : pbA
-    float scanBot = isBull ? pbA : pbB
+    float scanTop = na
+    float scanBot = na
+    int   scanBar = na
+    if chochOFAnchor == "OB - cụm nến cực trị"
+        [exT, exB, exBar] = scanExtremeOF(isBull, true)
+        if not na(exT) and not na(exB) and exT > exB
+            scanTop := exT
+            scanBot := exB
+            scanBar := exBar
+    if na(scanTop)
+        [pbA, pbABar, pbB, pbBBar] = scanLastPullback(isBull, true)
+        scanTop := isBull ? pbB : pbA
+        scanBot := isBull ? pbA : pbB
+        scanBar := int(math.min(pbABar, pbBBar))
     if not na(scanTop) and not na(scanBot) and scanTop > scanBot
-        addOFZone4(math.min(pbABar, pbBBar), scanTop, scanBot, isBull)
+        addOFZone4(scanBar, scanTop, scanBot, isBull)
     else if isBull
         float ofT = getNLastValue(puHigh4, 1)
         int ofTBar = getNLastValue(puHBar4, 1)
@@ -1873,7 +2160,7 @@ if show4hOF and is15m and newH4bar and not na(t4)
                     lastHBar4 := getNLastValue(puHBar4, 1)
 
         //lifecycle vùng OF 4H — xét theo chính nến 4H vừa đóng
-        lifecycleOFZones4(h4, l4, c4)
+        lifecycleOFZones4(o4, h4, l4, c4)
 //#endregion
 
 
