@@ -120,6 +120,46 @@ Xem mục "Gộp vùng" ở trên — trường hợp này vùng mới bị bỏ
 
 ---
 
+## 3. Logic phân biệt Demand (xanh) và Supply (đỏ)
+
+Màu do **hai máy chạy song song, độc lập nhau** quyết định — mỗi máy chỉ nhìn hình dạng nến tại chỗ,
+không liên quan gì tới xu hướng hay cấu trúc BOS/CHoCH:
+
+| | **Supply (đỏ)** — L510-528 | **Demand (xanh)** — L530-548 |
+|---|---|---|
+| Nến mồi | Đỉnh **swing cao**: đỉnh cao hơn nến trước và nến sau | Đáy **swing thấp**: đáy thấp hơn nến trước và nến sau |
+| Điều kiện xác nhận | **Đáy** nến ứng viên nằm **trên đỉnh** nến sau đó 2 nến → giá rơi để lại khoảng trống | **Đỉnh** nến ứng viên nằm **dưới đáy** nến sau đó 2 nến → giá tăng để lại khoảng trống |
+| Ý nghĩa | Giá **bỏ chạy xuống** khỏi vùng này → coi là nơi có lệnh bán | Giá **bỏ chạy lên** khỏi vùng này → coi là nơi có lệnh mua |
+| Biến trong code | `isSweepOBS`, `high_MOBS` / `low_MOBS`, mảng `supplyZone` | `isSweepOBD`, `high_MOBD` / `low_MOBD`, mảng `demandZone` |
+
+**Nói gọn một câu: hướng giá rời khỏi cây nến đó quyết định màu. Rơi xuống → đỏ. Bật lên → xanh.**
+
+### Ba điểm quan trọng đi kèm
+
+**① Hai máy hoàn toàn tách rời.**
+Máy Supply đang bận chờ khoảng trống thì máy Demand vẫn chạy bình thường và ngược lại.
+Cùng một cây nến về lý thuyết có thể vừa là ứng viên đỉnh của máy này vừa là ứng viên đáy của máy kia.
+
+**② Không dính dáng gì tới structure.**
+Vùng POI không hề đọc `isCocUp` / `isBosUp` / `findIDM`. Indicator không hỏi "đang uptrend hay downtrend",
+cũng không hỏi "vùng này nằm trên hay dưới giá hiện tại".
+Vì vậy hoàn toàn có thể xuất hiện vùng demand (xanh) **nằm phía trên** giá hiện tại —
+đúng theo thiết kế, không phải lỗi.
+
+**③ Có một đường thứ hai để đổi màu: breaker block** (L273-277)
+
+Khi một cây nến **bao trọn** vùng supply và **đóng cửa vượt lên trên** nó,
+code tạo một vùng **demand xanh tại đúng tọa độ cũ** (vùng supply đỏ bị xóa ngay trong cùng nến đó).
+Ngược lại vùng demand bị phá xuống → sinh vùng supply đỏ.
+
+Nghĩa là một số hộp xanh trên chart **không sinh ra từ đáy swing nào cả** — chúng là vùng đỏ cũ bị lật màu.
+Đây là lý do đôi khi thấy vùng xanh xuất hiện ở chỗ trước đó là vùng đỏ.
+
+Ngoài ra màu **xám** đè lên cả hai: vùng đã bị giá chạm vào nhưng chưa xuyên qua (Mitigated),
+lúc đó không còn phân biệt đỏ/xanh nữa.
+
+---
+
 ## Ghi chú kỹ thuật
 
 - Toàn bộ POI bật/tắt bằng input `Show POI`.
