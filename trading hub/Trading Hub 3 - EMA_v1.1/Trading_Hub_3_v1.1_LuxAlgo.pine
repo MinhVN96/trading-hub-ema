@@ -1,7 +1,8 @@
 //@version=5
 // Trading Hub 3 v1.1 — BIẾN THỂ LUXALGO
-// Engine cấu trúc (CHoCH / BOS / IDM / Sweep) được thay hoàn toàn bằng
+// Engine cấu trúc (CHoCH / BOS) thay hoàn toàn bằng
 // "Market Structure with Inducements & Sweeps [LuxAlgo]" (CC BY-NC-SA 4.0).
+// IDM KHÔNG lấy của LuxAlgo mà theo BankTrap (pullback đầu tiên sau BOS).
 // Các module POI / Order Block / SCOB / Inside Bar / Pullback giữ nguyên của Trading Hub 3.
 // Xem Yeu_cau_bo_sung_SMC_LuxAlgo.md — mục #L1, #L2.
 indicator("Trading_Hub_3_v1.1_LuxAlgo", "Trading_Hub_3_v1.1_LuxAlgo", true, max_bars_back = 5000, max_labels_count = 500, max_lines_count = 500)
@@ -23,12 +24,8 @@ chochLen15 = input.int(50, "CHoCH Period (khung ≠ 4H)", minval = 5, group = "S
      tooltip = "Mặc định LuxAlgo cho khung đang xem. Trên 15m ~ 12,5 giờ.")
 chochLen4h = input.int(15, "CHoCH Period (khung 4H)"  , minval = 5, group = "Structure",
      tooltip = "Riêng 4H phải nhỏ hơn, nếu không cấu trúc gần như không đổi chiều. 15 nến 4H ~ 2,5 ngày.")
-// Chốt arm NGẦM cho BOS — chính là `shortLen` của LuxAlgo. KHÔNG vẽ, KHÔNG phải IDM.
-// Vai trò duy nhất: giữ đúng NHỊP BOS của LuxAlgo (mỗi nhịp đẩy 1 BOS). Không dùng nó thì
-// phải lấy pullback làm chốt, mà pullback chạy ở độ phân giải 1 nến nên BOS sẽ bắn thừa.
-bosArmLen  = input.int(3 , "BOS re-arm period", minval = 1, group = "Structure",
-     tooltip = "shortLen của LuxAlgo. Chỉ dùng để canh nhịp BOS, không liên quan tới nhãn IDM.")
-// IDM KHÔNG có tham số: nó lấy từ engine pullback (BankTrap trang 3) chứ không phải fractal.
+// KHÔNG còn tham số riêng cho BOS: BOS dùng chung mốc swing với CHoCH (công thức SMC chuẩn),
+// nên chochLen điều khiển cả hai. IDM cũng không có tham số — nó lấy từ engine pullback.
 
 // tự chọn theo khung đang xem — cùng cơ chế với smcSwingLenUsed của bản EMA_v1
 int chochLen = timeframe.period == "240" ? chochLen4h : chochLen15
@@ -36,9 +33,17 @@ int chochLen = timeframe.period == "240" ? chochLen4h : chochLen15
 showChoCh = input.bool(true, "Show CHoCH", group = "Structure")
 showBOS = input.bool(true, "Show B O S", group = "Structure")
 showIDM = input.bool(true,"Show IDM", group = "Structure")
-showSw = input.bool(true, "Show Sweeps", inline = "sweep", group = "Structure")
-markX = input.bool(true, 'Mark "X"', inline = "sweep", group = "Structure")
-showSwings = input.bool(true, "Mark Swing points", group = "Structure")
+showSwings = input.bool(true, "Mark Swing points", inline = "sw", group = "Structure")
+swingSize  = input.string(size.small, "", inline = "sw", group = "Structure",
+     options = [size.tiny, size.small, size.normal, size.large],
+     tooltip = "Một cỡ duy nhất: hộp tự co giãn vừa khít chữ nên không còn lo chữ tràn viền.")
+swingTransp = input.int(60, "", inline = "sw", minval = 0, maxval = 100, group = "Structure",
+     tooltip = "Độ mờ của hình: 0 = đặc, 100 = trong suốt hẳn.")
+swingShowTx = input.bool(true, "Hiện chữ HH/HL/LH/LL", inline = "sw2", group = "Structure")
+swingShowBg = input.bool(true, "Hiện hình", inline = "sw2", group = "Structure",
+     tooltip = "Tắt hình -> chỉ còn chữ trơn. Tắt chữ -> chỉ còn ô vuông đánh dấu.")
+swingOfs   = input.float(0.8, "Đẩy chấm swing xa nến (x ATR14)", minval = 0, step = 0.1, group = "Structure",
+     tooltip = "0 = nằm đúng tại đỉnh/đáy. Tăng lên để chấm lùi ra xa nến, dễ nhìn hơn.")
 showLive = input.bool(true, "Show live levels", inline = "live", group = "Structure")
 liveLen = input.int(15, title="", inline = "live", group = "Structure")
 
@@ -51,7 +56,7 @@ bear = input.color(color.red , "Bearish", group = "Structure | Color")
 scobUp = input.color(#0b3ff9   , "Bullish SCOB", group = "Structure | Color")
 scobDn = input.color(#da781d, "Bearish SCOB", group = "Structure | Color")
 colorIDM = input.color(color.gray, "IDM", group = "Structure | Color")
-colorSweep = input.color(color.gray, "Sweep", group = "Structure | Color")
+colorSwingTx = input.color(color.white, "Chữ HH/HL/LH/LL", group = "Structure | Color")
 colorDemand = input.color(color.rgb(47, 130, 96, 80), 'Demand', group = "Structure | Color")
 colorSupply = input.color(color.rgb(205, 92, 72, 80), 'Supply', group = "Structure | Color")
 colorMitigated = input.color(color.rgb(192, 192, 192, 80), 'Mitigated', group = "Structure | Color")
@@ -112,9 +117,10 @@ var idmUpArr  = array.new_bool(0)
 color transp = color.new(color.gray,100)
 
 //Caculate
-barIdx = bar_index
 curTf = timeframe.in_seconds(timeframe.period)
 len = curTf*1000
+// dùng để đẩy chấm swing ra xa nến — theo ATR nên tự co giãn theo từng mã/khung
+atrSw = ta.atr(14)
 
 //#endregion
 
@@ -175,10 +181,20 @@ addIdm(int xBar, float y, bool isUp) =>
         array.shift(idmLnArr), array.shift(idmLbArr)
         array.shift(idmLvlArr), array.shift(idmUpArr)
 
-drawSweep(int xBar, float y, bool trend) =>
-    line.new(xBar, y, time, y, xloc.bar_time, color = colorSweep, style = line.style_dotted)
-    if markX
-        label.new(textCenter(time, xBar), y, "x", xloc.bar_time, color = transp, textcolor = colorSweep, style = getStyleLabel(trend), size = size.small)
+// Đánh dấu swing kèm chữ HH / HL / LH / LL. Ba tổ hợp theo 2 toggle, mỗi tổ hợp cần một
+// style khác nhau — chỉ 1 label duy nhất, không xếp chồng:
+//   hình + chữ -> style_label_center : hộp bo góc, chữ nằm giữa, hộp TỰ co giãn vừa chữ
+//   chỉ hình   -> style_square       : ô vuông rỗng (label_center không chữ sẽ co gần như mất)
+//   chỉ chữ    -> style_none         : chữ trơn, không nền
+// isTop = true -> đỉnh swing, đánh dấu PHÍA TRÊN nến; false -> đáy swing, phía dưới.
+addSwingDot(int xBar, float lvl, string tag, bool isTop) =>
+    if swingShowTx or swingShowBg
+        y   = isTop ? lvl + swingOfs * atrSw : lvl - swingOfs * atrSw
+        col = color.new(isTop ? bear : bull, swingTransp)
+        stl = swingShowBg ? (swingShowTx ? label.style_label_center : label.style_square) : label.style_none
+        label.new(xBar, y, swingShowTx ? tag : "", xloc.bar_time,
+             color = swingShowBg ? col : transp, textcolor = colorSwingTx,
+             style = stl, size = swingSize)
 
 createBox(left, right, top, bottom, color) =>
     box.new(left=left, right=right, top=top, bottom=bottom, xloc = xloc.bar_time, bgcolor=color, border_color=color, extend = extend.right)
@@ -332,10 +348,6 @@ swings(int length) =>
     [top, topx, btm, btmx]
 
 [swTop, swTopBar, swBtm, swBtmBar] = swings(chochLen)
-// fractal mịn — CHỈ để canh nhịp BOS, không vẽ ra chart
-[armTopRaw, armTopBarRaw, armBtmRaw, armBtmBarRaw] = swings(bosArmLen)
-armHi = fixnan(armTopRaw)
-armLo = fixnan(armBtmRaw)
 
 // bias: 1 = bullish, 0 = bearish
 var int os = 0
@@ -347,18 +359,6 @@ var int   chTopBar = na
 var int   chBtmBar = na
 var bool  topCrossed = false
 var bool  btmCrossed = false
-
-// mốc BOS (cực trị chạy từ lần lật bias gần nhất)
-var float bosMax = na
-var float bosMin = na
-var int   bosMaxBar = na
-var int   bosMinBar = na
-var int   bosMaxIdx = na
-var int   bosMinIdx = na
-
-// chốt arm BOS — tương đương sbtm_crossed / stop_crossed của LuxAlgo. Ngầm, không vẽ.
-var bool armLoCrossed = false
-var bool armHiCrossed = false
 
 // bar của mốc IDM gần nhất mỗi chiều — chỉ để chặn vẽ 2 nhãn trùng chỗ
 var int lastIdmUpBar = na
@@ -382,46 +382,21 @@ lastPbHi    = getNLastValue(puHigh, 1)
 lastPbHiBar = getNLastValue(puHBar, 1)
 
 //--- Cập nhật mốc CHoCH khi có swing mới ------------------------------------
+// Tên nhãn theo LuxAlgo SMC (getCurrentStructure): so với swing CÙNG LOẠI liền trước.
+// chTop/chBtm lúc này vẫn đang giữ giá trị swing trước đó => so xong mới ghi đè.
 if not na(swTop)
+    if showSwings
+        addSwingDot(swTopBar, swTop, na(chTop) or swTop > chTop ? 'HH' : 'LH', true)
     chTop := swTop
     chTopBar := swTopBar
     topCrossed := false
 
 if not na(swBtm)
+    if showSwings
+        addSwingDot(swBtmBar, swBtm, na(chBtm) or swBtm < chBtm ? 'LL' : 'HL', false)
     chBtm := swBtm
     chBtmBar := swBtmBar
     btmCrossed := false
-
-//--- CHoCH: đóng nến vượt mốc swing, ngược chiều bias -> lật bias ------------
-if not na(chTop) and close > chTop and not topCrossed
-    os := 1
-    topCrossed := true
-
-if not na(chBtm) and close < chBtm and not btmCrossed
-    os := 0
-    btmCrossed := true
-
-//--- Vẽ CHoCH + reset toàn bộ trạng thái khi bias lật -----------------------
-if os != os[1]
-    bosMax := high
-    bosMin := low
-    bosMaxBar := time
-    bosMinBar := time
-    bosMaxIdx := barIdx
-    bosMinIdx := barIdx
-    armLoCrossed := false
-    armHiCrossed := false
-
-    // CHoCH KHÔNG đi tìm IDM — chỉ BOS mới sinh IDM.
-    // Mốc IDM đang chờ thì GIỮ NGUYÊN, không xoá: giá vẫn có thể quay về quét chúng.
-    // lastIdmUpBar/DnBar cũng KHÔNG reset — chúng chỉ chặn vẽ trùng chỗ, việc đó vẫn cần
-    // sau CHoCH (nếu chưa có pullback mới thì đừng vẽ thêm nhãn ở đúng vị trí cũ).
-
-    if showChoCh
-        if os == 1
-            drawStrc(CHOCH_TEXT, chTopBar, chTop, true)
-        else
-            drawStrc(CHOCH_TEXT, chBtmBar, chBtm, false)
 
 //--- Bảo trì các mốc IDM đang chờ bị quét -----------------------------------
 // Chưa quét  -> kéo dài đường sang nến hiện tại (mốc vẫn còn hiệu lực).
@@ -441,86 +416,67 @@ if array.size(idmLvlArr) > 0
             line.set_x2(ln, time)
             label.set_x(lb, textCenter(time, line.get_x1(ln)))
 
-//--- Bullish BOS ------------------------------------------------------------
-// Chốt arm ngầm — y hệt LuxAlgo dòng 113-118, chỉ khác là KHÔNG vẽ ra chart.
-if not na(armLo) and low < armLo and not armLoCrossed and os == 1 and armLo != chBtm
-    armLoCrossed := true
-
-// BOS: điều kiện y hệt LuxAlgo dòng 121. Giá KHÔNG cần phá mốc IDM.
-if not na(bosMax) and close > bosMax and armLoCrossed and os == 1
-    if showBOS
-        drawStrc(BOS_TEXT, bosMaxBar, bosMax, true)
-    armLoCrossed := false
-    // ĐÂY là nơi duy nhất sinh IDM: nến đóng tạo BOS -> quay lại tìm pullback đầu tiên.
+//--- CHoCH / BOS — MỘT sự kiện duy nhất, bias quyết định tên -----------------
+// Công thức SMC chuẩn (Smart Money Concepts [LuxAlgo] dòng 568-569):
+//     tag = t_rend.bias == BEARISH ? CHOCH : BOS
+// Mốc LUÔN là điểm swing có nhãn: phá lên = chTop (HH/LH), phá xuống = chBtm (LL/HL).
+// `topCrossed`/`btmCrossed` lo việc chống lặp — mỗi mốc swing chỉ bắn ĐÚNG MỘT LẦN,
+// nên không cần chốt arm fractal như bản "Market Structure w/ Inducements" nữa.
+if not na(chTop) and close > chTop and not topCrossed
+    txt = os == 0 ? CHOCH_TEXT : BOS_TEXT     // phải tính TRƯỚC khi đổi os
+    if txt == CHOCH_TEXT ? showChoCh : showBOS
+        drawStrc(txt, chTopBar, chTop, true)
+    topCrossed := true
+    os := 1
+    // Chỉ BOS mới sinh IDM (CHoCH thì không) — nến đóng BOS mới quay lại tìm PB đầu tiên.
     // Chỉ tạo nếu neo vào pullback KHÁC lần trước, nếu không sẽ có 2 chữ IDM chồng chỗ.
-    if showIDM and not na(lastPbLoBar) and (na(lastIdmUpBar) or lastPbLoBar != lastIdmUpBar)
+    if txt == BOS_TEXT and showIDM and not na(lastPbLoBar) and (na(lastIdmUpBar) or lastPbLoBar != lastIdmUpBar)
         addIdm(lastPbLoBar, lastPbLo, true)
         lastIdmUpBar := lastPbLoBar
 
-//--- Bearish BOS ------------------------------------------------------------
-if not na(armHi) and high > armHi and not armHiCrossed and os == 0 and armHi != chTop
-    armHiCrossed := true
-
-if not na(bosMin) and close < bosMin and armHiCrossed and os == 0
-    if showBOS
-        drawStrc(BOS_TEXT, bosMinBar, bosMin, false)
-    armHiCrossed := false
-    if showIDM and not na(lastPbHiBar) and (na(lastIdmDnBar) or lastPbHiBar != lastIdmDnBar)
+if not na(chBtm) and close < chBtm and not btmCrossed
+    txt = os == 1 ? CHOCH_TEXT : BOS_TEXT
+    if txt == CHOCH_TEXT ? showChoCh : showBOS
+        drawStrc(txt, chBtmBar, chBtm, false)
+    btmCrossed := true
+    os := 0
+    if txt == BOS_TEXT and showIDM and not na(lastPbHiBar) and (na(lastIdmDnBar) or lastPbHiBar != lastIdmDnBar)
         addIdm(lastPbHiBar, lastPbHi, false)
         lastIdmDnBar := lastPbHiBar
 
-//--- Sweeps: quét râu qua mốc BOS nhưng không đóng nến ----------------------
-// LƯU Ý: đây là sweep tại mốc BOS. Sweep tại mốc CHoCH chưa có — xem #L3.
-if showSw and not na(bosMax) and high > bosMax and close < bosMax and os == 1 and barIdx - bosMaxIdx > 1
-    drawSweep(bosMaxBar, bosMax, true)
-
-if showSw and not na(bosMin) and low < bosMin and close > bosMin and os == 0 and barIdx - bosMinIdx > 1
-    drawSweep(bosMinBar, bosMin, false)
-
-//--- Cực trị chạy: PHẢI đặt SAU các khối check ở trên -----------------------
-// Đây chính là cơ chế "râu quét nâng mốc tham chiếu" (BankTrap trang 7).
-bosMax := na(bosMax) ? high : math.max(high, bosMax)
-bosMin := na(bosMin) ? low  : math.min(low , bosMin)
-
-// na(bosMaxBar) bắt buộc phải có: bias khởi tạo = 0 (bearish) nên khối BOS/sweep phía dưới
-// có thể chạy TRƯỚC lần lật bias đầu tiên, khi đó mốc bar vẫn còn na => vẽ hỏng.
-if na(bosMaxBar) or bosMax > nz(bosMax[1], bosMax)
-    bosMaxBar := time
-    bosMaxIdx := barIdx
-
-if na(bosMinBar) or bosMin < nz(bosMin[1], bosMin)
-    bosMinBar := time
-    bosMinIdx := barIdx
-
-//--- Đường "live": mốc đang chờ bị phá --------------------------------------
+//--- Đường "live": hai mốc swing đang chờ bị phá ----------------------------
+// Chỉ còn ĐÚNG 2 mốc: chTop phía trên và chBtm phía dưới. Tên nhãn đổi theo bias — cùng
+// một mốc sẽ là BOS nếu phá thuận chiều, CHoCH nếu phá ngược chiều.
 // Không có live-IDM: mỗi mốc IDM chưa bị quét đã tự kéo dài tới nến hiện tại ở khối bảo trì.
-var line  liveChochLn  = na
-var line  liveBosLn    = na
-var label liveChochLbl = na
-var label liveBosLbl   = na
+var line  liveUpLn  = na
+var line  liveDnLn  = na
+var label liveUpLbl = na
+var label liveDnLbl = na
 
 if barstate.islast
-    line.delete(liveChochLn), line.delete(liveBosLn)
-    label.delete(liveChochLbl), label.delete(liveBosLbl)
+    line.delete(liveUpLn), line.delete(liveDnLn)
+    label.delete(liveUpLbl), label.delete(liveDnLbl)
 
     if showLive
         // đường live dùng xloc.bar_index để chiếu thẳng ra tương lai — không phụ thuộc
         // khoảng cách thời gian giữa các nến (an toàn với phiên nghỉ / cuối tuần)
         x2 = bar_index + liveLen
 
-        chY   = os == 1 ? chBtm : chTop
-        chCol = os == 1 ? bear : bull
-        chUp  = os != 1
-        bosY  = os == 1 ? bosMax : bosMin
-        bosCol= os == 1 ? bull : bear
+        upTxt = os == 1 ? BOS_TEXT : CHOCH_TEXT
+        dnTxt = os == 1 ? CHOCH_TEXT : BOS_TEXT
 
-        if showChoCh and not na(chY)
-            liveChochLn  := line.new(bar_index, chY, x2, chY, xloc.bar_index, color = chCol, style = line.style_dashed)
-            liveChochLbl := label.new(x2, chY, CHOCH_TEXT, xloc.bar_index, color = transp, textcolor = chCol, style = getStyleLabel(chUp), size = size.small)
+        // `not topCrossed` : mốc đã bị tiêu thụ thì không còn là mốc đang chờ nữa
+        if not na(chTop) and not topCrossed and (upTxt == CHOCH_TEXT ? showChoCh : showBOS)
+            liveUpLn  := line.new(bar_index, chTop, x2, chTop, xloc.bar_index, color = bull,
+                 style = upTxt == BOS_TEXT ? line.style_solid : line.style_dashed)
+            liveUpLbl := label.new(x2, chTop, upTxt, xloc.bar_index, color = transp,
+                 textcolor = bull, style = label.style_label_down, size = size.small)
 
-        if showBOS and not na(bosY)
-            liveBosLn  := line.new(bar_index, bosY, x2, bosY, xloc.bar_index, color = bosCol, style = line.style_solid)
-            liveBosLbl := label.new(x2, bosY, BOS_TEXT, xloc.bar_index, color = transp, textcolor = bosCol, style = getStyleLabel(os == 1), size = size.small)
+        if not na(chBtm) and not btmCrossed and (dnTxt == CHOCH_TEXT ? showChoCh : showBOS)
+            liveDnLn  := line.new(bar_index, chBtm, x2, chBtm, xloc.bar_index, color = bear,
+                 style = dnTxt == BOS_TEXT ? line.style_solid : line.style_dashed)
+            liveDnLbl := label.new(x2, chBtm, dnTxt, xloc.bar_index, color = transp,
+                 textcolor = bear, style = label.style_label_up, size = size.small)
 //#endregion
 
 //#region POI  — GIỮ NGUYÊN của Trading Hub 3
@@ -571,13 +527,6 @@ barcolor(showSCOB ? scob(supplyZone, true) : na, -1)
 barcolor(showSCOB ? scob(demandZone, false) : na, -1)
 processZones(supplyZone, true)
 processZones(demandZone, false)
-
-// Chấm swing — vẽ lùi về đúng nến tạo đỉnh/đáy.
-// Phải tách 2 cặp plot vì `offset` không nhận biến đổi theo khung (chỉ nhận input/simple int),
-// trong khi chochLen là kết quả của ternary theo timeframe.
-is4h = timeframe.period == "240"
-plot(showSwings and not is4h ? swTop : na, 'Swing High', color.new(bear, 50), 4, plot.style_circles, offset = -chochLen15)
-plot(showSwings and not is4h ? swBtm : na, 'Swing Low' , color.new(bull, 50), 4, plot.style_circles, offset = -chochLen15)
-plot(showSwings and is4h     ? swTop : na, 'Swing High 4H', color.new(bear, 50), 4, plot.style_circles, offset = -chochLen4h)
-plot(showSwings and is4h     ? swBtm : na, 'Swing Low 4H' , color.new(bull, 50), 4, plot.style_circles, offset = -chochLen4h)
+// Chấm swing giờ vẽ bằng label trong khối cấu trúc (addSwingDot) — không còn plot nào.
+// Nhờ dùng xloc.bar_time nên cũng không cần tách 2 cặp plot theo khung như trước.
 //#endregion
