@@ -5,13 +5,17 @@
 // IDM KHÔNG lấy của LuxAlgo mà theo BankTrap (pullback đầu tiên sau BOS).
 // Các module POI / Order Block / SCOB / Inside Bar / Pullback giữ nguyên của Trading Hub 3.
 // Xem Yeu_cau_bo_sung_SMC_LuxAlgo.md — mục #L1, #L2.
-indicator("Trading_Hub_3_v1.1_LuxAlgo", "Trading_Hub_3_v1.1_LuxAlgo", true, max_bars_back = 5000, max_labels_count = 500, max_lines_count = 500)
+indicator("Trading_Hub_3_v1.1_LuxAlgo", "Trading_Hub_3_v1.1_LuxAlgo", true, max_bars_back = 5000, max_labels_count = 500, max_lines_count = 500, max_boxes_count = 500)
 
 //drawing options
 showPOI = input.bool(true, "Show POI", group="POI settings")
 poi_type = input.string ("---",title='POI type', group="POI settings", options=["---", "Mother Bar"])
 mergeRatio = input.float(defval=0, minval=0, maxval=0.5, step=0.02, title="Merge Ratio", group="POI settings" )
 maxBarHistory = input.int(2000, title="Max IPA age", group="POI settings")
+maxPOIShow = input.int(5, "So POI CON SONG toi da moi chieu", minval = 1, maxval = 50, group = "POI settings",
+     tooltip = "Vung chua bi cham (con keo dai sang phai). Dem RIENG voi vung xam. Vuot nguong thi xoa vung CU NHAT cua chinh nhom do.")
+maxPOIMit  = input.int(5, "So POI XAM toi da moi chieu", minval = 0, maxval = 50, group = "POI settings",
+     tooltip = "Vung da mitigated (gia da cham vao). De 0 = don sach vung xam ngay khi vua bi cham.")
 
 // #L2 — hai tham số này là bản chất của engine fractal LuxAlgo, không phải lựa chọn thiết kế.
 // Mốc CHoCH chỉ được xác nhận SAU chochLen nến.
@@ -34,10 +38,10 @@ showChoCh = input.bool(true, "Show CHoCH", group = "Structure")
 showBOS = input.bool(true, "Show B O S", group = "Structure")
 showIDM = input.bool(true,"Show IDM", group = "Structure")
 showSwings = input.bool(true, "Mark Swing points", inline = "sw", group = "Structure")
-swingSize  = input.string(size.small, "", inline = "sw", group = "Structure",
+swingSize  = input.string(size.small, "Cỡ", inline = "sw", group = "Structure",
      options = [size.tiny, size.small, size.normal, size.large],
      tooltip = "Một cỡ duy nhất: hộp tự co giãn vừa khít chữ nên không còn lo chữ tràn viền.")
-swingTransp = input.int(60, "", inline = "sw", minval = 0, maxval = 100, group = "Structure",
+swingTransp = input.int(60, "Mờ", inline = "sw", minval = 0, maxval = 100, group = "Structure",
      tooltip = "Độ mờ của hình: 0 = đặc, 100 = trong suốt hẳn.")
 swingShowTx = input.bool(true, "Hiện chữ HH/HL/LH/LL", inline = "sw2", group = "Structure")
 swingShowBg = input.bool(true, "Hiện hình", inline = "sw2", group = "Structure",
@@ -45,11 +49,60 @@ swingShowBg = input.bool(true, "Hiện hình", inline = "sw2", group = "Structur
 swingOfs   = input.float(0.8, "Đẩy chấm swing xa nến (x ATR14)", minval = 0, step = 0.1, group = "Structure",
      tooltip = "0 = nằm đúng tại đỉnh/đáy. Tăng lên để chấm lùi ra xa nến, dễ nhìn hơn.")
 showLive = input.bool(true, "Show live levels", inline = "live", group = "Structure")
-liveLen = input.int(15, title="", inline = "live", group = "Structure")
+liveLen = input.int(15, title="Dài", inline = "live", group = "Structure")
 
 showMn = input.bool(false, "Show pullback", group = "Structure")
 maxPbHistory = input.int(500, "Max pullback history", minval = 50, group = "Structure")
 showSCOB = input.bool(true, "Show SCOB", group = "Structure")
+
+// ===== ORDER FLOW — BankTrap Phan 4, trang 26-36 =====
+// "Order flow la chuyen dong hoi CUOI CUNG truoc khi tiep dien xu huong."
+// Ghi chu cua tai lieu: "IMB KHONG tham gia vao viec hinh thanh OF"  -> khac han OB/POI.
+// Vung OF = TRON CHAN HOI (2 pivot lien tiep cua engine pullback), khong phai 1 cay nen.
+//
+// TRIET LY: TAO THOANG, XOA CHAT. Khong co gang doan chieu dung luc tao vung — mot OF-S
+// van co the moc trong nhip tang va van dung, chung nao gia CHUA dong nen vuot qua DINH
+// vung. Ba tang tu loc:
+//   1) xac nhan  : phai dong nen vuot bien XA (dinh voi OF-D, day voi OF-S)
+//   2) huy       : neu pha NHAM bien truoc thi ung vien bi bo (luat "OF khong hop le")
+//   3) xoa       : dong nen vuot bien GIU thi vung het hieu luc — ke ca vung da xam
+showOF        = input.bool(true, "Show OF", group = "Order Flow")
+ofConfirmBars = input.int(30, "OF phai xac nhan trong vong (nen)", minval = 1, group = "Order Flow",
+     tooltip = "DIEU KIEN #1 cua tai lieu: gia phai PHA KHOI dinh OF (bullish) / day OF (bearish). "
+             + "Chua pha thi CHUA phai OF -> khong ve. Qua so nen nay ma chua pha => huy ung vien. "
+             + "Vung OF o day = TRON chan hoi, nen gia phai chay het ca mot nhip moi cham duoc bien xa "
+             + "=> cua so phai rong. GIAM xuong neu muon it OF va chat hon; TANG len neu OF ra qua thua.")
+maxOFShow     = input.int(5, "So OF CON SONG hien thi moi chieu", minval = 1, maxval = 50, group = "Order Flow",
+     tooltip = "So vung chua bi khai thac duoc HIEN THI moi chieu = 5 vung GAN GIA HIEN TAI NHAT. Dem RIENG voi nhom xam. Vung qua nguong chi bi AN, KHONG bi xoa — khi cac vung gan hon chet di thi no tu dong hien lai.")
+maxOFMit      = input.int(5, "So OF XAM hien thi moi chieu", minval = 0, maxval = 50, group = "Order Flow",
+     tooltip = "Nhu tren nhung cho vung DA bi khai thac (mau xam). De 0 = khong hien vung xam nao. Cung chi AN chu khong xoa.")
+ofInvalidPivot = input.bool(false, "Xoa OF khi pivot moi vuot qua vung", group = "Order Flow",
+     tooltip = "KHONG co trong tai lieu BankTrap — bo loc them, muon cua EMA_v1: khi mot pivot moi "
+             + "xac nhan vuot qua bien giu cua vung thi coi nhu cau truc da phu nhan vung do. "
+             + "Engine pullback chay o do phan giai 1 NEN nen pivot sinh ra rat day => bat cai nay "
+             + "se don sach gan het vung OF. Mac dinh TAT. Bat len neu thay OF cu ton tai qua lau.")
+ofOnlyRetrace = input.bool(false, "Chi tao OF tai chan HOI (loc HL/LH)", group = "Order Flow",
+     tooltip = "TAT (mac dinh): tao OF o moi chan pullback, khong quan tam chieu. OF sai chieu se tu bi loai — hoac bi huy luc xac nhan (pha nham bien truoc), hoac bi XOA khi gia dong nen vuot qua bien giu. BAT: chi tao OF-D tai day HL va OF-S tai dinh LH, tuc chi tai chan hoi that su. It vung hon nhung co the bo sot OF hop le trong nhung nhip quet day/dinh.")
+ofMinLeg      = input.float(0.0, "Do cao toi thieu cua chan hoi (x ATR14)", minval = 0, step = 0.1, group = "Order Flow",
+     tooltip = "Chan hoi phai cao it nhat bang ngan nay lan ATR14 thi moi duoc coi la mot NHIP. "
+             + "Engine pullback chay o do phan giai 1 NEN nen no coi moi cai ngoay 2-3 nen la mot chan hoi: "
+             + "do thuc te tren BTCUSDT 4H la 778 ung vien cho ~1100 nen, gan mot ung vien moi nen. "
+             + "Voi mat do do thi vung OF chi con la nhieu — vung nao cung ti hon, song vai nen roi bi rau nen "
+             + "quet mat, va con NUOT ca nhung vung to hop le qua luat long nhau. "
+             + "Tai lieu dinh nghia OF la 'nhip hoi CUOI CUNG truoc khi tiep dien' => phai co kich thuoc cua mot NHIP. "
+             + "MAC DINH 0 = TAT, chi chay dung luat cua tai lieu. Luat tuoi (long nhau -> vung gia chet) "
+             + "da tu don phan lon vung vun roi. Bat len neu van thay OF qua day.")
+ofLabelOn     = input.bool(true, "Nhan OF", inline = "oflbl", group = "Order Flow")
+ofLblSize     = input.string(size.tiny, "Co chu", inline = "oflbl", group = "Order Flow",
+     options = [size.auto, size.tiny, size.small, size.normal],
+     tooltip = "Co chu cua nhan OF-D / OF-S kem tuoi. "
+             + "size.auto = de TradingView tu chon co theo be rong khung nhin — day la lua chon DUY NHAT "
+             + "co phan ung khi phong to / thu nho chart. Ba co con lai co DINH tinh bang PIXEL: chu giu "
+             + "nguyen kich thuoc man hinh du zoom the nao. "
+             + "Pine khong cho neo chu theo don vi GIA/THOI GIAN nhu cai hop OF, nen chu khong the co gian "
+             + "dong bo voi vung duoc.")
+colorOFBull   = input.color(color.rgb(41, 98, 255, 78),  "OF Demand", group = "Order Flow")
+colorOFBear   = input.color(color.rgb(233, 30, 99, 78),  "OF Supply", group = "Order Flow")
 
 bull = input.color(color.green, "Bullish", group = "Structure | Color")
 bear = input.color(color.red , "Bearish", group = "Structure | Color")
@@ -61,11 +114,48 @@ colorDemand = input.color(color.rgb(47, 130, 96, 80), 'Demand', group = "Structu
 colorSupply = input.color(color.rgb(205, 92, 72, 80), 'Supply', group = "Structure | Color")
 colorMitigated = input.color(color.rgb(192, 192, 192, 80), 'Mitigated', group = "Structure | Color")
 
+// ===== DEBUG — mac dinh TAT het. Chi bat khi can truy vet vung OF bi thieu. =====
+ofDbgCand     = input.bool(false, "DEBUG - Bia mo vung OF bi loai / bi xoa", group = "Debug",
+     tooltip = "Moi ung vien KHONG duoc ve se de lai mot nhan cam ngay tai MEP TRAI dang le cua no "
+             + "— dat tai BIEN GIU cua no (OF-D: day vung, OF-S: dinh vung). "
+             + "Dang nhan:  D P2 >61130  =  chieu Demand, chet vi ly do P o nen thu 2, bien XA la 61130. "
+             + "PHAI doc chieu D/S thi moi luan duoc: cung mot muc gia co the la DAY cua mot OF-D "
+             + "hoac DINH cua mot OF-S. Ly do:  "
+             + "P = rau xuyen bien giu truoc khi kip xac nhan (dem nguoc tung ay nen tu mui ten se thay cay nen thu pham). "
+             + "H = het han qua so nen cho phep. "
+             + "G = da xac nhan nhung bi loai vi GIA hon mot vung long voi no. "
+             + "Ngoai ra co bia mo MAU DO cho vung DA VE roi moi bi xoa, dang  D!Q :  "
+             + "Q = bi quet (rau xuyen bien giu) · K = bi han ngach duoi · N = bi vung TRE hon nuot · "
+             + "V = pivot moi phu nhan. "
+             + "Bat cai nay roi zoom vao cho hop bi thieu la biet ngay no chet o khau nao.")
+ofDbgSide     = input.string("D + S", "  Chi hien chieu", inline = "dbgf", group = "Debug",
+     options = ["D + S", "Chi D", "Chi S"])
+ofDbgWhy      = input.string("Tat ca", "  ly do", inline = "dbgf", group = "Debug",
+     options = ["Tat ca", "P - pha nham", "H - het han", "G - qua gia",
+                "Q - bi quet", "K - han ngach", "N - bi nuot", "V - pivot"],
+     tooltip = "TradingView chi cho toi da 500 NHAN cho ca indicator, va do la kho DUNG CHUNG: "
+             + "cham swing HH/HL/LH/LL, nhan CHoCH/BOS, nhan IDM, mui ten pullback (2 nhan moi pullback "
+             + "— ngon nhat), nhan OF, va bia mo debug. Vuot 500 thi TradingView giu 500 nhan MOI NHAT "
+             + "va bo cac nhan cu => bia mo o qua khu xa bien mat truoc. "
+             + "500 la TRAN CUNG cua nen tang, khong the tang. "
+             + "Hai o nay de LOC BOT bia mo, chi ve dung loai dang can truy vet => nhan tiet kiem duoc "
+             + "se danh cho vung xa hon trong qua khu. "
+             + "Muon them nua thi tat tam 'Show pullback', 'Mark Swing points', 'Show CHoCH/BOS/IDM' "
+             + "va 'Nhan OF' — rieng 'Show pullback' co the giai phong hang tram nhan.")
+showDbg       = input.bool(false, "DEBUG - Bang dem vung", group = "Debug",
+     tooltip = "Dem so vung dang co theo tung nhom. Dung de biet vung bi thieu o KHAU NAO: cot cho = 0 nghia la khong sinh ung vien; cot cho > 0 ma song = 0 nghia la ung vien khong bao gio xac nhan duoc.")
+
 //#region variable declaration
 //Constant
 const string IDM_TEXT = "I D M"
 const string CHOCH_TEXT = "CHoCH"
 const string BOS_TEXT = "B O S"
+const string OFD_TEXT = "OF-D"    // Demand — chan hoi XUONG truoc khi gia di tiep LEN
+const string OFS_TEXT = "OF-S"    // Supply — chan hoi LEN truoc khi gia di tiep XUONG
+// Nap cung so vung OF giu trong bo nho moi chieu. KHONG phai han ngach hien thi
+// (maxOFShow / maxOFMit) — cai do chi AN vung. Nap nay moi thuc su XOA, va dat rat rong
+// de gan nhu khong bao gio cham toi.
+const int OF_HARD_CAP = 30
 
 //pullback leg state (thay cho bool + na: Pine không cho gán 'na' vào biến 'const bool')
 const int MN_UP = 1
@@ -105,6 +195,44 @@ var puLow = array.new_float(0)
 var puLBar = array.new_int(0)
 var demandZone = array.new_box(0)
 var supplyZone = array.new_box(0)
+// Co mitigated cua POI. Pine KHONG co box.get_extend() / box.get_bgcolor() nen khong the
+// doc nguoc trang thai tu chinh cai box => bat buoc phai luu song song.
+var demandMit  = array.new_bool(0)
+var supplyMit  = array.new_bool(0)
+
+// ===== OF =====
+// UNG VIEN: chan hoi vua xac nhan nhung gia CHUA pha qua bien xa => chua ve box.
+var ofCTop  = array.new_float(0)
+var ofCBot  = array.new_float(0)
+var ofCBar  = array.new_int(0)
+var ofCBull = array.new_bool(0)
+var ofCAge  = array.new_int(0)
+// DA XAC NHAN: co box, chay vong doi giong het vung POI.
+var ofZone  = array.new_box(0)
+var ofLbl   = array.new_label(0)
+var ofBull  = array.new_bool(0)
+var ofMit   = array.new_bool(0)   // da tung bi cham chua
+var ofTouch = array.new_int(0)    // bar cua LAN CHAM CUOI — mep phai khi vung nghi
+// Bo dem PHEU (debug). Pine KHONG cho ham ghi vao bien global thuong, nhung mang thi
+// mutate duoc => dung mang lam bien dem de dem ca tu ben trong addOFCand/resolveNestOF.
+//  0 sinh ung vien | 1 xac nhan | 2 loai vi long | 3 huy pha nham | 4 het han
+//  5 box xoa vi quet | 6 box GIA bi don theo luat tuoi
+// Tach RIENG 2 chieu: 0-6 = Demand, 7-13 = Supply. Gop chung thi khong tra loi duoc
+// cau hoi "vi sao OF-S bien mat sach ma OF-D thi khong".
+var ofStat = array.new_int(14, 0)
+bumpStat(int k, bool isBull) =>
+    idx = isBull ? k : k + 7
+    array.set(ofStat, idx, array.get(ofStat, idx) + 1)
+
+// So pivot moi voi pivot CUNG LOAI lien truoc — bo loc chieu (muon cua EMA_v1).
+var float prevPivotHigh = na
+var float prevPivotLow  = na
+
+// bias cau truc: 1 = bullish, 0 = bearish. Chi duoc gan trong region cau truc.
+// KHONG dung de loc chieu OF: no qua tre (phai cho chochLen nen xac nhan swing) nen suot
+// ca mot nhip hoi phuc no van con bao "giam". Chieu OF khong duoc quyet dinh luc TAO ma
+// luc XAC NHAN (pha bien nao truoc) va luc XOA (pha bien giu thi het hieu luc).
+var int os = 0
 
 // IDM đang CHỜ bị quét. Giữ lại cả khi đã có BOS mới — giá có thể quay về quét sau.
 // Mỗi phần tử = 1 mốc IDM: đường vẽ, nhãn, mức giá, chiều (true = mốc là đáy pullback).
@@ -199,14 +327,41 @@ addSwingDot(int xBar, float lvl, string tag, bool isTop) =>
 createBox(left, right, top, bottom, color) =>
     box.new(left=left, right=right, top=top, bottom=bottom, xloc = xloc.bar_time, bgcolor=color, border_color=color, extend = extend.right)
 
-removeZone(zoneArray, box zone) =>
+removeZone(zoneArray, mitArray, box zone) =>
     index = array.indexof(zoneArray, zone)
     box.delete(zone)
     array.remove(zoneArray, index)
+    array.remove(mitArray , index)
 
 marginZone(zone) => [box.get_top(zone), box.get_bottom(zone), box.get_left(zone)]
 
-handleZone(zoneArray, left, top, bot, color) =>
+// Gioi han so vung POI moi chieu, DEM RIENG 2 nhom: con song vs da xam.
+// supplyZone/demandZone la 2 mang RIENG nen khong can loc chieu; mang day theo thu tu
+// thoi gian => phan tu dau tien khop nhom chinh la vung CU NHAT cua nhom do.
+trimZoneArr(zoneArray, mitArray, int maxLive, int maxMit) =>
+    int nLive = 0
+    int nMit  = 0
+    if array.size(zoneArray) > 0
+        for i = 0 to array.size(zoneArray) - 1
+            if array.get(mitArray, i)
+                nMit  += 1
+            else
+                nLive += 1
+    int i2 = 0
+    while (nLive > maxLive or nMit > maxMit) and i2 < array.size(zoneArray)
+        bool m = array.get(mitArray, i2)
+        if (m and nMit > maxMit) or (not m and nLive > maxLive)
+            box.delete(array.get(zoneArray, i2))
+            array.remove(zoneArray, i2)
+            array.remove(mitArray , i2)
+            if m
+                nMit  -= 1
+            else
+                nLive -= 1
+        else
+            i2 += 1
+
+handleZone(zoneArray, mitArray, left, top, bot, color) =>
     _top = top
     _bot = bot
     _left = left
@@ -222,12 +377,13 @@ handleZone(zoneArray, left, top, bot, color) =>
         _top := math.max(_top,topZone)
         _bot := math.min(_bot,botZone)
         _left := leftZone
-        removeZone(zoneArray, zone)
+        removeZone(zoneArray, mitArray, zone)
 
     if not (_top <= topZone and _bot >= botZone)
         array.push(zoneArray, createBox(_left, time, _top, _bot, color))
+        array.push(mitArray , false)
 
-processZones(zones, isSupply) =>
+processZones(zones, mitArr, isSupply) =>
     if array.size(zones) > 0
         for i = array.size(zones) - 1 to 0 by 1
             zone = array.get(zones, i)
@@ -236,18 +392,21 @@ processZones(zones, isSupply) =>
             //Breaker block zones
             if isSupply and low < botZone and close > topZone
                 array.push(demandZone, createBox(leftZone, time, topZone, botZone, colorDemand))
+                array.push(demandMit , false)
             else if not isSupply and high > topZone and close < botZone
                 array.push(supplyZone, createBox(leftZone, time, topZone, botZone, colorSupply))
+                array.push(supplyMit , false)
             //Mitigated zones
             else if (isSupply and high >= botZone and high < topZone) or (not isSupply and low <= topZone and low > botZone)
                 box.set_right(zone, time)
                 box.set_extend(zone,extend.none)
                 box.set_bgcolor(zone, colorMitigated)
                 box.set_border_color(zone, colorMitigated)
+                array.set(mitArr, i, true)
 
             //Delete sweep zones
             if (time - leftZone > len*maxBarHistory) or (isSupply and high >= topZone) or (not isSupply and low <= botZone)
-                removeZone(zones, zone)
+                removeZone(zones, mitArr, zone)
 
 scob(zones, isSupply) =>
     [topZone, botZone, leftZone] = marginZone(getNLastValue(zones, 1))
@@ -259,6 +418,140 @@ scob(zones, isSupply) =>
             scobDn
         else
             na
+
+// ===== HAM ORDER FLOW ======================================================
+// Pivot CUNG LOAI gan nhat hinh thanh TRUOC refBar (muon cua EMA_v1).
+findPivotBefore(arrVal, arrBar, int refBar) =>
+    float v = na
+    int   b = na
+    if array.size(arrVal) > 0
+        for i = array.size(arrVal) - 1 to 0
+            if array.get(arrBar, i) < refBar
+                v := array.get(arrVal, i)
+                b := array.get(arrBar, i)
+                break
+    [v, b]
+
+// Bia mo co duoc ve khong? Loc theo chieu va theo ly do de tiet kiem quota 500 nhan.
+dbgOk(bool isBull, string why) =>
+    bool sideOk = ofDbgSide == "D + S" or (isBull ? ofDbgSide == "Chi D" : ofDbgSide == "Chi S")
+    bool whyOk  = ofDbgWhy  == "Tat ca" or str.startswith(ofDbgWhy, why)
+    ofDbgCand and sideOk and whyOk
+
+// `why` = ly do xoa, chi dung cho bia mo debug:
+//   Q = bi QUET (rau xuyen bien giu)   K = bi han ngach duoi   N = bi vung TRE hon nuot
+//   V = pivot moi phu nhan (chi khi bat ofInvalidPivot)
+// Bia mo nay danh cho vung DA VE roi moi bi xoa — khac han bia mo cua UNG VIEN (mau cam).
+removeOF(int i, string why) =>
+    if dbgOk(array.get(ofBull, i), why)
+        [t, b, l] = marginZone(array.get(ofZone, i))
+        bool bl = array.get(ofBull, i)
+        label.new(l, bl ? b : t, (bl ? "D!" : "S!") + why, xloc.bar_time,
+             color = transp, textcolor = color.red,
+             style = bl ? label.style_label_up : label.style_label_down, size = size.tiny)
+    box.delete(array.get(ofZone, i))
+    label.delete(array.get(ofLbl, i))
+    array.remove(ofZone , i)
+    array.remove(ofLbl  , i)
+    array.remove(ofBull , i)
+    array.remove(ofMit  , i)
+    array.remove(ofTouch, i)
+
+// Khoang cach tu GIA HIEN TAI toi mep gan nhat cua vung. Gia dang nam trong vung => 0.
+ofDist(box z) =>
+    [t, b, l] = marginZone(z)
+    close > t ? close - t : close < b ? b - close : 0.0
+
+// NAP CUNG chong tran: chi de mang khong phinh vo han va khong dot het quota 500 box cua
+// TradingView. DAY KHONG PHAI han ngach hien thi — han ngach hien thi nam o khoi (A3) va
+// chi AN vung chu KHONG xoa.
+// Nguong dat rat rong so voi maxOFShow/maxOFMit nen gan nhu khong bao gio cham toi.
+trimOF(bool isBull, int maxKeep) =>
+    int n = 0
+    if array.size(ofZone) > 0
+        for i = 0 to array.size(ofZone) - 1
+            if array.get(ofBull, i) == isBull
+                n += 1
+    while n > maxKeep and array.size(ofZone) > 0
+        int   worst = -1
+        float far   = -1.0
+        for i = 0 to array.size(ofZone) - 1
+            if array.get(ofBull, i) == isBull
+                float d = ofDist(array.get(ofZone, i))
+                if d > far
+                    far   := d
+                    worst := i
+        if worst == -1
+            break
+        removeOF(worst, "K")
+        n -= 1
+
+// DIEU KIEN #2 - LUAT TUOI.
+// Hai vung OF cung chieu LONG NHAU (mot cai nam HOAN TOAN trong cai kia) => VUNG GIA CHET.
+//
+// TUOI DO BANG MEP TRAI cua vung, tuc cay nen pullback sinh ra no (nen co mui ten cua
+// option "Show pullback"). KHONG duoc do bang thu tu XAC NHAN - hai cai nay khac nhau:
+// vung duoc ve lui ve qua khu tai bar pullback, nhung chi ra doi luc gia pha bien XA.
+// Vung cang RONG thi bien xa cang xa => xac nhan cang MUON. Vi du BTCUSDT 4H:
+//   OF4: mep trai 14/8, rong [62.620-63.700] -> phai dong nen tren 63.700 -> xac nhan 19/8
+//   OF5: mep trai 17/8, hep [62.780-63.430] -> chi can vuot 63.430      -> xac nhan 18/8
+// OF5 RA DOI TRUOC OF4 du no TRE hon. Ban truoc chi hoi "vung moi co nam trong vung nao
+// khong" nen luc OF4 duoc tao no dang BAO OF5 => khong ai chet => OF4 gia van con tren chart.
+//
+// Vi vay phai xet CA HAI chieu long, va nguoi chet luon la nguoi co MEP TRAI SOM HON:
+//   vung moi TRE hon vung cu long voi no  -> xoa vung cu
+//   vung moi GIA hon                      -> chinh vung moi bi loai, khong ve
+// Chong lan MOT PHAN thi ca hai deu song - tai lieu noi ro: "OF6 co mot phan o tren OF3
+// va mot phan o duoi OF4 => khong nam trong OF3, OF4 => hop le".
+//
+// Hai luot sua truoc deu sai o dung cho nay, ghi lai de khong lap:
+//   - Quyet dinh bang KICH THUOC ("giu vung nho"): chan hoi to vua xac nhan bao dam vung
+//     vun cu => bi loai thang => OF 2/3 khong bao gio duoc ve.
+//   - Luat tuoi nhung do bang THU TU XAC NHAN, ca hai chieu: vung to tre bao mot OF hop le
+//     => xoa mat no, roi chinh vung to bi quet chet => mat sach ca hai.
+resolveNestOF(int left, float top, float bot, bool isBull) =>
+    bool tooOld = false
+    // Luot 1: co vung nao long voi no ma TRE hon no khong? Co => chinh no la ke gia, bi loai.
+    if array.size(ofZone) > 0
+        for i = 0 to array.size(ofZone) - 1
+            if array.get(ofBull, i) == isBull
+                [t, b, l] = marginZone(array.get(ofZone, i))
+                if ((top <= t and bot >= b) or (t <= top and b >= bot)) and l > left
+                    tooOld := true
+    // Luot 2: no la ke tre nhat => don sach cac vung GIA hon dang long voi no.
+    if not tooOld and array.size(ofZone) > 0
+        for i = array.size(ofZone) - 1 to 0
+            if array.get(ofBull, i) == isBull
+                [t, b, l] = marginZone(array.get(ofZone, i))
+                if ((top <= t and bot >= b) or (t <= top and b >= bot)) and l < left
+                    bumpStat(6, isBull)
+                    removeOF(i, "N")
+    tooOld
+
+// Day 1 UNG VIEN. Chua ve gi — cho gia pha bien xa moi thanh OF that (dieu kien #1).
+addOFCand(int left, float top, float bot, bool isBull) =>
+    // Bo loc KICH THUOC: chan hoi phai la mot NHIP, khong phai mot cai ngoay 2-3 nen.
+    // Day la goc re cua nghich ly 've rat nhieu vung ma cuoi cung khong con vung nao':
+    // mat do 778 ung vien / ~1100 nen khien vung nao cung ti hon => bi rau quet ngay sau
+    // vai nen, va con nuot ca nhung vung TO hop le qua luat long nhau.
+    if showOF and not na(top) and not na(bot) and not na(left) and top > bot and top - bot >= ofMinLeg * atrSw
+        bumpStat(0, isBull)
+        array.push(ofCTop , top)
+        array.push(ofCBot , bot)
+        array.push(ofCBar , left)
+        array.push(ofCBull, isBull)
+        array.push(ofCAge , 0)
+
+// Pivot MOI xac nhan vuot qua bien GIU cua vung => cau truc da phu nhan vung, xoa.
+// (Rau nen choc qua thi khong giet vung — viec do de vong doi ben duoi lo.)
+invalidateOFByPivot(bool isHighPivot, float p) =>
+    if ofInvalidPivot and array.size(ofZone) > 0
+        for i = array.size(ofZone) - 1 to 0
+            if not array.get(ofMit, i)
+                [t, b, l] = marginZone(array.get(ofZone, i))
+                bool isBull = array.get(ofBull, i)
+                if (isHighPivot and not isBull and t < p) or (not isHighPivot and isBull and b > p)
+                    removeOF(i, "V")
 //#endregion
 
 //#region Pullback  — GIỮ NGUYÊN của Trading Hub 3
@@ -288,10 +581,23 @@ if high >= top and low > bot //uptrend
         array.push(puLow, bot)
         drawPullback(bar_, top_, true)
         drawPullback(bar, bot, false)
+        invalidateOFByPivot(true , top_)
+        invalidateOFByPivot(false, bot)
+        // OF DEMAND = tron chan hoi vua ket thuc: [day hoi, dinh ngay truoc no]
+        if not ofOnlyRetrace or (not na(prevPivotLow) and bot > prevPivotLow)
+            addOFCand(bar_, top_, bot, true)
+        prevPivotHigh := top_
+        prevPivotLow  := bot
     else if (prevMnStrc == MN_DN and mnStrc == MN_NA) or mnStrc == MN_DN
         array.push(puLBar, bar)
         array.push(puLow, bot)
         drawPullback(bar, bot, false)
+        invalidateOFByPivot(false, bot)
+        if not ofOnlyRetrace or (not na(prevPivotLow) and bot > prevPivotLow)
+            [ofT, ofTBar] = findPivotBefore(puHigh, puHBar, bar)   // dinh phai co TRUOC day vua chot
+            if not na(ofT)
+                addOFCand(math.min(ofTBar, bar), ofT, bot, true)
+        prevPivotLow := bot
 
     top := high
     bot := low
@@ -307,10 +613,23 @@ if high < top and low <= bot //downtrend
         array.push(puLow, bot_)
         drawPullback(bar, top, true)
         drawPullback(bar_, bot_, false)
+        invalidateOFByPivot(true , top)
+        invalidateOFByPivot(false, bot_)
+        // OF SUPPLY = tron chan hoi vua ket thuc: [day ngay truoc, dinh hoi]
+        if not ofOnlyRetrace or (not na(prevPivotHigh) and top < prevPivotHigh)
+            addOFCand(bar_, top, bot_, false)
+        prevPivotHigh := top
+        prevPivotLow  := bot_
     else if (prevMnStrc == MN_UP and mnStrc == MN_NA) or mnStrc == MN_UP
         array.push(puHBar, bar)
         array.push(puHigh, top)
         drawPullback(bar, top, true)
+        invalidateOFByPivot(true, top)
+        if not ofOnlyRetrace or (not na(prevPivotHigh) and top < prevPivotHigh)
+            [ofB, ofBBar] = findPivotBefore(puLow, puLBar, bar)    // day phai co TRUOC dinh vua chot
+            if not na(ofB)
+                addOFCand(math.min(ofBBar, bar), top, ofB, false)
+        prevPivotHigh := top
 
     top := high
     bot := low
@@ -348,9 +667,6 @@ swings(int length) =>
     [top, topx, btm, btmx]
 
 [swTop, swTopBar, swBtm, swBtmBar] = swings(chochLen)
-
-// bias: 1 = bullish, 0 = bearish
-var int os = 0
 
 // mốc CHoCH (swing thô, chochLen nến)
 var float chTop = na
@@ -489,7 +805,7 @@ if showPOI
             isSweepOBS := true
     else
         if low_MOBS > high[1]
-            handleZone(supplyZone, current_OBS, high_MOBS, low_MOBS, colorSupply)
+            handleZone(supplyZone, supplyMit, current_OBS, high_MOBS, low_MOBS, colorSupply)
             isSweepOBS := false
         else
             if poi_type == "Mother Bar" and isb[2]
@@ -509,7 +825,7 @@ if showPOI
             isSweepOBD := true
     else
         if high_MOBD < low[1]
-            handleZone(demandZone, current_OBD, high_MOBD, low_MOBD, colorDemand)
+            handleZone(demandZone, demandMit, current_OBD, high_MOBD, low_MOBD, colorDemand)
             isSweepOBD := false
         else
             if poi_type == "Mother Bar" and isb[2]
@@ -525,8 +841,226 @@ if showPOI
 //#region run function
 barcolor(showSCOB ? scob(supplyZone, true) : na, -1)
 barcolor(showSCOB ? scob(demandZone, false) : na, -1)
-processZones(supplyZone, true)
-processZones(demandZone, false)
+processZones(supplyZone, supplyMit, true)
+processZones(demandZone, demandMit, false)
+// Cat bot SAU khi processZones da cap nhat co mitigated cua nen nay.
+trimZoneArr(supplyZone, supplyMit, maxPOIShow, maxPOIMit)
+trimZoneArr(demandZone, demandMit, maxPOIShow, maxPOIMit)
+
+// ===== ORDER FLOW =========================================================
+// (A) VONG DOI — chay TRUOC khoi xac nhan de vung vua sinh khong bi cham mitigated
+//     ngay tren chinh nen xac nhan no. Cach xu ly copy nguyen tu processZones cua POI:
+//     xuyen han bien giu -> XOA; gia quay lai cham vao trong -> XAM + ngung keo dai.
+if array.size(ofZone) > 0
+    for i = array.size(ofZone) - 1 to 0
+        [t, b, l] = marginZone(array.get(ofZone, i))
+        bool bl = array.get(ofBull, i)
+        if (time - l > len * maxBarHistory) or (bl and low < b) or (not bl and high > t)
+            // QUET qua bien giu => vung chet han, xoa. Dung RAU nen chu khong doi dong nen,
+            // giong het luat "Delete sweep zones" cua POI.
+            // OF-D: rau thung DAY vung.  OF-S: rau vuot DINH vung.
+            bumpStat(5, bl)
+            removeOF(i, "Q")
+        else if high >= b and low <= t
+            // Cham vao vung = mot lan khai thac. Ghi lai bar de con dung mep phai o do.
+            array.set(ofMit  , i, true)
+            array.set(ofTouch, i, time)
+
+// (A2) TIM VUNG TUYEN DAU moi chieu — vung gia se gap TRUOC TIEN neu quay dau lai.
+//      OF-D: vung co DINH cao nhat.   OF-S: vung co DAY thap nhat.
+//      Phai chay SAU khoi xoa o tren, neu khong vung sap chet van co the duoc chon.
+int   nearD = -1
+int   nearS = -1
+float bestT = na
+float bestB = na
+if array.size(ofZone) > 0
+    for i = 0 to array.size(ofZone) - 1
+        [t, b, l] = marginZone(array.get(ofZone, i))
+        if array.get(ofBull, i)
+            if na(bestT) or t > bestT
+                bestT := t
+                nearD := i
+        else
+            if na(bestB) or b < bestB
+                bestB := b
+                nearS := i
+
+// (A3) TO MAU. Chi vung TUYEN DAU (hoac vung chua tung bi cham) moi sang mau va keo dai.
+//      Vung phia sau nam cho: xam, mep phai dung o LAN CHAM CUOI CUNG.
+//      => OF3 chet vi thung day thi OF2 tu dong len tuyen dau va sang mau, khong can
+//         nguong khoang cach nao ca. Ke ca khi OF3 nam chong len OF2.
+if array.size(ofZone) > 0
+    for i = 0 to array.size(ofZone) - 1
+        box   zOF  = array.get(ofZone, i)
+        bool  bl2  = array.get(ofBull, i)
+        bool  mit2 = array.get(ofMit , i)
+        float di   = ofDist(zOF)
+        // HAN NGACH = BO LOC HIEN THI, KHONG PHAI XOA.
+        // Dem xem co bao nhieu vung CUNG CHIEU, CUNG TRANG THAI dang GAN gia hon no.
+        // Duoi nguong thi hien; qua nguong thi AN di nhung VAN GIU trong mang => khi cac
+        // vung gan hon chet di, no tu dong hien lai.
+        // Ban truoc XOA HAN o trimOF: mot vung bi day khoi top 5 la mat VINH VIEN, du sau do
+        // chi con 2 vung. Dung cai da lam bay OF 2 va OF 3 tren BTCUSDT 4H — bia mo D!K.
+        int rank = 0
+        for j = 0 to array.size(ofZone) - 1
+            if j != i and array.get(ofBull, j) == bl2 and array.get(ofMit, j) == mit2
+                float dj = ofDist(array.get(ofZone, j))
+                if dj < di or (dj == di and j < i)
+                    rank += 1
+        bool  vis   = rank < (mit2 ? maxOFMit : maxOFShow)
+        bool  armed = not mit2 or i == (bl2 ? nearD : nearS)
+        color colOF = not vis ? transp : armed ? (bl2 ? colorOFBull : colorOFBear) : colorMitigated
+        int   rgtOF = armed ? time : array.get(ofTouch, i)
+        box.set_right(zOF, rgtOF)
+        box.set_extend(zOF, extend.none)
+        box.set_bgcolor(zOF, colOF)
+        box.set_border_color(zOF, colOF)
+        // TUOI = so nen tu MEP TRAI (nen mui ten pullback da sinh ra vung) den nen hien tai.
+        // Phai cap nhat moi nen vi tuoi tang dan. len = do dai 1 nen tinh bang ms.
+        int   ageOF = int((time - box.get_left(zOF)) / len)
+        label lbOF  = array.get(ofLbl, i)
+        label.set_text(lbOF, vis ? (bl2 ? OFD_TEXT : OFS_TEXT) + "-" + str.tostring(ageOF) : "")
+        label.set_textcolor(lbOF, ofLabelOn and vis ? color.white : na)
+
+// (B) UNG VIEN -> OF THAT. Dieu kien #1: DONG NEN vuot bien xa. Qua han thi huy.
+if showOF and array.size(ofCTop) > 0
+    for i = array.size(ofCTop) - 1 to 0
+        float ct = array.get(ofCTop, i)
+        float cb = array.get(ofCBot, i)
+        bool  cl = array.get(ofCBull, i)
+        int   ag = array.get(ofCAge, i) + 1
+        array.set(ofCAge, i, ag)
+        // Tai lieu, muc "OF khong hop le": trong xu huong giam, neu TRUOC khi pha day ma
+        // gia lai pha dinh truoc thi day KHONG phai OF. Doi xung cho chieu tang.
+        //
+        // KHONG DOI XUNG - CO Y:
+        //   confirmed dung CLOSE : tai lieu doi DONG NEN vuot qua moi tinh la pha (dieu kien #1).
+        //   wrongWay  dung RAU   : phai giong het luat XOA cua vung da ve (khoi A). Chi can mot
+        //     cai rau xuyen qua bien GIU la chan hoi do da bi phu nhan, khong doi dong nen.
+        bool  confirmed = cl ? close > ct : close < cb
+        bool  wrongWay  = cl ? low   < cb : high  > ct
+        if confirmed or wrongWay or ag > ofConfirmBars
+            bumpStat(confirmed ? 1 : wrongWay ? 3 : 4, cl)
+            // Tach ra bien rieng: resolveNestOF co TAC DUNG PHU (xoa vung), khong duoc de no
+            // nam trong bieu thuc ternary vi Pine se goi ca hai nhanh.
+            bool tooOld = false
+            if confirmed
+                tooOld := resolveNestOF(array.get(ofCBar, i), ct, cb, cl)   // dieu kien #2
+            if confirmed and not tooOld
+                color colOF = cl ? colorOFBull : colorOFBear
+                array.push(ofZone, createBox(array.get(ofCBar, i), time, ct, cb, colOF))
+                array.push(ofLbl , label.new(array.get(ofCBar, i), cl ? cb : ct, cl ? OFD_TEXT : OFS_TEXT, xloc.bar_time,
+                     color = transp, textcolor = ofLabelOn ? color.white : na,
+                     style = cl ? label.style_label_up : label.style_label_down, size = ofLblSize))
+                array.push(ofBull , cl)
+                array.push(ofMit  , false)
+                array.push(ofTouch, na)
+            else
+                if confirmed
+                    bumpStat(2, cl)         // xac nhan roi nhung bi loai vi GIA hon vung long voi no
+                // Bia mo cho ung vien: dat tai MEP TRAI dang le cua hop bi thieu, o BIEN GIU
+                // (OF-D -> day vung, OF-S -> dinh vung) tuc dung cai bien da giet no.
+                // Nhan PHAI ghi ro CHIEU: cung mot muc gia co the la DAY cua mot OF-D hoac
+                // DINH cua mot OF-S — hai vung khac han nhau, khong doc duoc chieu thi khong
+                // ket luan duoc gi.  Dang:  D P2 >61130  =  Demand, chet vi P o nen thu 2,
+                // bien XA (dich xac nhan) la 61130.
+                string whyC = wrongWay ? "P" : confirmed ? "G" : "H"
+                if dbgOk(cl, whyC)
+                    label.new(array.get(ofCBar, i), cl ? cb : ct,
+                         (cl ? "D " : "S ") + whyC
+                         + str.tostring(ag) + " >" + str.tostring(cl ? ct : cb, format.mintick),
+                         xloc.bar_time, color = transp, textcolor = color.orange,
+                         style = cl ? label.style_label_up : label.style_label_down, size = size.tiny)
+            array.remove(ofCTop , i)
+            array.remove(ofCBot , i)
+            array.remove(ofCBar , i)
+            array.remove(ofCBull, i)
+            array.remove(ofCAge , i)
+
+// (C) Cat bot — dat CUOI CUNG de bat duoc ca vung vua mitigated o (A) lan vua sinh o (B).
+if showOF
+    trimOF(true , OF_HARD_CAP)
+    trimOF(false, OF_HARD_CAP)
+
+// ===== BANG DEM (debug) ===================================================
+// Cot "cho" = ung vien chua xac nhan. Doc bang nay de biet vung bi mat o khau nao:
+//   cho = 0            -> khong sinh duoc ung vien (loi o khoi Pullback / bo loc chieu)
+//   cho > 0, song = 0  -> ung vien khong bao gio cham duoc bien xa (dieu kien #1 qua chat)
+//   song tang roi tut  -> bi xoa boi vong doi hoac han ngach
+var table dbgT = table.new(position.top_right, 4, 13, bgcolor = color.new(color.black, 20), border_width = 1)
+if showDbg and barstate.islast
+    int ofDL = 0
+    int ofDM = 0
+    int ofSL = 0
+    int ofSM = 0
+    if array.size(ofZone) > 0
+        for i = 0 to array.size(ofZone) - 1
+            bool blD = array.get(ofBull, i)
+            bool mD  = array.get(ofMit , i)
+            if blD and mD
+                ofDM += 1
+            else if blD
+                ofDL += 1
+            else if mD
+                ofSM += 1
+            else
+                ofSL += 1
+    int cD = 0
+    int cS = 0
+    if array.size(ofCBull) > 0
+        for i = 0 to array.size(ofCBull) - 1
+            if array.get(ofCBull, i)
+                cD += 1
+            else
+                cS += 1
+    int pSL = 0
+    int pSM = 0
+    if array.size(supplyMit) > 0
+        for i = 0 to array.size(supplyMit) - 1
+            if array.get(supplyMit, i)
+                pSM += 1
+            else
+                pSL += 1
+    int pDL = 0
+    int pDM = 0
+    if array.size(demandMit) > 0
+        for i = 0 to array.size(demandMit) - 1
+            if array.get(demandMit, i)
+                pDM += 1
+            else
+                pDL += 1
+
+    table.cell(dbgT, 0, 0, ""    , text_color = color.gray , text_size = size.small)
+    table.cell(dbgT, 1, 0, "song", text_color = color.gray , text_size = size.small)
+    table.cell(dbgT, 2, 0, "xam" , text_color = color.gray , text_size = size.small)
+    table.cell(dbgT, 3, 0, "cho" , text_color = color.gray , text_size = size.small)
+    table.cell(dbgT, 0, 1, "OF-D", text_color = colorOFBull, text_size = size.small)
+    table.cell(dbgT, 1, 1, str.tostring(ofDL), text_color = color.white, text_size = size.small)
+    table.cell(dbgT, 2, 1, str.tostring(ofDM), text_color = color.white, text_size = size.small)
+    table.cell(dbgT, 3, 1, str.tostring(cD)  , text_color = color.white, text_size = size.small)
+    table.cell(dbgT, 0, 2, "OF-S", text_color = colorOFBear, text_size = size.small)
+    table.cell(dbgT, 1, 2, str.tostring(ofSL), text_color = color.white, text_size = size.small)
+    table.cell(dbgT, 2, 2, str.tostring(ofSM), text_color = color.white, text_size = size.small)
+    table.cell(dbgT, 3, 2, str.tostring(cS)  , text_color = color.white, text_size = size.small)
+    table.cell(dbgT, 0, 3, "POI-S", text_color = colorSupply, text_size = size.small)
+    table.cell(dbgT, 1, 3, str.tostring(pSL), text_color = color.white, text_size = size.small)
+    table.cell(dbgT, 2, 3, str.tostring(pSM), text_color = color.white, text_size = size.small)
+    table.cell(dbgT, 0, 4, "POI-D", text_color = colorDemand, text_size = size.small)
+    table.cell(dbgT, 1, 4, str.tostring(pDL), text_color = color.white, text_size = size.small)
+    table.cell(dbgT, 2, 4, str.tostring(pDM), text_color = color.white, text_size = size.small)
+
+    // PHEU OF — cong don tu dau chart. Cho biet ung vien chet o KHAU NAO chu khong chi con lai bao nhieu.
+    idxs = array.from(0, 1, 2, 3, 4, 5, 6)
+    lbls = array.from("ung vien sinh", "-> ve box", "loai: qua gia",
+                      "huy: pha nham", "huy: het han", "xoa: bi quet", "xoa: gia bi don")
+    table.cell(dbgT, 0, 5, "PHEU OF", text_color = color.yellow  , text_size = size.small)
+    table.cell(dbgT, 1, 5, "D"      , text_color = colorOFBull, text_size = size.small)
+    table.cell(dbgT, 2, 5, "S"      , text_color = colorOFBear, text_size = size.small)
+    for k = 0 to 6
+        kk = array.get(idxs, k)
+        table.cell(dbgT, 0, k + 6, array.get(lbls, k), text_color = color.gray , text_size = size.small)
+        table.cell(dbgT, 1, k + 6, str.tostring(array.get(ofStat, kk))    , text_color = color.white, text_size = size.small)
+        table.cell(dbgT, 2, k + 6, str.tostring(array.get(ofStat, kk + 7)), text_color = color.white, text_size = size.small)
 // Chấm swing giờ vẽ bằng label trong khối cấu trúc (addSwingDot) — không còn plot nào.
 // Nhờ dùng xloc.bar_time nên cũng không cần tách 2 cặp plot theo khung như trước.
 //#endregion
