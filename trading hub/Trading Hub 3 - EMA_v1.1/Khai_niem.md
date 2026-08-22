@@ -25,6 +25,36 @@ Trên BTCUSDT 4H nó đẻ ~670 chân hồi cho ~1100 nến. Mọi thứ xây tr
 Pullback nuôi hai thứ: **IDM** và **Order Flow**. Nó *không* nuôi CHoCH/BOS — hai cái đó dùng
 engine fractal riêng (`swings(chochLen)`).
 
+### Nến nằm lọt trong nến trước = "không tồn tại"
+
+Nến có đỉnh thấp hơn **và** đáy cao hơn nến tham chiếu thì **không khớp nhánh nào** trong ba
+nhánh của engine → `top`/`bot` giữ nguyên, không sinh pivot nào.
+
+Đây **đúng theo tài liệu** (trang 2, *"Cách xác định pullback hợp lệ"*):
+
+> *"Nếu giá không phá qua đỉnh hoặc đáy cây nến trước đó mà chỉ di chuyển trong khoảng giữa
+> đỉnh và đáy của cây nến trước đó thì đó không phải là pullback hợp lệ."*
+>
+> *"A, N và 2 cây nến tiếp theo đều nằm trong H ⇒ 4 nến này được xem như **không tồn tại**
+> mà chỉ xét cây nến phá qua đỉnh/đáy của H."*
+
+### ⚠ Hệ quả: vùng mù sau một nến biên độ lớn
+
+Một cây nến biên độ rất lớn trở thành nến tham chiếu. Nếu sau đó giá đi ngang **bên trong**
+biên độ đó, engine **đứng hình** cho tới khi có nến phá ra ngoài — có thể kéo dài hàng trăm nến.
+
+Ca thật (BTCUSDT 4H, 10/10 → 21/11): một nến 4H rơi ~8.000 điểm, rồi giá đi ngang trong biên
+độ đó suốt hơn một tháng. Engine **không ghi một pivot đỉnh nào** trong cả giai đoạn. Dấu vết:
+một ứng viên OF-D duy nhất `D H31 >122504.1` — mép trái 10/10, đáy 21/11, cao 24.600 điểm.
+
+Tài liệu viết luật này cho tình huống **cục bộ vài nến** (trang 1 ghi rõ *"nến bao trùm phải là
+nến ngay sau nến đang xem xét"*), không lường tình huống 180 nến. Nhưng áp nguyên văn thì ra
+như vậy.
+
+**Trạng thái: đã biết, cố ý giữ nguyên** (chốt ngày 2026-08-22). Nếu sau này muốn chữa: đặt hạn
+dùng cho nến tham chiếu — qua N nến (~10-20 trên 4H) mà không ai phá đỉnh/đáy của nó thì ép
+reset về nến hiện tại. Đó là **cố ý lệch khỏi tài liệu**, cần chốt lại trước khi làm.
+
 ---
 
 ## Swing point (HH / HL / LH / LL)
