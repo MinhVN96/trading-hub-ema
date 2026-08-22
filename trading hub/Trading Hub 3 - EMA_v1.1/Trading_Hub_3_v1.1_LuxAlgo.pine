@@ -131,8 +131,7 @@ ofDbgCand     = input.bool(false, "DEBUG - Bia mo vung OF bi loai / bi xoa", gro
 ofDbgSide     = input.string("D + S", "  Chi hien chieu", inline = "dbgf", group = "Debug",
      options = ["D + S", "Chi D", "Chi S"])
 ofDbgWhy      = input.string("Tat ca", "  ly do", inline = "dbgf", group = "Debug",
-     options = ["Tat ca", "P - pha nham", "H - het han", "G - qua gia",
-                "Q - bi quet", "K - han ngach", "N - bi nuot", "V - pivot"],
+     options = ["Tat ca", "P - pha nham", "H - het han", "G - qua gia", "Q - bi quet", "K - han ngach", "N - bi nuot", "V - pivot"],
      tooltip = "TradingView chi cho toi da 500 NHAN cho ca indicator, va do la kho DUNG CHUNG: "
              + "cham swing HH/HL/LH/LL, nhan CHoCH/BOS, nhan IDM, mui ten pullback (2 nhan moi pullback "
              + "— ngon nhat), nhan OF, va bia mo debug. Vuot 500 thi TradingView giu 500 nhan MOI NHAT "
@@ -940,13 +939,24 @@ if showOF and array.size(ofCTop) > 0
         bool  confirmed = cl ? close > ct : close < cb
         bool  wrongWay  = cl ? low   < cb : high  > ct
         if confirmed or wrongWay or ag > ofConfirmBars
-            bumpStat(confirmed ? 1 : wrongWay ? 3 : 4, cl)
+            // RAU THANG DONG NEN khi ca hai xay ra TREN CUNG MOT CAY NEN.
+            // Truoc day `confirmed` thang => mot cay nen do lon vua rau vuot DINH nhip hoi
+            // vua dong cua duoi DAY van sinh ra OF-S. Sai o hai diem:
+            //  1) Trai luat tai lieu ("OF khong hop le"): dinh cua nhip hoi da bi vuot thi
+            //     no khong con la nhip hoi nua, chan do khong phai OF.
+            //  2) Mau thuan noi bo: DUNG cay nen do se XOA mot vung da ve (khoi A dung
+            //     `high > t`). Khong the vua du suc giet vung cu vua duoc phep sinh vung moi.
+            //     Nang hon: khoi A chi soi tu nen SAU nen tao vung, nen cai rau vi pham do
+            //     KHONG BAO GIO duoc kiem tra lai — vung sinh ra da sai san va song mai.
+            // Doi xung cho OF-D: rau thung DAY pullback + dong nen tren DINH.
+            bool ok = confirmed and not wrongWay
+            bumpStat(wrongWay ? 3 : confirmed ? 1 : 4, cl)
             // Tach ra bien rieng: resolveNestOF co TAC DUNG PHU (xoa vung), khong duoc de no
             // nam trong bieu thuc ternary vi Pine se goi ca hai nhanh.
             bool tooOld = false
-            if confirmed
+            if ok
                 tooOld := resolveNestOF(array.get(ofCBar, i), ct, cb, cl)   // dieu kien #2
-            if confirmed and not tooOld
+            if ok and not tooOld
                 color colOF = cl ? colorOFBull : colorOFBear
                 array.push(ofZone, createBox(array.get(ofCBar, i), time, ct, cb, colOF))
                 array.push(ofLbl , label.new(array.get(ofCBar, i), cl ? cb : ct, cl ? OFD_TEXT : OFS_TEXT, xloc.bar_time,
@@ -956,7 +966,7 @@ if showOF and array.size(ofCTop) > 0
                 array.push(ofMit  , false)
                 array.push(ofTouch, na)
             else
-                if confirmed
+                if ok
                     bumpStat(2, cl)         // xac nhan roi nhung bi loai vi GIA hon vung long voi no
                 // Bia mo cho ung vien: dat tai MEP TRAI dang le cua hop bi thieu, o BIEN GIU
                 // (OF-D -> day vung, OF-S -> dinh vung) tuc dung cai bien da giet no.

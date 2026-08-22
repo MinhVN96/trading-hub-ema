@@ -141,6 +141,22 @@ trước) và khâu **xoá**, không phải khâu tạo.
 - **Xác nhận** dùng `close` (tài liệu đòi đóng nến vượt qua).
 - **Huỷ / xoá** dùng **râu** (`low` / `high`), giống luật `Delete sweep zones` của POI.
 
+> ### ⚠ Cùng một cây nến vừa xác nhận vừa phá nhầm → HUỶ thắng
+>
+> Một cây nến lớn có thể **vừa râu vượt biên giữ vừa đóng cửa ngoài biên xa**. Khi đó
+> **huỷ thắng**, không vẽ vùng. Hai lý do:
+>
+> 1. **Luật tài liệu** — đỉnh nhịp hồi đã bị vượt thì nó không còn là nhịp hồi, chân đó
+>    không phải OF.
+> 2. **Nhất quán nội bộ** — đúng cây nến đó sẽ **xoá** một vùng đã vẽ (khối A dùng `high > t`).
+>    Không thể vừa đủ sức giết vùng cũ vừa được phép sinh vùng mới.
+>
+> Nặng hơn nữa: khối (A) chỉ soi từ nến **sau** nến tạo vùng, nên nếu cho vẽ thì cái râu vi phạm
+> đó **không bao giờ được kiểm tra lại** — vùng sinh ra đã sai sẵn và sống mãi.
+>
+> Ca thật (BTCUSDT 4H, 10/10): một nến đỏ lớn râu vượt đỉnh nhịp hồi rồi đóng cửa dưới đáy,
+> vẫn sinh ra một OF-S đáng lẽ vô hiệu.
+
 ---
 
 ## Tuổi của OF — OF già / OF trẻ
