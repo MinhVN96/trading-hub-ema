@@ -74,8 +74,13 @@ ofConfirmBars = input.int(30, "OF phai xac nhan trong vong (nen)", minval = 1, g
              + "=> cua so phai rong. GIAM xuong neu muon it OF va chat hon; TANG len neu OF ra qua thua.")
 maxOFShow     = input.int(5, "So OF CON SONG hien thi moi chieu", minval = 1, maxval = 50, group = "Order Flow",
      tooltip = "So vung chua bi khai thac duoc HIEN THI moi chieu = 5 vung GAN GIA HIEN TAI NHAT. Dem RIENG voi nhom xam. Vung qua nguong chi bi AN, KHONG bi xoa — khi cac vung gan hon chet di thi no tu dong hien lai.")
-maxOFMit      = input.int(5, "So OF XAM hien thi moi chieu", minval = 0, maxval = 50, group = "Order Flow",
-     tooltip = "Nhu tren nhung cho vung DA bi khai thac (mau xam). De 0 = khong hien vung xam nao. Cung chi AN chu khong xoa.")
+maxOFMit      = input.int(10, "So OF XAM hien thi moi chieu", minval = 0, maxval = 50, group = "Order Flow",
+     tooltip = "Nhu tren nhung cho vung DA bi khai thac (mau xam). Cung chi AN chu khong xoa. "
+             + "DE 0 = dung DUNG chu tai lieu: BankTrap trang 35 noi 'khi gia da ve day roi cac OF o ben tren "
+             + "khong can phai de y nua vi da bi khai thac het' — vung xam la vung da tieu, het gia tri giao dich. "
+             + "De 10 (mac dinh) la giu chung lai lam BOI CANH doc chart chu khong phai de vao lenh. "
+             + "Truoc day mac dinh 5 va do la so qua chat: chi can 6 vung xam cung chieu la vung thu sau bi "
+             + "day ra khoi chart ma khong co dau vet nao ngoai dau `!` tren nhan.")
 ofInvalidPivot = input.bool(false, "Xoa OF khi pivot moi vuot qua vung", group = "Order Flow",
      tooltip = "KHONG co trong tai lieu BankTrap — bo loc them, muon cua EMA_v1: khi mot pivot moi "
              + "xac nhan vuot qua bien giu cua vung thi coi nhu cau truc da phu nhan vung do. "
@@ -92,6 +97,19 @@ ofMinLeg      = input.float(0.0, "Do cao toi thieu cua chan hoi (x ATR14)", minv
              + "Tai lieu dinh nghia OF la 'nhip hoi CUOI CUNG truoc khi tiep dien' => phai co kich thuoc cua mot NHIP. "
              + "MAC DINH 0 = TAT, chi chay dung luat cua tai lieu. Luat tuoi (long nhau -> vung gia chet) "
              + "da tu don phan lon vung vun roi. Bat len neu van thay OF qua day.")
+ofShrinkEdge  = input.float(0.35, "Thu hep: ban hep phai nam trong X phan cuc tri cua ban rong", minval = 0, maxval = 1, step = 0.05, group = "Order Flow",
+     tooltip = "LUAT THU HEP (BankTrap trang 26 hinh c->b, trang 27 muc 2, trang 29). "
+             + "Trang 27: 'OF nam o PULLBACK NHO CUOI CUNG cua pullback lon — mot chuyen dong hoi co the "
+             + "lien tuc tao nhieu dinh moi => nhieu pullback hoi nho cho den khi gia pha qua day cu hoi "
+             + "cuoi cung thi OF hop le moi duoc hinh thanh'. "
+             + "Trong mot nhip hoi XUONG (OF-D), chan hoi nho CUOI CUNG la chan nam DUOI CUNG. Doi xung: "
+             + "trong nhip hoi LEN (OF-S) thi la chan TREN CUNG. "
+             + "So o day = ban hep phai nam trong bao nhieu phan chieu cao cua ban rong, tinh tu bien CUC TRI. "
+             + "0.35 = day ban hep phai nam trong 35% duoi cung cua vung rong (voi OF-D). "
+             + "Thoa thi ban hep duoc ve VA ban rong bi don di, de lai bia mo do  D!W . "
+             + "DE 0 = TAT luat nay: ban hep se bi coi la 'nam trong OF truoc' va bi loai nhu cu. "
+             + "TANG len 1 = moi ung vien nam trong deu duoc coi la ban thu hep => vung rong gan nhu "
+             + "khong bao gio song sot.")
 ofLabelOn     = input.bool(true, "Nhan OF", inline = "oflbl", group = "Order Flow")
 ofLblSize     = input.string(size.tiny, "Co chu", inline = "oflbl", group = "Order Flow",
      options = [size.auto, size.tiny, size.small, size.normal],
@@ -123,15 +141,19 @@ ofDbgCand     = input.bool(false, "DEBUG - Bia mo vung OF bi loai / bi xoa", gro
              + "hoac DINH cua mot OF-S. Ly do:  "
              + "P = rau xuyen bien giu truoc khi kip xac nhan (dem nguoc tung ay nen tu mui ten se thay cay nen thu pham). "
              + "H = het han qua so nen cho phep. "
+             + "N = nam TRON trong mot OF cung chieu da hoan tat nhip tiep dien tu truoc (dieu kien #2). "
+             + "T = chinh no la BAN VE RONG cua mot nhip hoi da co ban hep hon (luat thu hep c->b, trang 26/27/29). "
+             + "Con bia mo DO  D!W  la vung RONG vua bi mot ban HEP tai cuc tri thay the — do chinh la "
+             + "luat thu hep chay theo chieu nguoc, va la cho de tra loi 'vi sao vung rong bien mat'. "
              + "Ngoai ra co bia mo MAU DO cho vung DA VE roi moi bi xoa, dang  D!Q :  "
              + "Q = bi quet (rau xuyen bien giu) · K = bi han ngach cung · V = pivot moi phu nhan. "
-             + "LUU Y: luat tuoi khong con XOA vung nao — no chi AN, nen khong co bia mo cho no. "
-             + "Vung bi luat tuoi an di se TU HIEN LAI ngay khi vung tre che no bi quet chet. "
-             + "Bat cai nay roi zoom vao cho hop bi thieu la biet ngay no chet o khau nao.")
+             + "Sau khi bo khoi (A2b), MOI ca vung bien mat deu de lai bia mo — khong con thu gi "
+             + "am tham giau vung di nua. Bat cai nay roi zoom vao cho hop bi thieu la biet ngay "
+             + "no chet o khau nao.")
 ofDbgSide     = input.string("D + S", "  Chi hien chieu", inline = "dbgf", group = "Debug",
      options = ["D + S", "Chi D", "Chi S"])
 ofDbgWhy      = input.string("Tat ca", "  ly do", inline = "dbgf", group = "Debug",
-     options = ["Tat ca", "P - pha nham", "H - het han", "Q - bi quet", "K - han ngach", "V - pivot"],
+     options = ["Tat ca", "P - pha nham", "N - trong OF truoc", "T - ban rong", "W - nhuong ban hep", "H - het han", "Q - bi quet", "K - han ngach", "V - pivot"],
      tooltip = "TradingView chi cho toi da 500 NHAN cho ca indicator, va do la kho DUNG CHUNG: "
              + "cham swing HH/HL/LH/LL, nhan CHoCH/BOS, nhan IDM, mui ten pullback (2 nhan moi pullback "
              + "— ngon nhat), nhan OF, va bia mo debug. Vuot 500 thi TradingView giu 500 nhan MOI NHAT "
@@ -165,9 +187,9 @@ ofDbgList     = input.bool(false, "DEBUG - Bang soi tung vung OF", inline = "dbg
      tooltip = "Liet ke tung vung OF dang nam trong bo nho, XEP THEO KHOANG CACH toi gia (gan nhat len dau). "
              + "Bang dem chi cho biet TONG SO; bang nay cho biet TUNG vung: no o dau, tuoi bao nhieu, "
              + "thu hang may, va neu khong thay tren chart thi vi luat nao. Cot 'trang thai': "
-             + "HIEN = dang ve mau · XAM = da bi cham, nam cho · "
-             + "AN-long = bi (A2b) giau vi co vung TRE nam gon ben trong · AN-ngach = bi day khoi top N. "
-             + "Hai gia tri AN chinh la cau tra loi cho cau hoi 'vung van con trong bo nho ma sao mat tren chart'.")
+             + "HIEN = dang ve mau · XAM = da bi cham, nam cho · AN-ngach = bi day khoi top N. "
+             + "AN-ngach chinh la cau tra loi cho cau hoi 'vung van con trong bo nho ma sao mat tren chart' — "
+             + "va sau khi bo khoi (A2b) thi no la duong AN DUY NHAT con lai.")
 ofDbgListN    = input.int(10, "dong", inline = "dbgl", minval = 1, maxval = 30, group = "Debug")
 ofDbgLog      = input.bool(false, "DEBUG - Nhat ky su kien OF", inline = "dbgg", group = "Debug",
      tooltip = "Bang dem cong don tu dau chart, bang soi chup trang thai NGAY BAY GIO — ca hai deu mat "
@@ -178,13 +200,12 @@ ofDbgLog      = input.bool(false, "DEBUG - Nhat ky su kien OF", inline = "dbgg",
 ofDbgLogN     = input.int(12, "dong", inline = "dbgg", minval = 1, maxval = 40, group = "Debug")
 
 // CHE DO SOI = bat BAT KY mot cong tac debug nao o tren.
-// Khi do khoi (A3) VE RA HET moi vung OF con trong bo nho: khong loc top N, khong an vung
-// bi (A2b) long. Ly do phai gop chu khong lam mot cong tac rieng: dang soi mot vung bi mat
-// ma he thong van con giau bot vung khac thi ban dang do mot thu da bi che mot phan —
-// ket luan rut ra khong dang tin. Vao che do soi thi phai thay HET.
+// Khi do khoi (A3) VE RA HET moi vung OF con trong bo nho, khong loc top N. Ly do phai gop
+// chu khong lam mot cong tac rieng: dang soi mot vung bi mat ma he thong van con giau bot
+// vung khac thi ban dang do mot thu da bi che mot phan — ket luan rut ra khong dang tin.
+// Vao che do soi thi phai thay HET.
 //
-// Vung nao o che do THAT dang bi an se mang dau hieu o dau nhan:
-//     *  bi (A2b) long giau   ·   !  bi day khoi top N   ·   *!  dinh ca hai
+// Vung nao o che do THAT dang bi an se mang dau  !  o dau nhan (bi day khoi top N).
 // Nhan tron = vung van hien binh thuong khi tat het debug.
 //
 // Quan trong: che do nay KHONG doi mot quyet dinh nao ben trong. Thu hang, co an, trang thai
@@ -264,14 +285,15 @@ var ofTouch = array.new_int(0)    // bar cua LAN CHAM CUOI — mep phai khi vung
 // mutate duoc => dung mang lam bien dem de dem ca tu ben trong addOFCand/resolveNestOF.
 //  0 sinh ung vien | 1 xac nhan | 3 huy pha nham | 4 het han | 5 box xoa vi quet
 //  2 xoa vi pivot phu nhan (V) | 6 xoa vi cham nap cung OF_HARD_CAP (K)
-//  O 2 va 6 truoc day bo trong => hai duong xoa THAT SU cua invalidateOFByPivot va trimOF
-//  khong duoc dem, phep tru "ve box - da xoa = con lai" luon lech ma khong biet lech o dau.
-//  Du ca 7 khau roi thi bang dem moi co dong "kiem tra" va no phai bang 0.
-// Tach RIENG 2 chieu: 0-6 = Demand, 7-13 = Supply. Gop chung thi khong tra loi duoc
+//  7 huy UNG VIEN vi nam trong mot OF co chan hoi SOM hon (dieu kien #2, chieu xuoi)
+//  8 huy UNG VIEN vi no la BAN RONG cua mot nhip hoi da co ban hep (luat thu hep c->b)
+//  9 xoa VUNG RONG vi mot ban HEP tai cuc tri vua ra doi va thay the no (luat thu hep, chieu nguoc)
+//  Du ca 10 khau roi thi bang dem moi co dong "kiem tra" va no phai bang 0.
+// Tach RIENG 2 chieu: 0-9 = Demand, 10-19 = Supply. Gop chung thi khong tra loi duoc
 // cau hoi "vi sao OF-S bien mat sach ma OF-D thi khong".
-var ofStat = array.new_int(14, 0)
+var ofStat = array.new_int(20, 0)
 bumpStat(int k, bool isBull) =>
-    idx = isBull ? k : k + 7
+    idx = isBull ? k : k + 10
     array.set(ofStat, idx, array.get(ofStat, idx) + 1)
 
 // ===== HA TANG DEBUG CHO OF ================================================
@@ -294,6 +316,13 @@ nextOFId() =>
 
 var ofCId  = array.new_int(0)     // id ung vien   — song song ofCTop / ofCBot / ofCBar / ofCBull / ofCAge
 var ofId   = array.new_int(0)     // id vung da ve — song song ofZone / ofLbl / ofBull / ofMit / ofTouch
+// Nen ma vung duoc XAC NHAN (khac han mep trai = nen cua chan hoi). Hai moc nay cach nhau
+// toi `ofConfirmBars` nen, va chinh khoang cach do la thu phan biet "thu hep" voi "hai OF
+// rieng biet" — xem `ofNestVerdict`.
+var ofConfBar = array.new_int(0)
+// Da co luc nao CA CAY NEN nam han ben ngoai vung chua (OF-D: low > dinh · OF-S: high < day).
+// Chi sau khi co gia moi duoc tinh la DA KHAI THAC — xem khoi (A).
+var ofLeft = array.new_bool(0)
 var ofCBox = array.new_box(0)     // hop MA cua ung vien — chi khac na khi bat ofDbgGhost
 var ofCLbl = array.new_label(0)
 
@@ -302,7 +331,6 @@ var ofCLbl = array.new_label(0)
 // va luc do chinh cai debug tro thanh nguon nghi ngo.
 var ofVisA  = array.new_bool(0)
 var ofRankA = array.new_int(0)
-var ofHidA  = array.new_bool(0)
 var usedL   = array.new_bool(0)   // co "da in roi" cua bang soi, dung lai moi nen
 
 // NHAT KY: giu LOG_KEEP su kien gan nhat, theo dung thu tu xay ra.
@@ -541,8 +569,8 @@ dbgOk(bool isBull, string why) =>
     ofDbgCand and sideOk and whyOk
 
 // `why` = ly do xoa, chi dung cho bia mo debug:
-//   Q = bi QUET (rau xuyen bien giu)   K = bi han ngach duoi   N = bi vung TRE hon nuot
-//   V = pivot moi phu nhan (chi khi bat ofInvalidPivot)
+//   Q = bi QUET (rau xuyen bien giu)   K = bi han ngach duoi   V = pivot moi phu nhan
+//   W = vung RONG bi mot ban HEP tai cuc tri thay the (luat thu hep, trang 26/27/29)
 // Bia mo nay danh cho vung DA VE roi moi bi xoa — khac han bia mo cua UNG VIEN (mau cam).
 removeOF(int i, string why) =>
     if dbgOk(array.get(ofBull, i), why)
@@ -569,6 +597,10 @@ removeOF(int i, string why) =>
     array.remove(ofTouch, i)
     if i < array.size(ofId)
         array.remove(ofId, i)
+    if i < array.size(ofConfBar)
+        array.remove(ofConfBar, i)
+    if i < array.size(ofLeft)
+        array.remove(ofLeft, i)
     // Anh chup hien thi cua (A3) phai bam theo DUNG chi so cua ofZone. Khoi (C) trimOF chay
     // SAU khi chup, nen neu no rut mot vung ra ma anh chup khong rut theo thi tu vung do tro di
     // moi thu lech mot nac — bang soi se bao "vung nay bi an" trong khi thu phu la vung khac.
@@ -576,8 +608,6 @@ removeOF(int i, string why) =>
         array.remove(ofVisA , i)
     if i < array.size(ofRankA)
         array.remove(ofRankA, i)
-    if i < array.size(ofHidA)
-        array.remove(ofHidA , i)
 
 // Khoang cach tu GIA HIEN TAI toi mep gan nhat cua vung. Gia dang nam trong vung => 0.
 ofDist(box z) =>
@@ -611,15 +641,113 @@ trimOF(bool isBull, int maxKeep) =>
         removeOF(worst, "K")
         n -= 1
 
-// DIEU KIEN #2 - LUAT TUOI khong con la mot HAM XOA nua.
-// No da chuyen thanh BO LOC HIEN THI tinh lai MOI NEN, nam o khoi (A2b) + (A3) ben duoi.
-// Ly do: neu XOA HAN vung GIA thi khi vung TRE bi quet chet, vung gia KHONG THE quay lai —
-// trong khi dung ra luc do no phai duoc ve lai. Giong het bai hoc cua han ngach: AN, dung XOA.
+// ===== DIEU KIEN #2 CUA TAI LIEU ==========================================
+// BankTrap trang 26: "Mot OF hop le phai thoa 2 dieu kien: Gia phai pha khoi day cua OF
+// & KHONG DUOC NAM TRONG OF TRUOC DO", minh hoa bang "OF2 khong phai la OF hop le du gia
+// pha qua day B nhung OF nay nam trong OF1".
 //
-// Sau thay doi nay, trong ca file chi con DUNG HAI thu thuc su xoa mot vung OF:
+// Doc ky CHU NGU: cai bi loai la OF MOI (OF2), cai duoc giu la OF CU bao ngoai (OF1).
+// Ban truoc khoi (A2b) lam NGUOC: no AN vung CU bao ngoai va giu vung MOI ben trong —
+// tuc giu cai ngoay nho va vut ca nhip hoi that. Da bo khoi do, thay bang ham nay.
+//
+// HAI THAY DOI KEM THEO, deu co can cu:
+//  1) Day la DIEU KIEN HOP LE, khong phai bo loc hien thi. Tai lieu xep no ngang hang voi
+//     dieu kien #1 (phai pha dinh/day) => OF vi pham thi KHONG DUOC SINH RA, chu khong phai
+//     sinh ra roi giau di. Nen cho kiem tra la khoi (B), ngay tai luc xac nhan.
+//     Gia phai tra: ung vien bi loai la mat han, khong "song lai" khi vung bao ngoai chet.
+//     Nhung do dung la y tai lieu — no CHUA BAO GIO la OF hop le.
+//  2) KHONG loc theo co "da bi khai thac". Tung co mot ban lam nguoc lai: chi so voi vung
+//     chua bi khai thac, lay can cu tu trang 35 ("khi gia da ve day roi cac OF o ben tren
+//     khong can phai de y nua vi da bi khai thac het"). DA GO BO, vi doc ky lai thi thay
+//     trang 35 dang noi ve vung NAO DANG DE VAO LENH, chu khong noi vung da tieu thi mat
+//     quyen phu nhan mot OF moi. Trang 26 con noi thang dieu nguoc lai: "OF2 CUNG DUOC XEM
+//     LA MOT OF va OF2 DA KHAI THAC OF1" — mot OF hinh thanh TRONG LUC dang khai thac OF
+//     truoc van hop le. Thu duy nhat giet no la NAM TRON ben trong OF truoc.
+//     => O day moi vung deu co quyen phu nhan nhu nhau, xam hay khong khong quan trong.
+//
+// Hinh hoc giu nguyen — phan nay khoi (A2b) cu lam dung: chi xet KHOANG GIA (chieu doc),
+// va phai nam TRON ben trong. Trang 27 + trang 35: nho ra khoi bien tren HOAC thoi xuong
+// duoi, du chi mot chut, la hop le ("gioi han tren cua OF nay chi cao hon OF truoc mot it
+// nhung da vuot qua => OF hop le"). Be ngang cua hop khong tham gia.
+// TAI LIEU CO HAI LUAT VE VUNG LONG NHAU, VA CHUNG CHI TRAI NGUOC KHI DOC AU.
+//
+//  (1) Dieu kien #2, trang 26: "OF2 khong phai la OF hop le ... vi nam trong OF1"
+//      => vung TRONG bi loai, vung NGOAI song.
+//  (2) Luat thu hep, trang 26 ("c nen thu hep lai thanh truong hop b"), trang 27 ("OF nam o
+//      pullback NHO CUOI CUNG cua pullback lon"), trang 29 ("co the thu hep lai OF")
+//      => vung TRONG song, vung NGOAI chi la ban ve rong tay.
+//
+// Khac biet nam o CHO NAY: giua hai chan hoi da co mot nhip TIEP DIEN tron ven chua?
+//   OF1/OF2 : gia roi OF1, di tiep theo xu huong, roi MOI quay lai tao OF2 => co nhip o giua
+//   thu hep : hai chan cung thuoc MOT nhip hoi, cung duoc giai quyet boi CUNG mot cu pha
+//
+// Ma "di tiep theo xu huong" chinh la dieu kien #1 — cu pha bien xa. Nen phep thu la:
+//     vung ngoai da XAC NHAN XONG truoc khi chan hoi cua vung trong hinh thanh chua?
+//        roi  -> co nhip tiep dien o giua -> hai OF rieng biet -> loai vung TRONG   (ma N)
+//        chua -> cung mot nhip hoi        -> thu hep            -> loai ban RONG    (ma T)
+// Mot tieu chi, khop ca hai cho trong tai lieu. Day la ly do phai co mang `ofConfBar`.
+//
+// NHANH THU BA — THU HEP (y cua ban, va no trung khop nguyen van trang 27 muc 2):
+//   Neu ung vien nam tron trong mot vung rong VA no nam o phia CUC TRI cua vung do
+//   (OF-D: sat DAY · OF-S: sat DINH) thi day chinh la "pullback nho CUOI CUNG cua pullback lon".
+//   Khi do KHONG loai ung vien — nguoc lai: VE no, va DON vung rong di (xem `shrinkWideOF`).
+//   Nguong "sat" lay tu o nhap `ofShrinkEdge`.
+//   Nhanh nay duoc uu tien hon nhanh N: mot ung vien dung ngay cuc tri cua vung bao ngoai la
+//   ban tinh chinh cua chinh vung do, khong phai mot OF khac tinh co roi vao trong.
+//
+// Tra ve: 0 = ve binh thuong · 1 = loai vi nam trong OF truoc (N) · 2 = loai vi la ban rong (T)
+//         3 = VE, va don cac vung rong ma no vua thu hep lai (W)
+//
+// Luu y ve thu tu tu nhien: neu C nam trong Z thi dinh cua Z cao hon, nen Z bao gio cung
+// xac nhan SAU C. Vi vay nhanh (1) chi bat duoc khi Z la OF cua mot chu ky TRUOC do han —
+// dung y tai lieu. Con ca khung vang tren BTCUSDT (ban hep ve truoc, ban rong xac nhan sau)
+// roi vao nhanh (2).
+atShrinkEdge(float top, float bot, bool isBull, float t, float b) =>
+    float h = t - b
+    bool res = false
+    if h > 0
+        res := isBull ? (bot - b) <= h * ofShrinkEdge : (t - top) <= h * ofShrinkEdge
+    res
+
+ofNestVerdict(float top, float bot, bool isBull, int leftBar) =>
+    bool killN  = false
+    bool killT  = false
+    bool shrink = false
+    if array.size(ofZone) > 0
+        for i = 0 to array.size(ofZone) - 1
+            if array.get(ofBull, i) == isBull
+                [t, b, l] = marginZone(array.get(ofZone, i))
+                int cf = l
+                if i < array.size(ofConfBar)
+                    cf := array.get(ofConfBar, i)
+                // ung vien nam TRON trong mot vung co chan hoi som hon
+                if l < leftBar and top <= t and bot >= b
+                    if atShrinkEdge(top, bot, isBull, t, b)
+                        shrink := true      // dung o cuc tri => la ban THU HEP cua vung do
+                    else if cf < leftBar
+                        killN := true       // nam giua => hai OF rieng biet, dieu kien #2
+                // ung vien NUOT mot vung co chan hoi muon hon => ung vien la ban rong
+                if l > leftBar and t <= top and b >= bot
+                    killT := true
+    shrink ? 3 : killN ? 1 : killT ? 2 : 0
+
+// Don cac vung RONG ma ung vien vua thu hep lai. Goi NGAY SAU khi ung vien da duoc ve,
+// nen vung moi dang nam o chi so cuoi cung => bat dau duyet tu size-2.
+// Duyet NGUOC: removeOF chi lam xe dich cac chi so LON hon i, nen phan chua duyet van dung.
+shrinkWideOF(float top, float bot, bool isBull, int leftBar) =>
+    if array.size(ofZone) > 1
+        for i = array.size(ofZone) - 2 to 0
+            if array.get(ofBull, i) == isBull
+                [t, b, l] = marginZone(array.get(ofZone, i))
+                if l < leftBar and top <= t and bot >= b and atShrinkEdge(top, bot, isBull, t, b)
+                    bumpStat(9, isBull)
+                    removeOF(i, "W")
+
+// Sau thay doi nay, trong ca file chi con DUNG HAI thu thuc su xoa mot vung DA VE:
 //   1) gia quet qua BIEN GIU  (khoi A)
 //   2) nap cung OF_HARD_CAP   (trimOF)
-// Moi thu con lai deu la quyet dinh HIEN THI, tinh lai moi nen, va go ra duoc.
+// Con lai duy nhat mot quyet dinh HIEN THI la han ngach top N o khoi (A3) — no chi AN,
+// tinh lai moi nen, va go ra duoc.
 
 // Day 1 UNG VIEN. Chua ve gi — cho gia pha bien xa moi thanh OF that (dieu kien #1).
 addOFCand(int left, float top, float bot, bool isBull) =>
@@ -975,65 +1103,53 @@ if array.size(ofZone) > 0
             // OF-D: rau thung DAY vung.  OF-S: rau vuot DINH vung.
             bumpStat(5, bl)
             removeOF(i, "Q")
-        else if high >= b and low <= t
-            // Cham vao vung = mot lan khai thac. Ghi lai bar de con dung mep phai o do.
-            array.set(ofMit  , i, true)
-            array.set(ofTouch, i, time)
-
-// (A2) TIM VUNG TUYEN DAU moi chieu — vung gia se gap TRUOC TIEN neu quay dau lai.
-//      OF-D: vung co DINH cao nhat.   OF-S: vung co DAY thap nhat.
-//      Phai chay SAU khoi xoa o tren, neu khong vung sap chet van co the duoc chon.
-int   nearD = -1
-int   nearS = -1
-float bestT = na
-float bestB = na
-if array.size(ofZone) > 0
-    for i = 0 to array.size(ofZone) - 1
-        [t, b, l] = marginZone(array.get(ofZone, i))
-        if array.get(ofBull, i)
-            if na(bestT) or t > bestT
-                bestT := t
-                nearD := i
         else
-            if na(bestB) or b < bestB
-                bestB := b
-                nearS := i
+            // KHAI THAC = ROI HAN KHOI VUNG ROI QUAY LAI. Tai lieu trang 26 noi dung trinh tu:
+            // "sau khi gia giam xuong KHOI OF1 VA DI LEN KHAI THAC OF1 roi lai tiep tuc xu huong".
+            // Ban truoc chi can MOT cay nen co bien do cham vao vung la danh dau da khai thac —
+            // ke ca nhung nen ngay sau khi ve, luc gia con dang roi di. Hau qua: vung nao cung
+            // thanh xam gan nhu ngay lap tuc, va co song/xam mat sach y nghia.
+            // Gio phai qua HAI buoc: (1) co mot cay nen nam TRON ben ngoai vung  (2) sau do quay lai cham.
+            bool away = bl ? low > t : high < b
+            bool leftYet = false
+            if i < array.size(ofLeft)
+                leftYet := array.get(ofLeft, i)
+            if away
+                if i < array.size(ofLeft)
+                    array.set(ofLeft, i, true)
+            else if leftYet and high >= b and low <= t
+                // Quay lai cham = mot lan khai thac. Ghi lai bar de con dung mep phai o do.
+                array.set(ofMit  , i, true)
+                array.set(ofTouch, i, time)
 
-// (A2b) LUAT TUOI — tinh co "bi vung TRE hon LONG BEN TRONG che khuat", MOT LAN moi nen.
-//      Long nhau = vung TRE nam HOAN TOAN TRONG vung GIA (BAO GOM ca bien bang nhau):
-//        OF-D: day_tre >= day_gia  va  dinh_tre <= dinh_gia
-//        OF-S: ten hai bien doi cho nhau nen cau chu lat, hinh hoc y het => dung chung dieu kien.
-//      CHI MOT CHIEU: "gia nam trong tre" KHONG tinh — do khong phai OF bien rong.
-//      Chong lan MOT PHAN cung khong tinh.
+// (A2) DA BI XOA. No tung tim "vung TUYEN DAU" moi chieu — vung co dinh cao nhat (OF-D) /
+//      day thap nhat (OF-S) — roi cho rieng vung do GIU MAU du da bi khai thac, voi ly do
+//      "day la vung gia se gap truoc tien neu quay dau lai".
 //
-//      Vung gia chi bi AN chu KHONG bi xoa => khi vung tre bi quet chet va roi khoi mang,
-//      co nay tu tat va vung gia HIEN LAI ngay nen do. Do la ly do phai tinh lai MOI NEN
-//      thay vi quyet dinh mot lan luc tao vung roi vut di.
-var nestHid = array.new_bool(0)
-array.clear(nestHid)
-if array.size(ofZone) > 0
-    for i = 0 to array.size(ofZone) - 1
-        [ti, bi, li] = marginZone(array.get(ofZone, i))
-        bool bli = array.get(ofBull, i)
-        bool hid = false
-        for j = 0 to array.size(ofZone) - 1
-            if j != i and array.get(ofBull, j) == bli
-                [tj, bj, lj] = marginZone(array.get(ofZone, j))
-                if lj > li and tj <= ti and bj >= bi
-                    hid := true
-        array.push(nestHid, hid)
+//      Bo di vi no hoi sai cau hoi: no hoi vung nao GAN gia nhat, khong hoi vung do CON GI
+//      DE GAP hay khong. Tai lieu trang 42 noi thang: "OB2 da bi OB3 khai thac. Khi gia quay
+//      ve khai thac OB2 KHONG NEN SELL vi o tren con co OB1 CHUA BI KHAI THAC" — vung da tieu
+//      khong phai la dich, ke ca khi no nam gan gia nhat. Luat cu dang to mau dam nhat cho
+//      dung cai vung ma tai lieu bao dung de y.
+//
+//      Gio chi con mot cau hoi duy nhat: DA BI KHAI THAC CHUA. Xem `armed` o khoi (A3).
 
-// (A3) TO MAU. Chi vung TUYEN DAU (hoac vung chua tung bi cham) moi sang mau va keo dai.
-//      Vung phia sau nam cho: xam, mep phai dung o LAN CHAM CUOI CUNG.
-//      => OF3 chet vi thung day thi OF2 tu dong len tuyen dau va sang mau, khong can
-//         nguong khoang cach nao ca. Ke ca khi OF3 nam chong len OF2.
+// (A2b) DA BI XOA. No tung AN vung CU bao ngoai khi co vung MOI nam gon ben trong — tuc
+//       lam NGUOC chieu dieu kien #2 cua tai lieu (trang 26: cai bi loai la OF MOI ben trong).
+//       Luat do gio nam o `ofNestVerdict`, chay tai khoi (B) va LOAI ung vien sai thay vi AN
+//       vung dung. Nho vay khong con thu gi lam vung bien mat ma khong de lai bia mo.
+
+// (A3) TO MAU. Vung CHUA BI KHAI THAC thi sang mau va keo dai toi nen hien tai.
+//      Vung DA BI KHAI THAC thi xam, mep phai dung lai o LAN CHAM CUOI CUNG — khong con
+//      ngoai le "tuyen dau" nua (xem khoi A2 da bi xoa).
+//      Ket qua thi truc quan hon han: mau = con hieu luc, xam = da tieu. Khong con canh
+//      mot vung xam van do ruc chi vi no tinh co nam gan gia nhat.
 //
 //      DEBUG: khoi nay cung la noi DUY NHAT biet mot vung dang hien hay dang bi an va vi sao.
-//      Ket luan do duoc chup lai vao ofVisA / ofRankA / ofHidA de bang soi doc, thay vi de
-//      bang soi tu dien giai lai bo luat mot lan nua.
+//      Ket luan do duoc chup lai vao ofVisA / ofRankA de bang soi doc, thay vi de bang soi
+//      tu dien giai lai bo luat mot lan nua.
 array.clear(ofVisA)
 array.clear(ofRankA)
-array.clear(ofHidA)
 if array.size(ofZone) > 0
     for i = 0 to array.size(ofZone) - 1
         box   zOF  = array.get(ofZone, i)
@@ -1046,20 +1162,11 @@ if array.size(ofZone) > 0
         // vung gan hon chet di, no tu dong hien lai.
         // Ban truoc XOA HAN o trimOF: mot vung bi day khoi top 5 la mat VINH VIEN, du sau do
         // chi con 2 vung. Dung cai da lam bay OF 2 va OF 3 tren BTCUSDT 4H — bia mo D!K.
-        // Vung dang bi luat tuoi che khuat thi KHONG chiem suat han ngach cua vung khac —
-        // neu khong no vua vo hinh vua day mot vung hop le ra khoi top 5.
-        // wasHid = (A2b) DANG nham toi vung nay. Day la SU THAT — khong cong tac debug nao doi duoc.
-        bool  wasHid = array.get(nestHid, i)
-        // THU HANG PHAI BAT BIEN VOI DEBUG.
-        // Ban truoc dong duoi day co them mot co debug: bat cong tac chan doan len la cac vung
-        // dang bi (A2b) an duoc quay lai TRANH SUAT top N, thu hang cua moi vung khac doi theo,
-        // va vai vung dang hien bi day thanh AN-ngach. Ket qua: bat debug thi tap vung nhin thay
-        // doi theo CA HAI CHIEU — hien them may vung bi long nhung MAT may vung khac.
-        // Mot dung cu do ma lam doi cai no dang do thi khong dung duoc. Gio rank luon tinh theo
-        // dung luat cua che do THAT: vung bi (A2b) an khong chiem suat cua ai, het.
+        // Sau khi bo (A2b), day la BO LOC HIEN THI DUY NHAT con lai, va phep dem cung don
+        // gian han han: khong con phai loai tru vung bi long ra khoi phep dem nua.
         int rank = 0
         for j = 0 to array.size(ofZone) - 1
-            if j != i and array.get(ofBull, j) == bl2 and array.get(ofMit, j) == mit2 and not array.get(nestHid, j)
+            if j != i and array.get(ofBull, j) == bl2 and array.get(ofMit, j) == mit2
                 float dj = ofDist(array.get(ofZone, j))
                 if dj < di or (dj == di and j < i)
                     rank += 1
@@ -1069,12 +1176,15 @@ if array.size(ofZone) > 0
         //             duoc ghi vao anh chup, nen bang soi va tooltip luon bao cao su that
         //             ke ca khi dang bat che do hien tat ca.
         //   visDraw = co dang ve that tren chart NGAY LUC NAY, sau khi cong cac cong tac debug.
-        bool  vis     = not wasHid and not overQ
+        bool  vis     = not overQ
         bool  visDraw = ofDbgOn or vis
         array.push(ofRankA, rank)
         array.push(ofVisA , vis)
-        array.push(ofHidA , wasHid)
-        bool  armed = not mit2 or i == (bl2 ? nearD : nearS)
+        // DA BI KHAI THAC LA XONG — khong con ngoai le nao.
+        // `armed` gio dung bang "chua bi khai thac", va no dieu khien ca mau lan mep phai:
+        //    chua khai thac -> co mau + keo dai toi nen hien tai
+        //    da  khai thac  -> XAM + mep phai dung lai o lan cham cuoi cung
+        bool  armed = not mit2
         color colOF = not visDraw ? transp : armed ? (bl2 ? colorOFBull : colorOFBear) : colorMitigated
         int   rgtOF = armed ? time : array.get(ofTouch, i)
         box.set_right(zOF, rgtOF)
@@ -1091,16 +1201,10 @@ if array.size(ofZone) > 0
         int   zid   = 0
         if i < array.size(ofId)
             zid := array.get(ofId, i)
-        // DAU HIEU = "vung nay dang duoc ve, nhung o che do THAT thi no bi an, vi luat nay":
-        //   *  bi (A2b) giau  ·  !  bi day khoi top N  ·  *!  dinh ca hai.
-        // Nhan tron khong dau hieu = vung van hien binh thuong khi tat het debug.
-        string mkOF = ""
-        if wasHid
-            mkOF := mkOF + "*"
-        if overQ
-            mkOF := mkOF + "!"
-        if mkOF != ""
-            mkOF := mkOF + " "
+        // DAU HIEU  !  = "vung nay dang duoc ve, nhung o che do THAT thi no bi day khoi top N".
+        // Nhan tron = vung van hien binh thuong khi tat het debug.
+        // Dau  *  cua (A2b) da bo cung voi chinh khoi do.
+        string mkOF = overQ ? "! " : ""
         label.set_text(lbOF, visDraw ? mkOF + (bl2 ? OFD_TEXT : OFS_TEXT) + "-" + str.tostring(ageOF) : "")
         label.set_textcolor(lbOF, ofLabelOn and visDraw ? color.white : na)
         // HO SO VUNG — gan vao chinh cai nhan san co nen khong ton them nhan nao.
@@ -1117,14 +1221,12 @@ if array.size(ofZone) > 0
                  + "\nthu hang " + str.tostring(rank) + "  (nguong "
                  + str.tostring(mit2 ? maxOFMit : maxOFShow) + ")"
                  + "\ntrang thai THAT (khi tat het debug): "
-                 + (wasHid and overQ ? "AN — vua bi (A2b) giau vua qua han ngach"
-                   : wasHid ? "AN — bi vung TRE long ben trong che khuat (A2b)"
-                   : overQ ? "AN — bi day khoi top " + str.tostring(mit2 ? maxOFMit : maxOFShow)
+                 + (overQ ? "AN — bi day khoi top " + str.tostring(mit2 ? maxOFMit : maxOFShow)
                    : mit2 ? "XAM — da bi cham it nhat mot lan"
                    : "HIEN — chua bi cham")
                  + (visDraw and not vis ? "\n(ban dang thay no chi vi mot cong tac debug)" : "")
-                 + (armed ? "\ntuyen dau: mep phai keo dai toi nen hien tai"
-                          : "\nnam cho: mep phai dung o lan cham cuoi cung"))
+                 + (armed ? "\ncon hieu luc: mep phai keo dai toi nen hien tai"
+                          : "\nda tieu: mep phai dung o lan cham cuoi cung"))
 
 // (B) UNG VIEN -> OF THAT. Dieu kien #1: DONG NEN vuot bien xa. Qua han thi huy.
 if showOF and array.size(ofCTop) > 0
@@ -1158,9 +1260,20 @@ if showOF and array.size(ofCTop) > 0
             //     KHONG BAO GIO duoc kiem tra lai — vung sinh ra da sai san va song mai.
             // Doi xung cho OF-D: rau thung DAY pullback + dong nen tren DINH.
             bool ok = confirmed and not wrongWay
-            // Moi ung vien xac nhan hop le deu duoc VE. Luat tuoi khong con chan o day nua —
-            // no chi AN vung o khoi (A3), va an thi con go ra duoc.
-            bumpStat(wrongWay ? 3 : confirmed ? 1 : 4, cl)
+            // DIEU KIEN #2 + LUAT THU HEP — kiem tra DUNG O DAY, khong phai luc to mau.
+            // Chi hoi khi ung vien da qua duoc dieu kien #1: chua xac nhan thi no chua phai
+            // mot OF, khong co gi de dem ra so voi OF truoc ca.
+            // Xem chu thich day du o cho khai bao `ofNestVerdict`.
+            int nestV = 0
+            if ok
+                nestV := ofNestVerdict(ct, cb, cl, array.get(ofCBar, i))
+            // Verdict 3 KHONG loai ung vien — no la ban thu hep, van duoc ve, va sau khi ve
+            // xong thi don cac vung rong di. Chi 1 va 2 moi giet ung vien.
+            if nestV == 1 or nestV == 2
+                ok := false
+            // Thu tu uu tien phai giu dung the nay: pha nham (P) la vi pham dieu kien #1 nen
+            // xet truoc; het han (H) la truong hop chua bao gio xac nhan nen xet sau cung.
+            bumpStat(wrongWay ? 3 : nestV == 1 ? 7 : nestV == 2 ? 8 : confirmed ? 1 : 4, cl)
             if ok
                 color colOF = cl ? colorOFBull : colorOFBear
                 array.push(ofZone, createBox(array.get(ofCBar, i), time, ct, cb, colOF))
@@ -1173,7 +1286,14 @@ if showOF and array.size(ofCTop) > 0
                 // Vung KE THUA so hieu cua chinh ung vien da sinh ra no => nhat ky noi duoc
                 // "#12 sinh o nen X, ve box o nen Y, chet o nen Z" nhu mot doi tuong lien mach.
                 array.push(ofId   , cid)
+                // Nen xac nhan — moc thoi gian de lan sau phan biet "thu hep" voi "OF rieng biet".
+                array.push(ofConfBar, time)
+                array.push(ofLeft   , false)
                 logOF("ve box", cl, cid, cl ? ct : cb)
+                // THU HEP: ung vien nay dung o cuc tri cua mot/nhieu vung rong bao ngoai
+                // => no la ban (b) cua chung. Ve xong roi moi don, de vung rong kip de lai bia mo.
+                if nestV == 3
+                    shrinkWideOF(ct, cb, cl, array.get(ofCBar, i))
             else
                 // Bia mo cho ung vien: dat tai MEP TRAI dang le cua hop bi thieu, o BIEN GIU
                 // (OF-D -> day vung, OF-S -> dinh vung) tuc dung cai bien da giet no.
@@ -1181,7 +1301,7 @@ if showOF and array.size(ofCTop) > 0
                 // DINH cua mot OF-S — hai vung khac han nhau, khong doc duoc chieu thi khong
                 // ket luan duoc gi.  Dang:  D P2 >61130  =  Demand, chet vi P o nen thu 2,
                 // bien XA (dich xac nhan) la 61130.
-                string whyC = wrongWay ? "P" : "H"
+                string whyC = wrongWay ? "P" : nestV == 1 ? "N" : nestV == 2 ? "T" : "H"
                 if dbgOk(cl, whyC)
                     label.new(array.get(ofCBar, i), cl ? cb : ct,
                          (cl ? "D " : "S ") + whyC
@@ -1255,24 +1375,14 @@ if array.size(ofCBull) > 0
             dwCD += 1
         else
             dwCS += 1
-// Vung dang bi (A2b) giau. Lap theo size cua ofHidA vi anh chup do lay TRUOC khoi (B),
-// nen no co the ngan hon ofZone dung bang so vung vua sinh tren chinh nen nay.
-int dwHD = 0
-int dwHS = 0
-if array.size(ofHidA) > 0
-    for i = 0 to array.size(ofHidA) - 1
-        if array.get(ofHidA, i)
-            if array.get(ofBull, i)
-                dwHD += 1
-            else
-                dwHS += 1
-// Vung bi HAN NGACH day khoi top N (khac han vung bi (A2b) long o tren).
-// vis = false ma khong phai do long => chi con duong han ngach.
+// Vung bi HAN NGACH day khoi top N. Sau khi bo (A2b) day la duong AN duy nhat con lai,
+// nen `vis = false` chi con dung mot nghia. Lap theo size cua ofVisA vi anh chup lay TRUOC
+// khoi (B), co the ngan hon ofZone dung bang so vung vua sinh tren chinh nen nay.
 int dwQD = 0
 int dwQS = 0
 if array.size(ofVisA) > 0
     for i = 0 to array.size(ofVisA) - 1
-        if not array.get(ofVisA, i) and not array.get(ofHidA, i)
+        if not array.get(ofVisA, i)
             if array.get(ofBull, i)
                 dwQD += 1
             else
@@ -1283,8 +1393,6 @@ plot(dwSL, "dbg OF-S song" , display = display.data_window)
 plot(dwSM, "dbg OF-S xam"  , display = display.data_window)
 plot(dwCD, "dbg OF-D cho"  , display = display.data_window)
 plot(dwCS, "dbg OF-S cho"  , display = display.data_window)
-plot(dwHD, "dbg OF-D an"   , display = display.data_window)
-plot(dwHS, "dbg OF-S an"   , display = display.data_window)
 plot(dwQD, "dbg OF-D an-ngach", display = display.data_window)
 plot(dwQS, "dbg OF-S an-ngach", display = display.data_window)
 
@@ -1293,7 +1401,7 @@ plot(dwQS, "dbg OF-S an-ngach", display = display.data_window)
 //   cho = 0            -> khong sinh duoc ung vien (loi o khoi Pullback / bo loc chieu)
 //   cho > 0, song = 0  -> ung vien khong bao gio cham duoc bien xa (dieu kien #1 qua chat)
 //   song tang roi tut  -> bi xoa boi vong doi hoac han ngach
-var table dbgT = table.new(position.top_right, 4, 16, bgcolor = color.new(color.black, 20), border_width = 1)
+var table dbgT = table.new(position.top_right, 4, 18, bgcolor = color.new(color.black, 20), border_width = 1)
 if showDbg and barstate.islast
     // So vung OF lay thang tu khoi do dem theo nen o tren. Dem hai noi thi som muon gi cung
     // co ngay hai noi lech nhau, va luc do chinh cai debug tro thanh nguon nghi ngo.
@@ -1314,10 +1422,11 @@ if showDbg and barstate.islast
             else
                 pDL += 1
     // KIEM TRA CAN DOI. Moi vung DA VE thi hoac con nam trong bo nho, hoac da di qua DUNG MOT
-    // trong ba cua xoa: Q (bi quet) - V (pivot phu nhan) - K (nap cung). Khac 0 nghia la con
-    // mot duong xoa chua duoc dem => dung tin cac dong con lai cua pheu nua.
-    int balD = array.get(ofStat, 1) - array.get(ofStat, 5) - array.get(ofStat, 2) - array.get(ofStat, 6) - (dwDL + dwDM)
-    int balS = array.get(ofStat, 8) - array.get(ofStat, 12) - array.get(ofStat, 9) - array.get(ofStat, 13) - (dwSL + dwSM)
+    // trong BON cua xoa: Q (bi quet) - V (pivot phu nhan) - K (nap cung) - W (nhuong ban hep).
+    // Khac 0 nghia la con mot duong xoa chua duoc dem => dung tin cac dong con lai cua pheu.
+    // Bon khau HUY (o 3, 4, 7, 8) khong co mat o day: chung giet UNG VIEN truoc khi ve box.
+    int balD = array.get(ofStat, 1) - array.get(ofStat, 5) - array.get(ofStat, 2) - array.get(ofStat, 6) - array.get(ofStat, 9) - (dwDL + dwDM)
+    int balS = array.get(ofStat, 11) - array.get(ofStat, 15) - array.get(ofStat, 12) - array.get(ofStat, 16) - array.get(ofStat, 19) - (dwSL + dwSM)
 
     table.cell(dbgT, 0, 0, ""    , text_color = color.gray , text_size = size.small)
     table.cell(dbgT, 1, 0, "song", text_color = color.gray , text_size = size.small)
@@ -1339,30 +1448,30 @@ if showDbg and barstate.islast
     table.cell(dbgT, 2, 4, str.tostring(pDM), text_color = color.white, text_size = size.small)
 
     // PHEU OF — cong don tu dau chart. Cho biet ung vien chet o KHAU NAO chu khong chi con lai bao nhieu.
-    // Da du ca 7 khau: 2 cua HUY (ung vien) + 3 cua XOA (vung da ve) + khau sinh va khau ve box.
-    idxs = array.from(0, 1, 3, 4, 5, 2, 6)
-    lbls = array.from("ung vien sinh", "-> ve box", "huy: pha nham", "huy: het han", "xoa: bi quet", "xoa: pivot (V)", "xoa: nap cung (K)")
+    // Da du ca 9 khau: 4 cua HUY (ung vien) + 3 cua XOA (vung da ve) + khau sinh va khau ve box.
+    // Hai dong ve vung long nhau la HAI NHANH cua cung mot phep thu, dung doc lan:
+    //   huy: trong OF truoc  = vung ngoai DA hoan tat nhip tiep dien => hai OF rieng biet
+    //   huy: ban rong (c->b) = chua co nhip nao o giua => cung mot nhip hoi, ban hep thang
+    idxs = array.from(0, 1, 3, 7, 8, 4, 5, 2, 6, 9)
+    lbls = array.from("ung vien sinh", "-> ve box", "huy: pha nham", "huy: trong OF truoc", "huy: ban rong (c->b)", "huy: het han", "xoa: bi quet", "xoa: pivot (V)", "xoa: nap cung (K)", "xoa: nhuong ban hep (W)")
     table.cell(dbgT, 0, 5, "PHEU OF", text_color = color.yellow  , text_size = size.small)
     table.cell(dbgT, 1, 5, "D"      , text_color = colorOFBull, text_size = size.small)
     table.cell(dbgT, 2, 5, "S"      , text_color = colorOFBear, text_size = size.small)
-    for k = 0 to 6
+    for k = 0 to 9
         kk = array.get(idxs, k)
         table.cell(dbgT, 0, k + 6, array.get(lbls, k), text_color = color.gray , text_size = size.small)
-        table.cell(dbgT, 1, k + 6, str.tostring(array.get(ofStat, kk))    , text_color = color.white, text_size = size.small)
-        table.cell(dbgT, 2, k + 6, str.tostring(array.get(ofStat, kk + 7)), text_color = color.white, text_size = size.small)
+        table.cell(dbgT, 1, k + 6, str.tostring(array.get(ofStat, kk))     , text_color = color.white, text_size = size.small)
+        table.cell(dbgT, 2, k + 6, str.tostring(array.get(ofStat, kk + 10)), text_color = color.white, text_size = size.small)
     // KHONG thuoc pheu: pheu dem SU KIEN cong don tu dau chart, con day la TRANG THAI ngay tai
-    // nen hien tai. > 0 = dang co vung hop le bi giau di, va no khong de lai bia mo nao.
-    table.cell(dbgT, 0, 13, "an: A2b", text_color = color.orange, text_size = size.small)
-    table.cell(dbgT, 1, 13, str.tostring(dwHD), text_color = color.white, text_size = size.small)
-    table.cell(dbgT, 2, 13, str.tostring(dwHS), text_color = color.white, text_size = size.small)
-    // Duong an THU HAI, khong lien quan (A2b): bi day khoi top N vi co vung khac gan gia hon.
-    table.cell(dbgT, 0, 14, "an: ngach", text_color = color.orange, text_size = size.small)
-    table.cell(dbgT, 1, 14, str.tostring(dwQD), text_color = color.white, text_size = size.small)
-    table.cell(dbgT, 2, 14, str.tostring(dwQS), text_color = color.white, text_size = size.small)
+    // nen hien tai. Day la duong AN duy nhat con lai — bi day khoi top N vi co vung cung chieu,
+    // cung trang thai dang nam gan gia hon. Tang han ngach la no hien lai ngay.
+    table.cell(dbgT, 0, 16, "an: ngach", text_color = color.orange, text_size = size.small)
+    table.cell(dbgT, 1, 16, str.tostring(dwQD), text_color = color.white, text_size = size.small)
+    table.cell(dbgT, 2, 16, str.tostring(dwQS), text_color = color.white, text_size = size.small)
     // Phai bang 0. Khac 0 = pheu dang thieu mot duong xoa nao do, ket qua khong dang tin.
-    table.cell(dbgT, 0, 15, "kiem tra", text_color = color.gray, text_size = size.small)
-    table.cell(dbgT, 1, 15, str.tostring(balD), text_color = balD == 0 ? color.green : color.red, text_size = size.small)
-    table.cell(dbgT, 2, 15, str.tostring(balS), text_color = balS == 0 ? color.green : color.red, text_size = size.small)
+    table.cell(dbgT, 0, 17, "kiem tra", text_color = color.gray, text_size = size.small)
+    table.cell(dbgT, 1, 17, str.tostring(balD), text_color = balD == 0 ? color.green : color.red, text_size = size.small)
+    table.cell(dbgT, 2, 17, str.tostring(balS), text_color = balS == 0 ? color.green : color.red, text_size = size.small)
 
 // ===== BANG SOI TUNG VUNG (debug) =========================================
 // Bang dem tra loi "con bao nhieu vung", bang nay tra loi "vung NAO, va vi sao khong thay no".
@@ -1406,9 +1515,6 @@ if ofDbgList and barstate.islast
         // => mang anh chup NGAN hon ofZone dung o phan duoi. Kiem tra bang `if`, khong dung
         // bieu thuc ba ngoi: Pine khong hua bo qua nhanh khong duoc chon, ma mot lan array.get
         // vuot chi so la ca indicator dung lai.
-        bool hdz = false
-        if pick < array.size(ofHidA)
-            hdz := array.get(ofHidA, pick)
         bool vsz = true
         if pick < array.size(ofVisA)
             vsz := array.get(ofVisA, pick)
@@ -1419,11 +1525,9 @@ if ofDbgList and barstate.islast
         if pick < array.size(ofId)
             idz := array.get(ofId, pick)
         // vsz la trang thai THAT nen cot nay khong bi cong tac debug lam sai lech.
-        // Ban truoc: hdz dung truoc mtz trong chuoi ba ngoi => mot vung XAM dang bi (A2b) nham
-        // van in ra "HIEN*", nuot mat trang thai xam. Gio tach hai truc ra: vsz quyet dinh
-        // hien/an, mtz chi phan biet song/xam ben trong nhanh "hien".
-        bool ovq = rkz >= (mtz ? maxOFMit : maxOFShow)
-        string stz = vsz ? (mtz ? "XAM" : "HIEN") : hdz and ovq ? "AN-ca hai" : hdz ? "AN-long" : "AN-ngach"
+        // Hai truc tach bach: vsz quyet dinh hien/an, mtz phan biet song/xam trong nhanh "hien".
+        // Sau khi bo (A2b) chi con dung mot ly do an nen khong con "AN-long" / "AN-ca hai".
+        string stz = vsz ? (mtz ? "XAM" : "HIEN") : "AN-ngach"
         color  stc = not vsz ? color.red : mtz ? color.silver : color.lime
         table.cell(dbgL, 0, rowL + 1, "#" + str.tostring(idz), text_color = color.gray, text_size = size.tiny)
         table.cell(dbgL, 1, rowL + 1, blz ? "D" : "S", text_color = blz ? colorOFBull : colorOFBear, text_size = size.tiny)
