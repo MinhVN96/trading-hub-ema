@@ -323,6 +323,10 @@ var ofConfBar = array.new_int(0)
 // Da co luc nao CA CAY NEN nam han ben ngoai vung chua (OF-D: low > dinh · OF-S: high < day).
 // Chi sau khi co gia moi duoc tinh la DA KHAI THAC — xem khoi (A).
 var ofLeft = array.new_bool(0)
+// Da co cay nen nao co THAN (gia dong cua HOAC mo cua) nam trong vung chua.
+// Khac han co cham o tren: cham thi rau cung tinh, con than nen thi khong.
+// Co nay chi dieu khien MEP PHAI — xem khoi (A3).
+var ofBody = array.new_bool(0)
 var ofCBox = array.new_box(0)     // hop MA cua ung vien — chi khac na khi bat ofDbgGhost
 var ofCLbl = array.new_label(0)
 
@@ -601,6 +605,8 @@ removeOF(int i, string why) =>
         array.remove(ofConfBar, i)
     if i < array.size(ofLeft)
         array.remove(ofLeft, i)
+    if i < array.size(ofBody)
+        array.remove(ofBody, i)
     // Anh chup hien thi cua (A3) phai bam theo DUNG chi so cua ofZone. Khoi (C) trimOF chay
     // SAU khi chup, nen neu no rut mot vung ra ma anh chup khong rut theo thi tu vung do tro di
     // moi thu lech mot nac — bang soi se bao "vung nay bi an" trong khi thu phu la vung khac.
@@ -1118,9 +1124,27 @@ if array.size(ofZone) > 0
                 if i < array.size(ofLeft)
                     array.set(ofLeft, i, true)
             else if leftYet and high >= b and low <= t
-                // Quay lai cham = mot lan khai thac. Ghi lai bar de con dung mep phai o do.
-                array.set(ofMit  , i, true)
-                array.set(ofTouch, i, time)
+                // HAI MUC DO KHAI THAC, CO Y TACH RIENG — moi thu nuoi mot thu khac:
+                //
+                //  (1) CHAM  — rau cham vao la du. Dieu khien MAU: vung chuyen XAM ngay.
+                //      Gia da mo duong vao vung roi, no khong con "nguyen ven" nua.
+                //
+                //  (2) THAN NEN trong vung — gia DONG CUA hoac MO CUA nam trong [day, dinh].
+                //      Dieu khien MEP PHAI: hop dung lai tai day, va dung o LAN DAU TIEN.
+                //      Ly do tach ra: rau chi QUET qua vung trong giay lat, con than nen moi
+                //      la gia that su da giao dich BEN TRONG vung. Chi bi rau quet thi vung
+                //      van con dang cho, nen mep phai phai di tiep toi nen hien tai.
+                array.set(ofMit, i, true)
+                bool bodyIn = (close <= t and close >= b) or (open <= t and open >= b)
+                bool bodyYet = false
+                if i < array.size(ofBody)
+                    bodyYet := array.get(ofBody, i)
+                if bodyIn and not bodyYet
+                    if i < array.size(ofBody)
+                        array.set(ofBody, i, true)
+                    // Chot MOT LAN roi thoi — day la moc "lan khai thac dau tien", khong phai
+                    // lan cham gan nhat. Dieu kien `not bodyYet` o tren lo viec do.
+                    array.set(ofTouch, i, time)
 
 // (A2) DA BI XOA. No tung tim "vung TUYEN DAU" moi chieu — vung co dinh cao nhat (OF-D) /
 //      day thap nhat (OF-S) — roi cho rieng vung do GIU MAU du da bi khai thac, voi ly do
@@ -1180,13 +1204,17 @@ if array.size(ofZone) > 0
         bool  visDraw = ofDbgOn or vis
         array.push(ofRankA, rank)
         array.push(ofVisA , vis)
-        // DA BI KHAI THAC LA XONG — khong con ngoai le nao.
-        // `armed` gio dung bang "chua bi khai thac", va no dieu khien ca mau lan mep phai:
-        //    chua khai thac -> co mau + keo dai toi nen hien tai
-        //    da  khai thac  -> XAM + mep phai dung lai o lan cham cuoi cung
-        bool  armed = not mit2
+        // MAU va MEP PHAI do HAI dieu kien KHAC NHAU quyet dinh — dung gop lam mot:
+        //    MAU      <- da bi CHAM chua (rau cung tinh)        -> `armed`
+        //    MEP PHAI <- da co THAN NEN nam trong vung chua     -> `frozen`
+        // Vung moi bi rau quet: XAM nhung VAN KEO DAI, vi gia chua thuc su vao trong vung.
+        // Vung da co than nen ben trong: xam va mep phai dung han tai LAN DAU co than nen.
+        bool  armed  = not mit2
+        bool  frozen = false
+        if i < array.size(ofBody)
+            frozen := array.get(ofBody, i)
         color colOF = not visDraw ? transp : armed ? (bl2 ? colorOFBull : colorOFBear) : colorMitigated
-        int   rgtOF = armed ? time : array.get(ofTouch, i)
+        int   rgtOF = frozen ? array.get(ofTouch, i) : time
         box.set_right(zOF, rgtOF)
         box.set_extend(zOF, extend.none)
         box.set_bgcolor(zOF, colOF)
@@ -1225,8 +1253,10 @@ if array.size(ofZone) > 0
                    : mit2 ? "XAM — da bi cham it nhat mot lan"
                    : "HIEN — chua bi cham")
                  + (visDraw and not vis ? "\n(ban dang thay no chi vi mot cong tac debug)" : "")
-                 + (armed ? "\ncon hieu luc: mep phai keo dai toi nen hien tai"
-                          : "\nda tieu: mep phai dung o lan cham cuoi cung"))
+                 + (armed ? "\nmau: con hieu luc, chua bi cham"
+                          : "\nmau: XAM, da bi cham it nhat mot lan")
+                 + (frozen ? "\nmep phai: dung tai LAN DAU co than nen trong vung"
+                           : "\nmep phai: van keo dai — moi chi bi rau quet, chua co than nen"))
 
 // (B) UNG VIEN -> OF THAT. Dieu kien #1: DONG NEN vuot bien xa. Qua han thi huy.
 if showOF and array.size(ofCTop) > 0
@@ -1289,6 +1319,7 @@ if showOF and array.size(ofCTop) > 0
                 // Nen xac nhan — moc thoi gian de lan sau phan biet "thu hep" voi "OF rieng biet".
                 array.push(ofConfBar, time)
                 array.push(ofLeft   , false)
+                array.push(ofBody   , false)
                 logOF("ve box", cl, cid, cl ? ct : cb)
                 // THU HEP: ung vien nay dung o cuc tri cua mot/nhieu vung rong bao ngoai
                 // => no la ban (b) cua chung. Ve xong roi moi don, de vung rong kip de lai bia mo.
