@@ -122,6 +122,33 @@ ofLblSize     = input.string(size.tiny, "Co chu", inline = "oflbl", group = "Ord
 colorOFBull   = input.color(color.rgb(41, 98, 255, 78),  "OF Demand", group = "Order Flow")
 colorOFBear   = input.color(color.rgb(233, 30, 99, 78),  "OF Supply", group = "Order Flow")
 
+// ===== OF KHUNG LON VE LEN KHUNG DANG XEM =================================
+htfOFOn  = input.bool(true, "Ve OF cua khung LON len khung dang xem", group = "OF khung lon",
+     tooltip = "Ve cac vung OF cua mot khung lon hon (mac dinh 4H) de len chart dang xem (vi du 15m), "
+             + "dung lam POI khung lon khi vao lenh o khung nho. "
+             + "CHI VE VUNG CHUA BI KHAI THAC — vung nao da co mot cay nen khung lon DONG CUA hoac "
+             + "MO CUA nam trong no thi bi xoa khoi chart luon, khong hien xam. "
+             + "Tu dong TAT khi khung dang xem bang hoac lon hon khung da chon (tranh ve trung len chinh no). "
+             + "LUU Y KY THUAT: Pine khong cho mang / hop ve di qua request.security, nen o day chay "
+             + "MOT ENGINE OF THU HAI ngay trong script, nuoi bang nen cua khung lon lay ve. Do la ban "
+             + "SAO cua engine chinh, khong phai chinh no — neu sau nay sua luat OF thi phai sua ca hai cho. "
+             + "Tim chu HTF trong code la ra het.")
+htfOFTf  = input.timeframe("240", "  Khung lon lay OF", group = "OF khung lon")
+htfOFTr  = input.int(88, "  Do mo cua vung khung lon", minval = 0, maxval = 100, group = "OF khung lon",
+     tooltip = "0 = dac · 100 = trong suot. De cao hon vung cua khung dang xem cho de phan biet. "
+             + "Vien cua vung khung lon la net DUT, cung de phan biet.")
+htfColD  = input.color(#00C853, "  Mau OF-D khung lon", inline = "htfc", group = "OF khung lon")
+htfColS  = input.color(#FFD600, "  Mau OF-S khung lon", inline = "htfc", group = "OF khung lon",
+     tooltip = "Mau RIENG cho vung khung lon, khong dung chung voi mau OF cua khung dang xem — "
+             + "de nhin mot cai la biet ngay vung nao thuoc khung nao. Xanh la = Demand, vang = Supply.")
+htfOFMax = input.int(3, "  So vung khung lon hien thi moi chieu", minval = 1, maxval = 20, group = "OF khung lon",
+     tooltip = "HAN NGACH HIEN THI, giong `So OF CON SONG hien thi moi chieu` cua engine chinh. "
+             + "Thieu no chinh la cho engine khung lon ve NHIEU vung hon han so voi khi ban mo "
+             + "thang chart 4H: ben 4H chi hien top 5 gan gia nhat, con ben nay truoc day ve HET, "
+             + "ke ca nhung vung rat cu con sot lai tu dau chart. "
+             + "POI khung lon von chi can vai cai gan gia nhat nen mac dinh de 3. "
+             + "Vung qua nguong chi bi AN chu KHONG xoa — vung gan hon chet di thi no hien lai.")
+
 bull = input.color(color.green, "Bullish", group = "Structure | Color")
 bear = input.color(color.red , "Bearish", group = "Structure | Color")
 scobUp = input.color(#0b3ff9   , "Bullish SCOB", group = "Structure | Color")
@@ -330,6 +357,81 @@ var ofBody = array.new_bool(0)
 var ofCBox = array.new_box(0)     // hop MA cua ung vien — chi khac na khi bat ofDbgGhost
 var ofCLbl = array.new_label(0)
 
+// ===== TRANG THAI CUA ENGINE OF KHUNG LON (HTF) ===========================
+// Ban sao doc lap cua engine OF, chay tren nen cua khung lon. Khong dung chung mot bien
+// nao voi engine chinh — hai ben phai song song tuyet doi, neu khong se giam nhau.
+// Dat tien to h* cho moi thu thuoc ve no.
+var hcTop  = array.new_float(0)   // ung vien khung lon
+var hcBot  = array.new_float(0)
+var hcBar  = array.new_int(0)
+var hcBull = array.new_bool(0)
+var hcAge  = array.new_int(0)
+// HO SO vung khung lon. HINH HOC (hzTop/hzBot) tach HAN khoi HINH VE (hzBox/hzLbl):
+// mot vung da bi khai thac thi XOA HINH VE (hzBox/hzLbl := na) nhung HO SO VAN NAM LAI.
+//
+// Phai lam the vi cac luat long nhau (N / T / thu hep) can doc LICH SU, khong chi cac vung
+// dang hien. Engine chinh tren chart 4H giu vung da khai thac lai trong `ofZone` duoi dang
+// XAM, nen mot ung vien nam tron trong mot vung xam cu van bi loai bang ma N. Ban dau engine
+// nay XOA thang vung da khai thac khoi mang => ung vien do mat doi thu va duoc ve, sinh ra
+// nhung vung 4H chi co tren 15m ma mo chart 4H thi khong thay. Do chinh la bug "mot so OF 4h
+// ve khong dung". Gio ho so o lai, hai engine doc cung mot lich su.
+var hzTop  = array.new_float(0)   // dinh — NGUON SU THAT, doc duoc ca khi hop da bi xoa
+var hzBot  = array.new_float(0)   // day
+var hzBox  = array.new_box(0)     // hop dang ve, hoac na neu da khai thac
+var hzLbl  = array.new_label(0)   // nhan dang ve, hoac na neu da khai thac
+var hzMit  = array.new_bool(0)    // da bi khai thac (than nen vao trong) => khong ve nua
+// Da co luc nao CA CAY NEN khung lon nam han ben ngoai vung chua. Ban sao cua `ofLeft` ben
+// engine chinh. THIEU no la engine khung lon giet vung som hon han engine chinh: ngay nhung
+// nen dau tien sau khi vung ra doi, luc gia con dang roi di, chi can mot cay nen co than
+// cham lai vao vung la vung bi coi la da khai thac va bien mat.
+var hzAway = array.new_bool(0)
+// Ket qua CUOI CUNG cua phep thu hien thi, tinh lai MOI NEN o khoi (D5). Khong phai trang
+// thai luu tru: mot vung da khai thac co the song lai neu ben trong no xuat hien mot OF
+// khung nho con nguyen, nen cau tra loi phai duoc hoi lai lien tuc chu khong chot mot lan.
+var hzLive = array.new_bool(0)
+// CHOT CHET VINH VIEN. Khi mot vung khung lon da bi khai thac VA khong con OF khung nho nao
+// con nguyen ben trong thi no chet HAN — ve sau co OF khung nho moi sinh ra trong do cung
+// khong lam no song lai.
+// Khong co co nay thi mot vung da tieu se cu chop tat theo nhip ra doi / bi an cua cac OF
+// khung nho ben trong no, va cai hien ra se khong con la "vung khung lon con hang" nua.
+var hzDead = array.new_bool(0)
+// DA TUNG CO HANG chua — vung nay da co luc nao mot OF khung nho CUNG CHIEU con nguyen nam
+// ben trong no chua.
+//
+// Khong co co nay thi `hzDead` doc nham mot tap RONG thanh "da tieu het". Hai thu khac han:
+//   tap rong  = chua tung co gi de tieu          -> chua duoc phep ket luan gi
+//   tung co, gio het = dung nghia "khai thac het" -> moi duoc chot chet
+// Luat ban dat ra la "cac OF 15m ben trong CUNG BI KHAI THAC HET", ma chu "het" chi co
+// nghia khi truoc do co mot cai gi do. Xem khoi (D5).
+var hzSeen = array.new_bool(0)
+var hzBull = array.new_bool(0)
+var hzLeft = array.new_int(0)     // mep trai = nen chan hoi
+var hzConf = array.new_int(0)     // nen xac nhan
+var hpHigh = array.new_float(0)   // lich su pivot cua engine pullback khung lon
+var hpHBar = array.new_int(0)
+var hpLow  = array.new_float(0)
+var hpLBar = array.new_int(0)
+var float hTop  = na
+var float hBot  = na
+var float hTop_ = na
+var float hBot_ = na
+var int   hBar  = na
+var int   hBar_ = na
+var int   hMn     = MN_NA
+var int   hPrevMn = MN_NA
+
+// PHEU CUA ENGINE KHUNG LON. Cho den gio engine nay chay HOAN TOAN MU: engine chinh co bia
+// mo, pheu, nhat ky, bang soi — engine khung lon khong co gi, nen khi mot vung 4H khong duoc
+// ve thi ca hai ta deu chi ngoi doan. Bo dem nay cham dut viec do.
+// Danh so y HET ofStat de doc hai bang canh nhau khong phai doi dau:
+//   0 sinh ung vien · 1 ve box · 2 xoa qua tuoi · 3 huy P · 4 huy H
+//   5 xoa Q (quet) · 6 xoa K (nap cung) · 7 huy N · 8 huy T · 9 AN vi da khai thac
+// 0-9 = Demand, 10-19 = Supply.
+var hStat = array.new_int(20, 0)
+bumpH(int k, bool isBull) =>
+    idx = isBull ? k : k + 10
+    array.set(hStat, idx, array.get(hStat, idx) + 1)
+
 // Anh chup trang thai HIEN THI ma khoi (A3) vua quyet dinh. Bang soi DOC LAI cai nay chu
 // KHONG tinh lai: tinh lai la co hai noi cung dien giai mot bo luat, som muon gi cung lech,
 // va luc do chinh cai debug tro thanh nguon nghi ngo.
@@ -381,6 +483,22 @@ color transp = color.new(color.gray,100)
 //Caculate
 curTf = timeframe.in_seconds(timeframe.period)
 len = curTf*1000
+
+// ===== NGUONG 1H: RAU CO DU DE CHOT DO DAI OF HAY KHONG ===================
+// Khai thac van luon la "roi han khoi vung roi quay lai cham" o moi khung. Cai KHAC nhau
+// theo khung la buoc THU HAI — cai gi dung do dai cua vung lai:
+//
+//   khung <= 1H : RAU cham la du. Vung chuyen xam VA chot mep phai ngay tai nen do.
+//   khung >  1H : phai co THAN NEN (dong cua HOAC mo cua) nam trong vung moi chot mep phai.
+//                 Rau quet qua thi vung van xam nhung mep phai van chay tiep.
+//
+// Ly do: mot cay nen 4H la 16 cay 15m. Cai rau cua no co the la ca mot nhip giao dich tron
+// ven ma o khung nho ta thay ro tung buoc, nen o khung lon phai doi than nen moi chac la gia
+// that su da giao dich ben trong vung. O khung 15m tro xuong thi mot cai rau da la mot nhip
+// ngan, khong con gi de doi them.
+//
+// RANH GIOI: 1H nam o NHOM DUOI (rau la du). 3600 giay = 1H.
+bool ofWickEnds = curTf <= 3600
 // dùng để đẩy chấm swing ra xa nến — theo ATR nên tự co giãn theo từng mã/khung
 atrSw = ta.atr(14)
 
@@ -748,6 +866,105 @@ shrinkWideOF(float top, float bot, bool isBull, int leftBar) =>
                 if l < leftBar and top <= t and bot >= b and atShrinkEdge(top, bot, isBull, t, b)
                     bumpStat(9, isBull)
                     removeOF(i, "W")
+
+// ===== HAM CUA ENGINE OF KHUNG LON ========================================
+// Khong co bia mo / nhat ky / han ngach o day: vung khung lon chi co hai trang thai —
+// dang ve, hoac da bi xoa. Don gian duoc vi da khai thac la xoa luon chu khong chuyen xam.
+// XOA HAN mot ho so — dung cho dung hai truong hop ma engine chinh cung xoa han khoi
+// `ofZone`: gia QUET qua bien giu, va vung qua han tuoi. Sau do vung khong con quyen phu
+// nhan ung vien nao nua, dung nhu ben 4H.
+htfRemoveZone(int i) =>
+    box.delete(array.get(hzBox, i))
+    label.delete(array.get(hzLbl, i))
+    array.remove(hzTop , i)
+    array.remove(hzBot , i)
+    array.remove(hzBox , i)
+    array.remove(hzLbl , i)
+    array.remove(hzMit , i)
+    array.remove(hzAway, i)
+    array.remove(hzDead, i)
+    array.remove(hzSeen, i)
+    array.remove(hzBull, i)
+    array.remove(hzLeft, i)
+    array.remove(hzConf, i)
+
+// LUAT CUU VUNG — ben trong vung khung lon nay con OF khung nho nao CHUA bi khai thac khong?
+//
+// Mot vung khung lon da bi khai thac khong nhat thiet la da het hang. Neu ben trong no van
+// con mot OF cua khung dang xem chua ai dung toi thi khu vuc do van la noi de vao lenh, chi
+// la phai vao bang cau truc khung nho. Chi khi khong con mot OF con nguyen nao thi vung
+// khung lon moi thuc su het viec va bi an.
+//
+// THE NAO LA "NAM BEN TRONG" — hai truong hop, va truong hop thu hai CO HUONG:
+//   (a) nam TRON ben trong                      -> tinh
+//   (b) nam MOT PHAN, nho ra khoi bien ma GIA SE GAP TRUOC TIEN -> tinh
+//         vung MUA (Demand): bien do la bien TREN  -> nho len tren dinh thi van tinh
+//         vung BAN (Supply): bien do la bien DUOI  -> nho xuong duoi day thi van tinh
+//   (c) nho ra khoi bien CON LAI (duoi day vung mua / tren dinh vung ban) -> KHONG tinh
+//
+// CHIEU: chi xet OF khung nho CUNG CHIEU voi vung khung lon. Mot vung ban nam trong mot vung
+// mua khong phai la ly do de giu vung mua lai — hai ben dinh vao lenh nguoc nhau.
+//
+// Ly do (c) bi loai: gia phai di XUYEN HET vung khung lon roi moi cham toi cho nho ra do.
+// Cai OF nam o day khong con dai dien cho vung khung lon nua, no la mot muc gia khac han
+// o ben kia. Vung nao to hon vung khung lon va trum ca hai dau cung roi vao (c) — no nho ra
+// ca bien sai — nen cung khong cuu duoc.
+htfHasLiveInner(float zt, float zb, bool zbl) =>
+    bool found = false
+    if array.size(ofZone) > 0
+        for i = 0 to array.size(ofZone) - 1
+            if not found and not array.get(ofMit, i) and array.get(ofBull, i) == zbl
+                [ot, ob, ol] = marginZone(array.get(ofZone, i))
+                bool inside = ot <= zt and ob >= zb
+                bool edgeOk = zbl ? (ot > zt and ob < zt and ob >= zb) : (ob < zb and ot > zb and ot <= zt)
+                if inside or edgeOk
+                    found := true
+    found
+
+// Ban sao cua `ofNestVerdict`, doc mang cua khung lon. Dung chung `atShrinkEdge` nen it nhat
+// phan hinh hoc cua luat thu hep khong the lech giua hai engine.
+// 0 = ve · 1 = loai (nam trong OF truoc) · 2 = loai (ban rong) · 3 = ve va don vung rong
+htfNestVerdict(float top, float bot, bool isBull, int leftBar) =>
+    bool killN  = false
+    bool killT  = false
+    bool shrink = false
+    // Duyet TOAN BO ho so, ke ca vung da bi khai thac (hinh ve da xoa nhung ho so con) —
+    // y het engine chinh duyet ca vung xam trong `ofZone`.
+    if array.size(hzTop) > 0
+        for i = 0 to array.size(hzTop) - 1
+            if array.get(hzBull, i) == isBull
+                float zt = array.get(hzTop, i)
+                float zb = array.get(hzBot, i)
+                int   zl = array.get(hzLeft, i)
+                int   zc = array.get(hzConf, i)
+                if zl < leftBar and top <= zt and bot >= zb
+                    if atShrinkEdge(top, bot, isBull, zt, zb)
+                        shrink := true
+                    else if zc < leftBar
+                        killN := true
+                if zl > leftBar and zt <= top and zb >= bot
+                    killT := true
+    shrink ? 3 : killN ? 1 : killT ? 2 : 0
+
+htfShrinkWide(float top, float bot, bool isBull, int leftBar) =>
+    if array.size(hzTop) > 1
+        for i = array.size(hzTop) - 2 to 0
+            if array.get(hzBull, i) == isBull
+                float zt = array.get(hzTop, i)
+                float zb = array.get(hzBot, i)
+                if array.get(hzLeft, i) < leftBar and top <= zt and bot >= zb and atShrinkEdge(top, bot, isBull, zt, zb)
+                    htfRemoveZone(i)
+
+// `hAtr` phai la ATR cua CHINH khung lon, khong phai atrSw cua chart — neu khong thi bo loc
+// kich thuoc se do chan hoi 4H bang thuoc cua nen 15m.
+htfAddCand(int left, float top, float bot, bool isBull, float hAtr) =>
+    if not na(top) and not na(bot) and not na(left) and top > bot and top - bot >= ofMinLeg * hAtr
+        bumpH(0, isBull)
+        array.push(hcTop , top)
+        array.push(hcBot , bot)
+        array.push(hcBar , left)
+        array.push(hcBull, isBull)
+        array.push(hcAge , 0)
 
 // Sau thay doi nay, trong ca file chi con DUNG HAI thu thuc su xoa mot vung DA VE:
 //   1) gia quet qua BIEN GIU  (khoi A)
@@ -1134,8 +1351,13 @@ if array.size(ofZone) > 0
                 //      Ly do tach ra: rau chi QUET qua vung trong giay lat, con than nen moi
                 //      la gia that su da giao dich BEN TRONG vung. Chi bi rau quet thi vung
                 //      van con dang cho, nen mep phai phai di tiep toi nen hien tai.
+                //
+                //      CHI AP DUNG TU TREN 1H. O khung <= 1H thi `ofWickEnds` cho buoc (2)
+                //      trung voi buoc (1): rau cham la xam va chot mep phai cung mot luc.
+                //      Xem chu thich o cho khai bao `ofWickEnds`.
                 array.set(ofMit, i, true)
-                bool bodyIn = (close <= t and close >= b) or (open <= t and open >= b)
+                // `ofWickEnds` lam tat buoc cho than nen o khung <= 1H: vua cham la chot.
+                bool bodyIn = ofWickEnds or (close <= t and close >= b) or (open <= t and open >= b)
                 bool bodyYet = false
                 if i < array.size(ofBody)
                     bodyYet := array.get(ofBody, i)
@@ -1255,7 +1477,8 @@ if array.size(ofZone) > 0
                  + (visDraw and not vis ? "\n(ban dang thay no chi vi mot cong tac debug)" : "")
                  + (armed ? "\nmau: con hieu luc, chua bi cham"
                           : "\nmau: XAM, da bi cham it nhat mot lan")
-                 + (frozen ? "\nmep phai: dung tai LAN DAU co than nen trong vung"
+                 + (frozen ? (ofWickEnds ? "\nmep phai: dung tai lan CHAM dau tien (khung <= 1H, rau la du)"
+                                         : "\nmep phai: dung tai LAN DAU co than nen trong vung")
                            : "\nmep phai: van keo dai — moi chi bi rau quet, chua co than nen"))
 
 // (B) UNG VIEN -> OF THAT. Dieu kien #1: DONG NEN vuot bien xa. Qua han thi huy.
@@ -1375,6 +1598,281 @@ if showOF
     trimOF(true , OF_HARD_CAP)
     trimOF(false, OF_HARD_CAP)
 
+// ===== (D) OF CUA KHUNG LON ===============================================
+// Chay mot engine OF THU HAI, nuoi bang nen cua khung lon lay ve qua request.security.
+// Pine khong cho mang / hop ve di qua request.security nen khong the lay vung OF co san tu
+// khung lon mang sang — bat buoc phai dung lai tu OHLC.
+//
+// `expr[1]` + lookahead_on la cap chuan de lay nen khung lon DA DONG, khong ve lai.
+// Lay ca ATR14 cua khung lon trong cung mot tuple: bo loc kich thuoc chan hoi phai do bang
+// thuoc cua chinh khung do, khong phai atrSw cua chart.
+// request.security PHAI goi o pham vi toan cuc, khong duoc dat trong if — nen no luon chay,
+// con `htfActive` moi la cai quyet dinh co dung ket qua hay khong.
+bool htfActive = htfOFOn and showOF and timeframe.in_seconds(timeframe.period) < timeframe.in_seconds(htfOFTf)
+int  hLen      = timeframe.in_seconds(htfOFTf) * 1000
+bool htfWickEnds = timeframe.in_seconds(htfOFTf) <= 3600
+[hO, hH, hL, hC, hT, hA] = request.security(syminfo.tickerid, htfOFTf,
+     [open[1], high[1], low[1], close[1], time[1], ta.atr(14)[1]], lookahead = barmerge.lookahead_on)
+// Mot nen khung lon vua dong => chay dung MOT nhip engine. Cac nen chart o giua khong lam gi.
+bool newH = htfActive and not na(hT) and (na(hT[1]) or hT != hT[1])
+
+if newH
+    // (D1) VONG DOI. Ba cua ra, va chung KHONG giong nhau:
+    //        QUET (rau xuyen bien giu) / HET HAN  -> XOA HAN ho so, giong engine chinh.
+    //        KHAI THAC (than nen vao trong)       -> chi AN hinh ve, HO SO O LAI.
+    //      Phan biet nay la cho sua bug: ho so cua vung da khai thac phai o lai de con loai
+    //      duoc ung vien nam trong no (ma N), dung nhu vung XAM lam viec ben chart 4H.
+    //      KHAI THAC = co THAN NEN (dong cua HOAC mo cua) nam trong vung. Rau quet qua thi
+    //      chua tinh la khai thac — nhung neu rau xuyen qua BIEN GIU thi vung chet han.
+    if array.size(hzTop) > 0
+        for i = array.size(hzTop) - 1 to 0
+            float zt  = array.get(hzTop, i)
+            float zb  = array.get(hzBot, i)
+            bool  zbl = array.get(hzBull, i)
+            bool sweep  = zbl ? hL < zb : hH > zt
+            bool tooOld = hT - array.get(hzLeft, i) > hLen * maxBarHistory
+            if sweep or tooOld
+                bumpH(sweep ? 5 : 2, zbl)
+                htfRemoveZone(i)
+            else if not array.get(hzMit, i)
+                // KHAI THAC = ROI HAN KHOI VUNG ROI QUAY LAI — y nguyen luat (A) cua engine
+                // chinh, truoc day thieu han o day. BankTrap trang 26: "sau khi gia giam xuong
+                // KHOI OF1 VA DI LEN KHAI THAC OF1". Thieu buoc "roi han" thi nhung cay nen
+                // ngay sau luc vung ra doi, luc gia con dang roi di va con dinh vao vung, da
+                // du giet vung => vung 4H gan nhu khong bao gio song duoc toi luc ban nhin.
+                bool away = zbl ? hL > zt : hH < zb
+                if away
+                    array.set(hzAway, i, true)
+                else if array.get(hzAway, i)
+                    // Nguong 1H ap theo KHUNG LON chu khong theo khung dang xem — vung
+                    // nay la vung cua khung do, phai do bang thuoc cua chinh no.
+                    bool bodyIn = htfWickEnds or (hC <= zt and hC >= zb) or (hO <= zt and hO >= zb)
+                    if bodyIn
+                        // CHI DANH DAU, khong xoa hinh ve. Bi khai thac khong con dong nghia
+                        // voi bien mat: khoi (D5) se hoi them luat CUU VUNG moi nen truoc khi
+                        // quyet dinh an hay hien. Xoa hinh o day la chot mot lan va vinh vien,
+                        // vung se khong bao gio song lai duoc nua.
+                        bumpH(9, zbl)
+                        array.set(hzMit, i, true)
+
+    // (D2) ENGINE PULLBACK tren nen khung lon — ban sao cua khoi Pullback chinh, chi thay
+    //      high/low/time bang hH/hL/hT va cac bien trang thai bang ban h*.
+    if na(hTop)
+        hTop  := hH
+        hBot  := hL
+        hTop_ := hH
+        hBot_ := hL
+        hBar  := hT
+        hBar_ := hT
+    else
+        if hH >= hTop and hL <= hBot
+            if hMn != MN_NA
+                hPrevMn := hMn
+            if hPrevMn == MN_UP
+                hTop_ := hTop
+                hBar_ := hBar
+            else
+                hBot_ := hBot
+                hBar_ := hBar
+            hTop := hH
+            hBot := hL
+            hBar := hT
+            hMn  := MN_NA
+        if hH >= hTop and hL > hBot
+            if hPrevMn == MN_UP and hMn == MN_NA
+                array.push(hpHBar, hBar_)
+                array.push(hpHigh, hTop_)
+                array.push(hpLBar, hBar)
+                array.push(hpLow , hBot)
+                htfAddCand(hBar_, hTop_, hBot, true, hA)
+            else if (hPrevMn == MN_DN and hMn == MN_NA) or hMn == MN_DN
+                array.push(hpLBar, hBar)
+                array.push(hpLow , hBot)
+                [pT, pTBar] = findPivotBefore(hpHigh, hpHBar, hBar)
+                if not na(pT)
+                    htfAddCand(math.min(pTBar, hBar), pT, hBot, true, hA)
+            hTop := hH
+            hBot := hL
+            hBar := hT
+            hPrevMn := MN_NA
+            hMn := MN_UP
+        if hH < hTop and hL <= hBot
+            if hPrevMn == MN_DN and hMn == MN_NA
+                array.push(hpHBar, hBar)
+                array.push(hpHigh, hTop)
+                array.push(hpLBar, hBar_)
+                array.push(hpLow , hBot_)
+                htfAddCand(hBar_, hTop, hBot_, false, hA)
+            else if (hPrevMn == MN_UP and hMn == MN_NA) or hMn == MN_UP
+                array.push(hpHBar, hBar)
+                array.push(hpHigh, hTop)
+                [pB, pBBar] = findPivotBefore(hpLow, hpLBar, hBar)
+                if not na(pB)
+                    htfAddCand(math.min(pBBar, hBar), hTop, pB, false, hA)
+            hTop := hH
+            hBot := hL
+            hBar := hT
+            hPrevMn := MN_NA
+            hMn := MN_DN
+        trimArr(hpHigh)
+        trimArr(hpHBar)
+        trimArr(hpLow)
+        trimArr(hpLBar)
+
+    // (D3) UNG VIEN -> VUNG. Dieu kien #1 + luat "OF khong hop le" + bo luat long nhau,
+    //      y het engine chinh, chi khac la khong co bia mo va khong co pheu.
+    if array.size(hcTop) > 0
+        for i = array.size(hcTop) - 1 to 0
+            float ct  = array.get(hcTop, i)
+            float cb  = array.get(hcBot, i)
+            bool  cl  = array.get(hcBull, i)
+            int   cLf = array.get(hcBar, i)
+            int   ag  = array.get(hcAge, i) + 1
+            array.set(hcAge, i, ag)
+            bool confirmed = cl ? hC > ct : hC < cb
+            bool wrongWay  = cl ? hL < cb : hH > ct
+            if confirmed or wrongWay or ag > ofConfirmBars
+                bool ok = confirmed and not wrongWay
+                int  nv = 0
+                if ok
+                    nv := htfNestVerdict(ct, cb, cl, cLf)
+                if nv == 1 or nv == 2
+                    ok := false
+                // Thu tu uu tien giong het khoi (B) cua engine chinh.
+                bumpH(wrongWay ? 3 : nv == 1 ? 7 : nv == 2 ? 8 : confirmed ? 1 : 4, cl)
+                if ok
+                    // Mau o day chi la mau khoi tao — khoi (D5) to lai MOI NEN nen doi o nhap
+                    // mau la thay ngay, khong phai cho vung moi sinh ra.
+                    color cBase = cl ? htfColD : htfColS
+                    array.push(hzBox, box.new(cLf, ct, time, cb, xloc = xloc.bar_time,
+                         bgcolor = color.new(cBase, htfOFTr), border_color = color.new(cBase, 35),
+                         border_style = line.style_dashed))
+                    array.push(hzLbl, label.new(cLf, cl ? cb : ct,
+                         ofLabelOn ? htfOFTf + " " + (cl ? OFD_TEXT : OFS_TEXT) : "", xloc.bar_time,
+                         color = transp, textcolor = ofLabelOn ? cBase : na,
+                         style = cl ? label.style_label_up : label.style_label_down, size = size.tiny))
+                    array.push(hzTop , ct)
+                    array.push(hzBot , cb)
+                    array.push(hzMit , false)
+                    array.push(hzAway, false)
+                    array.push(hzDead, false)
+                    array.push(hzSeen, false)
+                    array.push(hzBull, cl)
+                    array.push(hzLeft, cLf)
+                    array.push(hzConf, hT)
+                    if nv == 3
+                        htfShrinkWide(ct, cb, cl, cLf)
+                else
+                    // BIA MO CUA KHUNG LON. Dung bo loc `dbgOk` chung voi engine chinh nen hai
+                    // o `Chi hien chieu` / `ly do` dieu khien ca hai. Tien to `4H` de khong lan
+                    // voi bia mo cua khung dang xem — hai vung co the trung muc gia.
+                    string whyH = wrongWay ? "P" : nv == 1 ? "N" : nv == 2 ? "T" : "H"
+                    if dbgOk(cl, whyH)
+                        label.new(cLf, cl ? cb : ct,
+                             "4H " + (cl ? "D " : "S ") + whyH
+                             + str.tostring(ag) + " >" + str.tostring(cl ? ct : cb, format.mintick),
+                             xloc.bar_time, color = transp, textcolor = color.orange,
+                             style = cl ? label.style_label_up : label.style_label_down, size = size.tiny)
+                array.remove(hcTop , i)
+                array.remove(hcBot , i)
+                array.remove(hcBar , i)
+                array.remove(hcBull, i)
+                array.remove(hcAge , i)
+
+    // (D4) Nap cung chong tran. Dem theo HO SO chu khong theo hop dang ve, vi ho so cua vung
+    //      da khai thac van nam lai de phuc vu luat long nhau — chinh no moi la thu phinh ra.
+    while array.size(hzTop) > OF_HARD_CAP
+        bumpH(6, array.get(hzBull, 0))
+        htfRemoveZone(0)
+
+// (D5) PHEP THU HIEN THI + TO MAU + keo dai mep phai. Chay MOI NEN CHART.
+//
+//      MOT VUNG KHUNG LON DUOC HIEN KHI THOA CA HAI:
+//        (1) CON HANG — hoac chinh no chua bi khai thac, HOAC no da bi khai thac nhung ben
+//            trong con mot OF khung nho chua bi khai thac (xem `htfHasLiveInner`).
+//            Hai nhanh nay loai tru nhau nen thuc chat la mot cau hoi: khu vuc nay con cho
+//            nao chua ai dung toi khong.
+//            Luu y nhanh dau: vung khung lon chua bi khai thac thi hien, BAT KE cac OF khung
+//            nho ben trong da bi an het hay chua — chung la chuyen cua khung nho.
+//        (2) QUA DUOC HAN NGACH — nam trong top N gan gia nhat cua chieu do.
+//
+//      Phai hoi LAI MOI NEN chu khong chot ngay luc bi khai thac — vi the (D1) chi danh dau
+//      `hzMit`, con viec an/hien nam het o day. NHUNG phep thu la MOT CHIEU: lan dau tien no
+//      tra loi KHONG thi vung chet han (`hzDead`), ve sau co OF khung nho moi sinh ra ben
+//      trong cung khong cuu lai duoc. Khong co cho do thi vung da tieu se chop tat theo nhip
+//      ra doi / bi an cua cac OF khung nho ben trong no.
+//
+//      Han ngach dem TRONG SO VUNG DANG SONG: vung da tat khong duoc chiem suat cua vung con
+//      hang. Thieu han ngach chinh la ly do engine nay tung ve nhieu vung hon han so voi khi
+//      mo thang chart khung lon — ben kia loc top N, ben nay truoc do ve het.
+if htfActive and array.size(hzTop) > 0
+    // Buoc 1 — tra loi cau hoi (1) cho tung ho so. Tach rieng mot vong vi buoc 2 can biet
+    // TOAN BO ket qua moi xep hang duoc: khong the vua duyet vua xep.
+    array.clear(hzLive)
+    for i = 0 to array.size(hzTop) - 1
+        bool alive = false
+        // Da chot chet thi khong hoi lai nua — day la cai lam cho phep thu nay MOT CHIEU.
+        if not array.get(hzDead, i)
+            alive := not array.get(hzMit, i)
+            if not alive
+                alive := htfHasLiveInner(array.get(hzTop, i), array.get(hzBot, i), array.get(hzBull, i))
+                if alive
+                    // Ghi nhan: vung nay DA TUNG co hang. Tu gio tro di no moi du tu cach
+                    // de "tieu het" theo dung nghia.
+                    array.set(hzSeen, i, true)
+                else if array.get(hzSeen, i)
+                    // TUNG co, GIO het => dung nghia "cac OF 15m ben trong cung bi khai thac
+                    // het". Chot chet vinh vien, OF khung nho moi sinh ra sau nay khong cuu lai.
+                    array.set(hzDead, i, true)
+                // Con lai: `hzMit` da bat nhung CHUA TUNG co OF khung nho nao con nguyen ben
+                // trong. KHONG chot chet — chi tam an. Day la cho sua bug "vung 4H bien mat
+                // trong khi ben trong no van con OF 15m song".
+                //
+                // Vi sao tap lai rong dung luc do: (D1) chi chay khi mot nen KHUNG LON vua
+                // DONG, nen no phat hien "da bi khai thac" o CUOI nhip, sau khi ca 16 nen 15m
+                // cua cay nen 4H do da chay xong. Trong 16 nen ay gia da lia qua phan tren cua
+                // vung va lam XAM cac OF 15m nam o do. Den luc (D5) hoi thi dung cai khoanh
+                // khac tap rong nhat cua ca qua trinh — roi chot chet vinh vien tai chinh do.
+                // Vai nen sau gia tao OF 15m moi ngay trong vung, nhung cua da dong.
+        array.push(hzLive, alive)
+    // Buoc 2 — han ngach, to mau, keo dai mep phai.
+    for i = 0 to array.size(hzTop) - 1
+        box   z  = array.get(hzBox, i)
+        bool  bl = array.get(hzBull, i)
+        bool  lv = array.get(hzLive, i)
+        float d  = ofDist(z)
+        int rank = 0
+        for j = 0 to array.size(hzTop) - 1
+            if j != i and array.get(hzBull, j) == bl and array.get(hzLive, j)
+                float dj = ofDist(array.get(hzBox, j))
+                if dj < d or (dj == d and j < i)
+                    rank += 1
+        bool  vis   = lv and rank < htfOFMax
+        color cBase = bl ? htfColD : htfColS
+        box.set_right(z, time)
+        box.set_bgcolor(z, vis ? color.new(cBase, htfOFTr) : transp)
+        box.set_border_color(z, vis ? color.new(cBase, 35) : transp)
+        // CHE DO SOI: vung dang bi AN van phai hien NHAN (mo, co dau `!` o dau). Khong co
+        // cho nay thi dung cai vung ban dang thac mac lai la cai KHONG the di chuot vao —
+        // nhan cua no vo hinh nen tooltip giai thich ly do cung khong voi toi duoc.
+        label lb    = array.get(hzLbl, i)
+        bool  lblOn = ofLabelOn and (vis or ofDbgTip)
+        label.set_text(lb, lblOn ? (vis ? "" : "! ") + htfOFTf + " " + (bl ? OFD_TEXT : OFS_TEXT) : "")
+        label.set_textcolor(lb, lblOn ? (vis ? cBase : color.new(color.gray, 25)) : na)
+        // Ho so vung khung lon — de doi chieu TUNG CON SO voi chart khung lon that, va de
+        // biet chinh xac vung dang hien nho dau: con nguyen, hay duoc OF khung nho cuu.
+        if ofDbgTip
+            label.set_tooltip(lb, htfOFTf + "  " + (bl ? OFD_TEXT : OFS_TEXT)
+                 + "\ndinh " + str.tostring(array.get(hzTop, i), format.mintick)
+                 + "  /  day " + str.tostring(array.get(hzBot, i), format.mintick)
+                 + "\ntuoi " + str.tostring(int((time - array.get(hzLeft, i)) / hLen)) + " nen khung lon"
+                 + "\nthu hang " + str.tostring(rank) + "  (nguong " + str.tostring(htfOFMax) + ")"
+                 + (not array.get(hzMit, i) ? "\nCON NGUYEN — chua bi khai thac"
+                   : lv ? "\nDA BI KHAI THAC nhung duoc CUU: ben trong con OF cung chieu chua bi khai thac"
+                       : array.get(hzDead, i) ? "\nCHET HAN — da tung co OF cung chieu con nguyen ben trong, va da bi an het"
+                           : "\nTAM AN — da khai thac, nhung CHUA TUNG co OF cung chieu nao con nguyen ben trong. Chua chot chet: co OF 15m moi trong vung la hien lai.")
+                 + (lv and rank >= htfOFMax ? "\nDANG BI AN vi qua han ngach" : ""))
+
 // ===== DO DEM THEO TUNG NEN (debug) =======================================
 // Bang dem ben duoi chi ve duoc tai NEN CUOI CUNG (barstate.islast) — no khong tra loi duoc
 // "cach day 300 nen luc do dang co bao nhieu vung". Cac do dem duoi day gan vao plot voi
@@ -1432,7 +1930,7 @@ plot(dwQS, "dbg OF-S an-ngach", display = display.data_window)
 //   cho = 0            -> khong sinh duoc ung vien (loi o khoi Pullback / bo loc chieu)
 //   cho > 0, song = 0  -> ung vien khong bao gio cham duoc bien xa (dieu kien #1 qua chat)
 //   song tang roi tut  -> bi xoa boi vong doi hoac han ngach
-var table dbgT = table.new(position.top_right, 4, 18, bgcolor = color.new(color.black, 20), border_width = 1)
+var table dbgT = table.new(position.top_right, 4, 32, bgcolor = color.new(color.black, 20), border_width = 1)
 if showDbg and barstate.islast
     // So vung OF lay thang tu khoi do dem theo nen o tren. Dem hai noi thi som muon gi cung
     // co ngay hai noi lech nhau, va luc do chinh cai debug tro thanh nguon nghi ngo.
@@ -1503,6 +2001,77 @@ if showDbg and barstate.islast
     table.cell(dbgT, 0, 17, "kiem tra", text_color = color.gray, text_size = size.small)
     table.cell(dbgT, 1, 17, str.tostring(balD), text_color = balD == 0 ? color.green : color.red, text_size = size.small)
     table.cell(dbgT, 2, 17, str.tostring(balS), text_color = balS == 0 ? color.green : color.red, text_size = size.small)
+
+    // ===== PHEU CUA ENGINE KHUNG LON =====
+    // Doc GIONG HET phan tren, chi khac la dem bang nen cua khung lon. Dong dau tien tra loi
+    // ngay cau hoi quan trong nhat: engine nay co SINH duoc ung vien nao khong.
+    //   sinh = 0            -> engine pullback khung lon khong chay (xem `htfActive`)
+    //   sinh > 0, ve box = 0-> ung vien khong bao gio xac nhan duoc
+    //   ve box > 0, ho so 0 -> vung ve ra roi bi xoa/an het, doc 4 dong xoa/an de biet cua nao
+    // CON HANG = ket qua buoc 1 cua (D5), doc thang tu `hzLive` chu khong tinh lai — tinh
+    // lai la co hai noi cung dien giai mot bo luat, som muon gi cung lech nhau.
+    int hLiveD = 0
+    int hLiveS = 0
+    int hRecD  = 0
+    int hRecS  = 0
+    int hSavD  = 0
+    int hSavS  = 0
+    int hDedD  = 0
+    int hDedS  = 0
+    if array.size(hzTop) > 0
+        for i = 0 to array.size(hzTop) - 1
+            bool bh = array.get(hzBull, i)
+            if bh
+                hRecD += 1
+            else
+                hRecS += 1
+            bool lvh = false
+            if i < array.size(hzLive)
+                lvh := array.get(hzLive, i)
+            if lvh
+                if bh
+                    hLiveD += 1
+                else
+                    hLiveS += 1
+                // da bi khai thac ma van song => dang duoc mot OF khung nho cuu
+                if array.get(hzMit, i)
+                    if bh
+                        hSavD += 1
+                    else
+                        hSavS += 1
+            else if array.get(hzDead, i)
+                if bh
+                    hDedD += 1
+                else
+                    hDedS += 1
+    hIdx = array.from(0, 1, 3, 7, 8, 4, 5, 2, 6, 9)
+    hLbl = array.from("ung vien sinh", "-> ve box", "huy: pha nham", "huy: trong OF truoc", "huy: ban rong (c->b)", "huy: het han", "xoa: bi quet", "xoa: qua tuoi", "xoa: nap cung (K)", "danh dau da khai thac")
+    table.cell(dbgT, 0, 18, "PHEU " + htfOFTf, text_color = color.yellow, text_size = size.small)
+    table.cell(dbgT, 1, 18, "D", text_color = htfColD, text_size = size.small)
+    table.cell(dbgT, 2, 18, "S", text_color = htfColS, text_size = size.small)
+    for k = 0 to 9
+        kk = array.get(hIdx, k)
+        table.cell(dbgT, 0, k + 19, array.get(hLbl, k), text_color = color.gray , text_size = size.small)
+        table.cell(dbgT, 1, k + 19, str.tostring(array.get(hStat, kk))     , text_color = color.white, text_size = size.small)
+        table.cell(dbgT, 2, k + 19, str.tostring(array.get(hStat, kk + 10)), text_color = color.white, text_size = size.small)
+    // HO SO = tong so vung con trong bo nho (ke ca vung da khai thac, giu lai de phuc vu luat
+    // long nhau). DANG VE = so vung thuc su co hinh tren chart truoc khi loc han ngach.
+    table.cell(dbgT, 0, 29, "ho so / con hang", text_color = color.orange, text_size = size.small)
+    table.cell(dbgT, 1, 29, str.tostring(hRecD) + " / " + str.tostring(hLiveD), text_color = color.white, text_size = size.small)
+    table.cell(dbgT, 2, 29, str.tostring(hRecS) + " / " + str.tostring(hLiveS), text_color = color.white, text_size = size.small)
+    // CHET HAN vs TAM AN — hai ly do an khac han nhau, va chi mot trong hai la khong the cuu.
+    table.cell(dbgT, 3, 29, "chet han " + str.tostring(hDedD) + "/" + str.tostring(hDedS), text_color = color.red, text_size = size.small)
+    // Dong quan trong nhat cua luat moi: bao nhieu vung dang song CHI nho co OF khung nho
+    // cung chieu con nguyen ben trong. Nhung vung nay chinh la cho luat moi khac luat cu —
+    // truoc day chung da bi an ngay luc bi khai thac.
+    table.cell(dbgT, 0, 31, "trong do: duoc cuu", text_color = color.orange, text_size = size.small)
+    table.cell(dbgT, 1, 31, str.tostring(hSavD), text_color = color.white, text_size = size.small)
+    table.cell(dbgT, 2, 31, str.tostring(hSavS), text_color = color.white, text_size = size.small)
+    table.cell(dbgT, 0, 30, "engine bat?", text_color = color.gray, text_size = size.small)
+    table.cell(dbgT, 1, 30, htfActive ? "CO" : "KHONG", text_color = htfActive ? color.green : color.red, text_size = size.small)
+    table.cell(dbgT, 2, 30, str.tostring(array.size(hcTop)) + " cho", text_color = color.white, text_size = size.small)
+    if not htfActive
+        table.cell(dbgT, 3, 30, "khung dang xem >= " + htfOFTf, text_color = color.red, text_size = size.small)
 
 // ===== BANG SOI TUNG VUNG (debug) =========================================
 // Bang dem tra loi "con bao nhieu vung", bang nay tra loi "vung NAO, va vi sao khong thay no".
