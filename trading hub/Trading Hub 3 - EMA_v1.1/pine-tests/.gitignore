@@ -1,0 +1,7 @@
+node_modules/
+.env
+# Session dang nhap TradingView — tuyet doi khong commit
+auth/*.json
+test-results/
+playwright-report/
+blob-report/

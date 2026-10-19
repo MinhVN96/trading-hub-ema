@@ -128,18 +128,87 @@ trước) và khâu **xoá**, không phải khâu tạo.
 ### Vòng đời một vùng OF
 
 1. **Ứng viên** — chân hồi vừa chốt, chưa vẽ gì.
-2. **Xác nhận** (điều kiện #1) — giá **đóng nến** vượt qua **biên xa**. Lúc này mới vẽ hộp.
+2. **Xác nhận** (điều kiện #1) — giá **đóng thân nến** vượt qua **mốc phá** (xem
+   [[#Mốc phá]]). Lúc này mới vẽ hộp.
 3. **Huỷ** — trước khi kịp xác nhận mà **râu** xuyên qua **biên giữ** → bỏ ứng viên. Đây là luật
    *"OF không hợp lệ"* của tài liệu: trong xu hướng giảm, nếu **trước khi** phá đáy mà giá lại
    phá đỉnh trước thì đáy đó không phải OF.
 4. **Hết hạn** — quá `ofConfirmBars` nến mà chưa xác nhận → bỏ.
-5. **Khai thác (mitigated)** — giá quay lại **chạm vào trong** vùng nhưng chưa xuyên qua biên giữ
-   → chuyển **xám**, mép phải dừng ở lần chạm cuối. **Vẫn nằm trên chart.**
-6. **Xoá** — **râu** xuyên qua **biên giữ** → vùng hết hiệu lực, biến mất. Kể cả vùng đã xám.
+5. **Rời vùng** — có **cây nến đầu tiên nằm trọn bên ngoài** vùng (xem [[#Rời vùng]]).
+6. **Khai thác (mitigated)** — **sau khi đã rời vùng**, giá quay lại **chạm vào trong** vùng
+   nhưng chưa xuyên qua biên giữ → chuyển **xám**. **Vẫn nằm trên chart.** Mép phải dừng ở đâu
+   tuỳ khung (xem [[#Khai thác]]).
+7. **Xoá** — **râu** xuyên qua **biên giữ** → vùng hết hiệu lực, biến mất. Kể cả vùng đã xám.
 
 **Lưu ý về hai tiêu chuẩn "phá"** — cố ý không đối xứng:
 - **Xác nhận** dùng `close` (tài liệu đòi đóng nến vượt qua).
 - **Huỷ / xoá** dùng **râu** (`low` / `high`), giống luật `Delete sweep zones` của POI.
+  Bật `ofSweepClose` (*"Quet bien giu: doi DONG NEN"*) thì huỷ/xoá cũng phải **đóng cửa** vượt
+  biên giữ. Ô này điều khiển **cả ba chỗ** cùng lúc: xoá vùng đã vẽ, huỷ ứng viên (mã `P`), và
+  hai việc đó bên engine khung lớn. Mặc định **tắt**.
+
+### Mốc phá
+
+Mức giá mà nến phải **đóng thân vượt qua** thì ứng viên mới được xác nhận. Theo tài liệu trang 7
+(*"Cách thức xác định BOS hợp lệ"*, ghi chú cuối trang):
+
+> *"trường hợp giá **chưa đóng thân nến** qua đỉnh trước mà **chỉ quét râu nến** qua đỉnh trước,
+> khi đó điểm cao nhất không phải là đỉnh trước mà là **điểm cao nhất của nến quét râu nến**, và
+> chỉ khi nào sau đó có cây nến **đóng thân nến qua điểm cao nhất này** thì mới hình thành."*
+
+- Ban đầu mốc phá = **biên xa** (đỉnh với OF-D, đáy với OF-S).
+- Nến nào **râu** vượt mốc mà **không đóng** qua → mốc dời tới đỉnh râu (OF-D) / đáy râu (OF-S).
+  Nhiều nến quét liên tiếp thì mốc chạy theo cực trị hiện tại.
+- Hộp vẽ ra **vẫn là** `[biên giữ ; biên xa]`. Mốc phá chỉ quyết định **lúc nào** xác nhận.
+
+Code: `ofCRef` (engine chính), `hcRef` (engine khung lớn).
+
+### Rời vùng
+
+> **Quy ước riêng của dự án — chặt hơn tài liệu** (chốt ngày 2026-10-06).
+
+**Rời vùng = cây nến đầu tiên nằm TRỌN bên ngoài vùng.**
+
+| | Điều kiện |
+|---|---|
+| OF-D | `low > đỉnh vùng` |
+| OF-S | `high < đáy vùng` |
+
+Nếu chính nến xác nhận đã nằm trọn ngoài vùng (ví dụ nhảy gap) thì tính là rời vùng luôn.
+
+Tài liệu (trang 26 + 7) coi **nến đóng vượt biên xa** đã là phá ra. Dự án **không** lấy mốc đó:
+nến xác nhận thường vẫn còn râu nằm trong vùng, và nến ngay sau nó rút râu lại là chuyện bình
+thường của một cú phá. Tính đó là khai thác thì mất luôn một OF tiềm năng ngay khi nó vừa ra đời.
+Ca thật: OF-S-395 trên ETHUSDT 15m, 02/10.
+
+**Cái giá chấp nhận:** cú retest **sát ngay sau** nến phá mà râu vẫn chạm vùng sẽ **không** được
+tính là khai thác. Ca thật: OF-D #1485 `[1565.19 ; 1604.00]` trên ETHUSDT 4H, nến retest có
+`L 1597.25`. Đây là hệ quả của luật, **không phải bug**. Đừng đổi lại.
+
+Code: `ofLeft` (engine chính), `hzAway` (engine khung lớn).
+
+### Khai thác
+
+Chỉ xét **sau khi đã rời vùng**. Trang 26: *"sau khi giá giảm xuống **khỏi** OF1 **và** đi lên
+khai thác OF1"*.
+
+Tài liệu không nói râu hay thân. Dự án chia theo khung (ranh giới: **1H thuộc nhóm dưới**):
+
+| Khung | Râu chạm vào vùng | Thân nến (open **hoặc** close) nằm trong vùng |
+|---|---|---|
+| **≤ 1H** | xám **và** chốt mép phải | — (râu đã đủ) |
+| **> 1H** | xám, mép phải **vẫn kéo dài** | chốt mép phải tại **lần đầu tiên** |
+
+Lý do: một nến 4H là 16 nến 15m — cái râu của nó có thể là cả một nhịp giao dịch. Ở khung lớn
+phải đợi thân nến mới chắc giá đã thật sự giao dịch bên trong vùng.
+
+Code: `ofWickEnds` / `htfWickEnds`. Cờ `ofMit` = đã chạm (màu), `ofBody` = đã có thân (mép phải).
+
+### OF gần trùng nhau
+
+Hai OF cùng chiều mà đỉnh (hoặc đáy) chỉ lệch nhau vài điểm (ca thật: lệch 0.95 và 1.99) thì
+**giữ cả hai, không gộp, không dung sai**. Trang 27 mục 1: *"OF nằm bên ngoài OF trước — B, C đều
+là OF hợp lệ"* — nhô ra một chút vẫn là OF riêng.
 
 > ### ⚠ Cùng một cây nến vừa xác nhận vừa phá nhầm → HUỶ thắng
 >
@@ -197,24 +266,42 @@ giá trị vào lệnh.
 
 ---
 
-## Luật tuổi (điều kiện #2)
+## Điều kiện #2 và luật thu hẹp (vùng lồng nhau)
 
-> Vùng OF **trẻ** vừa xác nhận nằm **hoàn toàn bên trong** một vùng **già** cùng chiều
-> → vùng **già chết** (nó chính là OF biên rộng), vùng **trẻ sống**.
+> ⚠ Mục này **thay thế "Luật tuổi"** cũ (*"vùng trẻ nằm trong vùng già → vùng già chết"*).
+> Luật tuổi đã bỏ vì nó làm **ngược** điều kiện #2 của tài liệu.
 
-Tiêu chí là **tuổi đo bằng mép trái**, **không phải kích thước**, và **không phải thứ tự ra đời**.
-Xét **cả hai chiều lồng**, ai có mép trái **sớm hơn** thì chết:
+Tài liệu có **hai luật** về vùng lồng nhau, đọc vội thì tưởng trái ngược:
 
-| Tình huống | Kết quả |
-|---|---|
-| Lồng nhau, vùng mới **trẻ** hơn | xoá vùng cũ, vẽ vùng mới |
-| Lồng nhau, vùng mới **già** hơn | **không vẽ** vùng mới, giữ vùng cũ |
-| Chồng lấn **một phần** | **cả hai đều sống** |
+1. **Điều kiện #2** (trang 26): *"OF2 không phải là OF hợp lệ … vì nằm trong OF1"* → vùng
+   **trong** bị loại, vùng **ngoài** sống.
+2. **Luật thu hẹp** (trang 26 hình c→b, trang 27 mục 2, trang 29): *"OF nằm ở pullback **nhỏ cuối
+   cùng** của pullback lớn"*, *"tốt nhất nên thu gọn OF lại"* → vùng **trong** sống, vùng **ngoài**
+   chỉ là bản vẽ rộng tay.
 
-Chồng lấn một phần được tài liệu nói rõ: *"OF6 có một phần ở trên OF3 và một phần ở dưới OF4
-⇒ không nằm trong OF3, OF4 ⇒ hợp lệ."*
+Phân biệt bằng một câu hỏi: **giữa hai chân hồi đã có một nhịp tiếp diễn trọn vẹn chưa?** —
+tức vùng ngoài đã **xác nhận xong** trước khi chân hồi của vùng trong hình thành chưa.
 
-**Ba lỗi đã từng mắc ở đúng chỗ này** — ghi lại để không lặp:
+Kiểm tra ngay lúc ứng viên xác nhận (`ofNestVerdict`), chỉ xét vùng **cùng chiều**, chỉ xét
+**khoảng giá** (bề ngang hộp không tham gia), xét **mọi** vùng kể cả vùng đã xám:
+
+| Tình huống | Mã | Kết quả |
+|---|---|---|
+| Ứng viên nằm trọn trong vùng cũ, **sát cực trị** của nó (OF-D: sát đáy; OF-S: sát đỉnh) | `W` | **vẽ** ứng viên, **dọn** vùng rộng — đây là bản thu hẹp |
+| Ứng viên nằm trọn trong vùng cũ, ở giữa, vùng cũ **đã xác nhận trước** chân hồi của ứng viên | `N` | **loại** ứng viên — hai OF riêng biệt, điều kiện #2 |
+| Ứng viên **nuốt trọn** một vùng có mép trái muộn hơn | `T` | **loại** ứng viên — nó là bản rộng của nhịp hồi đã có bản hẹp |
+| Chồng lấn **một phần**, nhô ra dù chỉ một chút | — | **cả hai sống** (trang 27 mục 1) |
+
+"Sát cực trị" = nằm trong `ofShrinkEdge` (mặc định 0.35) phần chiều cao của vùng rộng, tính từ
+biên cực trị. Đặt 0 = tắt luật thu hẹp.
+
+Ứng viên bị loại ở đây là **mất hẳn**, không "sống lại" khi vùng bao ngoài chết — đúng ý tài
+liệu: nó **chưa bao giờ** là OF hợp lệ.
+
+Code: `ofNestVerdict`, `atShrinkEdge`, `shrinkWideOF` (engine chính) và `htfNestVerdict`,
+`htfShrinkWide` (engine khung lớn).
+
+**Các lỗi đã từng mắc ở đúng chỗ này** — ghi lại để không lặp:
 
 1. Quyết định bằng **kích thước** (*"luôn giữ vùng nhỏ hơn"*): một chân hồi to vừa xác nhận
    bao trọn đám OF vụn cũ trong dải đó → **bị loại thẳng**. Hệ quả: OF 2 và OF 3 trên
@@ -224,18 +311,19 @@ Chồng lấn một phần được tài liệu nói rõ: *"OF6 có một phần
    Hệ quả: OF 1 đang vẽ đúng bỗng biến mất.
 3. Luật tuổi đo bằng thứ tự ra đời, chỉ **một chiều lồng**: OF 4 già nhưng ra đời **sau** OF 5,
    nên lúc nó được tạo nó đang *bao* OF 5 → nhánh đó không làm gì → OF 4 già vẫn nằm lại.
+4. Toàn bộ "luật tuổi" (giết vùng **già** bên ngoài, giữ vùng **trẻ** bên trong): làm **ngược**
+   điều kiện #2 — giữ cái ngoáy nhỏ và vứt cả nhịp hồi thật. Đã thay bằng bảng ở trên.
 
 ---
 
-## Vùng tuyến đầu
+## Vùng tuyến đầu — ĐÃ BỎ
 
-Vùng mà giá sẽ gặp **trước tiên** nếu quay đầu lại. Quy ước riêng của dự án, không có trong
-tài liệu — dùng để chọn vùng nào được **sáng màu**, vùng nào nằm chờ ở dạng xám.
+Từng là quy ước: vùng gần giá nhất (OF-D đỉnh cao nhất / OF-S đáy thấp nhất) được **giữ màu** dù
+đã bị khai thác. **Đã bỏ** (khối `A2` trong code), vì tài liệu trang 42 nói thẳng: *"Khi giá quay
+về khai thác OB2 **không nên** SELL vì ở trên còn có OB1 chưa bị khai thác"* — vùng đã tiêu không
+phải là đích, kể cả khi nó nằm gần giá nhất.
 
-- OF-D: vùng có **đỉnh cao nhất**
-- OF-S: vùng có **đáy thấp nhất**
-
-Vùng chưa từng bị chạm thì luôn sáng màu. Vùng đã bị khai thác chỉ sáng nếu nó đang ở tuyến đầu.
+Giờ màu chỉ trả lời **một** câu hỏi: **đã bị khai thác chưa**. Màu = còn hiệu lực, xám = đã tiêu.
 
 ---
 
@@ -306,19 +394,110 @@ khoảng cách = 0.
 
 ---
 
+## OF khung lớn (HTF) vẽ lên khung nhỏ
+
+Vẽ OF của khung lớn (mặc định **4H**, ô `Khung lon lay OF`) lên chart đang xem (vd 15m) để làm
+POI khung lớn. Tự **tắt** khi khung đang xem ≥ khung đã chọn.
+
+- **Màu riêng**: OF-D xanh lá `#00C853`, OF-S vàng `#FFD600`, viền **nét đứt**. Nhãn có tiền tố
+  khung, vd `240 OF-D`.
+- **Engine thứ hai**: Pine không cho mảng/hộp đi qua `request.security`, nên script chạy một bản
+  **sao** của engine OF, nuôi bằng nến 4H **đã đóng** (`[1]` + `lookahead_on`). Mọi thứ của nó mang
+  tiền tố `h*` (`hzTop`, `hcRef`, …). **Sửa luật OF thì phải sửa cả hai chỗ.**
+- Engine chỉ chạy **một nhịp** mỗi khi một nến 4H vừa đóng (`newH`).
+- Mọi luật (mốc phá, rời vùng, khai thác, điều kiện #2, thu hẹp) **giống hệt** engine chính. Ngưỡng
+  râu/thân đo theo **khung lớn**: 4H > 1H nên phải có **thân nến 4H** trong vùng.
+- Vùng bị khai thác **không xoá hồ sơ** — hồ sơ ở lại để vẫn loại được ứng viên nằm trong nó (mã
+  `N`), giống vùng xám bên chart 4H. Chỉ **quét qua biên giữ** hoặc **quá tuổi** mới xoá hẳn.
+
+### Luật hiển thị vùng khung lớn
+
+Một vùng 4H **hiện** khi thoả **cả hai**:
+
+1. **Còn hàng** — một trong hai:
+   - vùng 4H **chưa bị khai thác** (bất kể OF 15m bên trong đã bị khai thác hết hay chưa); **hoặc**
+   - vùng 4H đã bị khai thác nhưng **được cứu**: bên trong còn ít nhất một OF 15m thoả **cả bốn**:
+     - **cùng chiều** (OF-D trong OF-D, OF-S trong OF-S);
+     - **chưa bị khai thác**;
+     - **đã tồn tại TRƯỚC** lúc vùng 4H bị khai thác (so nến xác nhận của OF 15m với `hzMitBar`).
+       OF 15m sinh ra trong chính nhịp khai thác là cấu trúc mới, không phải "hàng còn sót";
+     - **nằm trong**: nằm trọn, **hoặc** chỉ nhô ra ở **biên gần** — biên trên với OF-D, biên dưới
+       với OF-S. Nhô ra biên xa (đáy OF-D / đỉnh OF-S) thì **không** tính.
+2. **Qua hạn ngạch** — nằm trong top `htfOFMax` (mặc định 3) vùng **còn hàng** gần giá nhất mỗi chiều.
+
+### Bốn trạng thái của vùng khung lớn
+
+| Trạng thái | Nghĩa |
+|---|---|
+| `CON NGUYEN` | chưa bị khai thác → hiện |
+| `duoc CUU` | đã khai thác, nhưng bên trong còn OF 15m hợp lệ → hiện |
+| `TAM AN` | đã khai thác, **chưa từng** có OF 15m hợp lệ bên trong → ẩn, **chưa** chốt chết |
+| `CHET HAN` | **từng** có OF 15m hợp lệ bên trong, giờ hết → ẩn **vĩnh viễn** |
+
+**Chết là vĩnh viễn**: vùng đã `CHET HAN` thì sau này có OF 15m mới mọc trong đó cũng **không**
+sống lại.
+
+`TAM AN` tồn tại vì một lý do kỹ thuật: engine 4H chỉ phát hiện khai thác ở **cuối** nến 4H, lúc
+16 nến 15m đã chạy xong và có thể đã làm xám hết các OF 15m bên trong. Nếu đọc "tập rỗng" lúc đó
+thành "đã khai thác hết" thì vùng chết oan. Cờ `hzSeen` phân biệt "chưa từng có" với "từng có,
+giờ hết".
+
+Code: khối `(D1)`–`(D5)`, `htfHasLiveInner`, các cờ `hzMit` / `hzMitBar` / `hzSeen` / `hzDead`.
+
+---
+
+## Bia mộ debug (mã lý do)
+
+Bật `DEBUG - Bia mo vung OF bi loai / bi xoa`. Mỗi vùng/ứng viên chết để lại một nhãn nhỏ tại
+mép trái, ghi **chiều** (`D`/`S`) và **mã lý do**. Vùng của engine khung lớn có thêm tiền tố `4H`.
+
+**Ứng viên bị huỷ** (chữ cam), dạng `D P2 >61130` = Demand, chết vì `P` ở nến thứ 2, biên xa 61130:
+
+| Mã | Nghĩa |
+|---|---|
+| `P` | phá nhầm — râu xuyên biên giữ trước khi kịp xác nhận |
+| `H` | hết hạn — quá `ofConfirmBars` nến chưa xác nhận |
+| `N` | nằm trọn trong một OF cùng chiều đã xác nhận trước đó (điều kiện #2) |
+| `T` | nó là bản vẽ rộng của một nhịp hồi đã có bản hẹp |
+
+**Vùng đã vẽ bị xoá** (chữ đỏ), dạng `D!Q`:
+
+| Mã | Nghĩa |
+|---|---|
+| `Q` | bị quét — râu (hoặc đóng cửa nếu bật `ofSweepClose`) xuyên biên giữ |
+| `K` | chạm nắp cứng `OF_HARD_CAP` |
+| `V` | pivot mới phủ nhận vùng (chỉ khi bật `ofInvalidPivot`) |
+| `W` | vùng rộng nhường chỗ cho bản thu hẹp |
+
+Nhãn dùng chung quota **500 label** của TradingView. Dùng hai ô `Chi hien chieu` / `ly do` để chỉ
+vẽ đúng loại đang truy vết.
+
+Các công cụ debug khác: `Tooltip chi tiet` (rê chuột vào nhãn OF; bật lên thì nhãn in thêm
+`đỉnh/đáy`), `Bang soi tung vung` (từng vùng xếp theo khoảng cách tới giá, kèm khối vùng khung
+lớn bên dưới), `Nhat ky su kien`, `Ve UNG VIEN OF dang cho` (hộp ma viền đứt). Bật **bất kỳ** công
+cụ debug nào thì engine chính vẽ ra **hết** vùng trong bộ nhớ; vùng đáng lẽ bị ẩn mang dấu `!`.
+
+---
+
 ## Bảng đếm vùng (debug)
 
-Bật/tắt bằng `Bang dem vung (debug)`. Cột `D` = Demand, `S` = Supply. Dùng để biết vùng bị mất
+Bật/tắt bằng `DEBUG - Bang dem vung`. Cột `D` = Demand, `S` = Supply. Dùng để biết vùng bị mất
 ở **khâu nào** thay vì đoán:
 
 | Dòng | Nghĩa | Đọc thế nào |
 |---|---|---|
 | `ung vien sinh` | chân hồi được nhận làm ứng viên | = 0 → hỏng ở engine pullback |
 | `-> ve box` | ứng viên xác nhận thành công, đã vẽ hộp | |
-| `huy: pha nham` | râu xuyên biên giữ trước khi kịp xác nhận | chiếm phần lớn → điều kiện #1 quá xa |
-| `huy: het han` | quá `ofConfirmBars` nến | nhiều → tăng `ofConfirmBars` |
-| `xoa: bi quet` | hộp đã vẽ, sau đó bị râu xuyên biên giữ | |
-| `xoa: gia bi don` | hộp bị dọn theo **luật tuổi** | |
+| `huy: pha nham` | mã `P` | chiếm phần lớn → điều kiện #1 quá xa |
+| `huy: trong OF truoc` | mã `N` | |
+| `huy: ban rong (c->b)` | mã `T` | |
+| `huy: het han` | mã `H` | nhiều → tăng `ofConfirmBars` |
+| `xoa: bi quet` | mã `Q` | |
+| `xoa: pivot (V)` | mã `V` | |
+| `xoa: nap cung (K)` | mã `K` | |
+| `xoa: nhuong ban hep (W)` | mã `W` | |
+| `an: ngach` | **trạng thái hiện tại**, không phải sự kiện: số vùng đang bị hạn ngạch ẩn | |
+| `kiem tra` | phải bằng **0** | khác 0 → còn một đường xoá chưa được đếm, đừng tin các dòng khác |
 
-Hiệu số giữa `-> ve box` và tổng các dòng xoá mà vẫn lớn hơn số vùng đang hiển thị thì phần
-chênh đó đã bị **hạn ngạch** cắt.
+Bên dưới là **phễu của engine khung lớn**, đọc giống hệt, cộng thêm: `danh dau da khai thac`,
+`ho so / con hang`, `chet han D/S`, `engine bat?` (kèm số ứng viên đang chờ), `trong do: duoc cuu`.

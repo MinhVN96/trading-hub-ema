@@ -1,0 +1,26 @@
+{
+  "name": "pine-tests",
+  "private": true,
+  "version": "0.1.0",
+  "description": "E2E test cho cac file Pine Script cua Trading Hub 3, chay tren TradingView that bang Playwright",
+  "scripts": {
+    "login": "tsx scripts/save-login.ts",
+    "check-login": "tsx scripts/check-login.ts",
+    "test": "playwright test",
+    "test:compile": "playwright test tests/compile.spec.ts",
+    "test:runtime": "playwright test tests/runtime.spec.ts",
+    "test:logic": "playwright test tests/logic.spec.ts",
+    "test:update-golden": "cross-env UPDATE_GOLDEN=1 playwright test tests/logic.spec.ts",
+    "test:headed": "playwright test --headed",
+    "codegen": "playwright codegen --load-storage=auth/storageState.json https://www.tradingview.com/chart/",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0",
+    "@types/node": "^22.0.0",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

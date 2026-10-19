@@ -1,0 +1,5806 @@
+{
+  "scenario": "v1.11_IC-AVXUSD_15m",
+  "window": {
+    "from": "2026-09-20T00:00:00Z",
+    "until": "2026-10-01T00:00:00Z"
+  },
+  "createdAt": "2026-10-15T15:48:25.874Z",
+  "events": [
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-20T00:05:00.000Z",
+      "price": "9.8145"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T00:05:00.000Z",
+      "price": "9.7745"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-20T00:05:00.000Z",
+      "price": "9.7665"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-20T00:05:00.000Z",
+      "price": "9.7745"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-20T00:50:00.000Z",
+      "price": "9.5375"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-20T01:35:00.000Z",
+      "price": "9.7665"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-20T01:35:00.000Z",
+      "price": "9.7745"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-20T02:35:00.000Z",
+      "price": "9.4585"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-20T02:35:00.000Z",
+      "price": "9.5375"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-20T02:35:00.000Z",
+      "price": "9.5325"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-20T02:35:00.000Z",
+      "price": "9.5375"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-20T02:50:00.000Z",
+      "price": "9.4255"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T03:05:00.000Z",
+      "price": "10.7915"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-20T03:35:00.000Z",
+      "price": "9.4165"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T03:50:00.000Z",
+      "price": "9.6435"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-20T04:05:00.000Z",
+      "price": "9.4675"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-20T05:05:00.000Z",
+      "price": "9.6435"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T05:05:00.000Z",
+      "price": "9.5665"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-20T05:05:00.000Z",
+      "price": "9.5665"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-20T05:20:00.000Z",
+      "price": "9.4645"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-20T06:05:00.000Z",
+      "price": "9.6645"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T06:05:00.000Z",
+      "price": "9.6645"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-20T06:05:00.000Z",
+      "price": "9.6645"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-20T06:20:00.000Z",
+      "price": "9.5665"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T06:50:00.000Z",
+      "price": "9.7135"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-20T06:50:00.000Z",
+      "price": "9.7135"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-20T07:05:00.000Z",
+      "price": "9.6645"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-20T07:20:00.000Z",
+      "price": "9.8005"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-20T07:20:00.000Z",
+      "price": "9.5665"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-20T07:20:00.000Z",
+      "price": "9.6645"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-20T07:20:00.000Z",
+      "price": "9.6155"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-20T07:20:00.000Z",
+      "price": "9.6155"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-20T07:35:00.000Z",
+      "price": "9.5305"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T07:50:00.000Z",
+      "price": "9.8005"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-20T08:20:00.000Z",
+      "price": "9.5065"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T08:50:00.000Z",
+      "price": "9.6895"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-20T09:05:00.000Z",
+      "price": "9.6895"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-20T09:05:00.000Z",
+      "price": "9.6895"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-20T09:20:00.000Z",
+      "price": "9.6895"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-20T09:35:00.000Z",
+      "price": "9.5065"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-20T10:05:00.000Z",
+      "price": "9.6895"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-20T10:05:00.000Z",
+      "price": "9.5695"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-20T10:35:00.000Z",
+      "price": "9.4165"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T10:50:00.000Z",
+      "price": "9.8615"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-20T11:20:00.000Z",
+      "price": "9.6825"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-20T11:20:00.000Z",
+      "price": "9.8615"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T11:20:00.000Z",
+      "price": "9.7985"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-20T11:20:00.000Z",
+      "price": "9.7985"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T13:20:00.000Z",
+      "price": "10.5225"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-20T13:35:00.000Z",
+      "price": "10.1085"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-20T13:50:00.000Z",
+      "price": "10.7005"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T13:50:00.000Z",
+      "price": "10.7005"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-20T13:50:00.000Z",
+      "price": "10.5225"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-20T13:50:00.000Z",
+      "price": "10.7005"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-20T14:05:00.000Z",
+      "price": "10.5225"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-20T14:20:00.000Z",
+      "price": "10.3625"
+    },
+    {
+      "kind": "BOS",
+      "side": "bull",
+      "time": "2026-09-20T14:35:00.000Z",
+      "price": "10.7915"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-20T14:35:00.000Z",
+      "price": "10.7805"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T14:35:00.000Z",
+      "price": "10.7805"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-20T14:35:00.000Z",
+      "price": "10.7805"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-20T14:35:00.000Z",
+      "price": "10.7915"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-20T14:50:00.000Z",
+      "price": "10.7005"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-20T15:05:00.000Z",
+      "price": "10.7805"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-20T16:20:00.000Z",
+      "price": "10.5265"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T16:35:00.000Z",
+      "price": "11.3985"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-20T17:05:00.000Z",
+      "price": "10.8725"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T18:05:00.000Z",
+      "price": "11.3775"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-20T19:05:00.000Z",
+      "price": "10.9035"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-20T19:35:00.000Z",
+      "price": "11.2395"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T19:35:00.000Z",
+      "price": "11.2395"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-20T20:05:00.000Z",
+      "price": "11.2395"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-20T20:35:00.000Z",
+      "price": "10.9785"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T21:35:00.000Z",
+      "price": "11.3485"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-20T21:50:00.000Z",
+      "price": "11.3985"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-20T21:50:00.000Z",
+      "price": "11.3775"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-20T21:50:00.000Z",
+      "price": "11.3485"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-20T22:05:00.000Z",
+      "price": "11.2395"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-20T22:20:00.000Z",
+      "price": "11.2395"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-20T22:20:00.000Z",
+      "price": "11.0015"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T23:05:00.000Z",
+      "price": "11.4315"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-20T23:35:00.000Z",
+      "price": "11.1005"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-20T23:50:00.000Z",
+      "price": "11.4315"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-20T23:50:00.000Z",
+      "price": "11.3815"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-20T23:50:00.000Z",
+      "price": "11.3815"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-20T23:50:00.000Z",
+      "price": "11.3815"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-21T00:05:00.000Z",
+      "price": "10.8725"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-21T00:05:00.000Z",
+      "price": "10.9035"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-21T00:05:00.000Z",
+      "price": "11.1005"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-21T00:05:00.000Z",
+      "price": "11.3815"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-21T00:05:00.000Z",
+      "price": "11.3485"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-21T00:35:00.000Z",
+      "price": "11.2215"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-21T01:05:00.000Z",
+      "price": "11.7595"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-21T01:20:00.000Z",
+      "price": "11.4345"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-21T01:20:00.000Z",
+      "price": "11.3485"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-21T01:20:00.000Z",
+      "price": "11.3815"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-21T01:35:00.000Z",
+      "price": "11.4345"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-21T01:35:00.000Z",
+      "price": "11.4345"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-21T01:35:00.000Z",
+      "price": "11.2215"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-21T01:50:00.000Z",
+      "price": "11.7595"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-21T02:20:00.000Z",
+      "price": "11.7215"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-21T02:50:00.000Z",
+      "price": "11.0175"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-21T03:20:00.000Z",
+      "price": "11.2425"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-21T03:50:00.000Z",
+      "price": "11.2425"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-21T04:20:00.000Z",
+      "price": "11.1415"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-21T04:20:00.000Z",
+      "price": "11.2045"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-21T04:35:00.000Z",
+      "price": "11.4345"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-21T04:35:00.000Z",
+      "price": "11.2425"
+    },
+    {
+      "kind": "OF xoa W",
+      "side": "D",
+      "time": "2026-09-21T04:35:00.000Z",
+      "price": "11.0015"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-21T05:50:00.000Z",
+      "price": "11.2425"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-21T05:50:00.000Z",
+      "price": "11.1415"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-21T06:20:00.000Z",
+      "price": "11.5685"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-21T06:35:00.000Z",
+      "price": "11.1015"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-21T06:35:00.000Z",
+      "price": "11.1015"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-21T06:50:00.000Z",
+      "price": "11.0175"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-21T06:50:00.000Z",
+      "price": "11.0245"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-21T07:05:00.000Z",
+      "price": "11.1415"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-21T07:05:00.000Z",
+      "price": "11.1015"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-21T07:20:00.000Z",
+      "price": "11.1415"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-21T07:20:00.000Z",
+      "price": "11.1015"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-21T07:20:00.000Z",
+      "price": "11.0035"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-21T07:20:00.000Z",
+      "price": "11.0035"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-21T07:20:00.000Z",
+      "price": "10.9785"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-21T07:35:00.000Z",
+      "price": "11.0035"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-21T08:20:00.000Z",
+      "price": "11.0035"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-21T08:35:00.000Z",
+      "price": "11.1415"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-21T08:35:00.000Z",
+      "price": "11.1015"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-21T08:35:00.000Z",
+      "price": "11.1815"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-21T09:20:00.000Z",
+      "price": "11.1815"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-21T09:35:00.000Z",
+      "price": "11.2335"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-21T09:50:00.000Z",
+      "price": "11.1815"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-21T10:05:00.000Z",
+      "price": "11.1815"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-21T10:35:00.000Z",
+      "price": "11.3245"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-21T10:35:00.000Z",
+      "price": "11.3245"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-21T11:05:00.000Z",
+      "price": "11.3245"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-21T11:35:00.000Z",
+      "price": "11.2425"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-21T11:50:00.000Z",
+      "price": "11.2425"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-21T12:05:00.000Z",
+      "price": "11.5075"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-21T13:05:00.000Z",
+      "price": "11.2325"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-21T13:20:00.000Z",
+      "price": "11.2325"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-21T13:20:00.000Z",
+      "price": "11.1815"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-21T14:20:00.000Z",
+      "price": "11.4645"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-21T14:35:00.000Z",
+      "price": "11.0735"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-21T14:50:00.000Z",
+      "price": "11.1825"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-21T14:50:00.000Z",
+      "price": "11.1825"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-21T15:05:00.000Z",
+      "price": "11.0895"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-21T15:50:00.000Z",
+      "price": "11.0735"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-21T15:50:00.000Z",
+      "price": "11.0895"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-21T15:50:00.000Z",
+      "price": "11.2425"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-21T15:50:00.000Z",
+      "price": "11.2325"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-21T15:50:00.000Z",
+      "price": "11.0895"
+    },
+    {
+      "kind": "OF xoa W",
+      "side": "S",
+      "time": "2026-09-21T15:50:00.000Z",
+      "price": "11.5685"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-21T16:20:00.000Z",
+      "price": "11.0895"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-21T17:50:00.000Z",
+      "price": "10.7805"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-21T17:50:00.000Z",
+      "price": "10.8755"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-21T18:05:00.000Z",
+      "price": "11.1995"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-21T18:20:00.000Z",
+      "price": "10.7265"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-21T19:05:00.000Z",
+      "price": "10.9645"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-21T19:20:00.000Z",
+      "price": "10.9645"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-21T19:20:00.000Z",
+      "price": "10.9645"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-21T20:05:00.000Z",
+      "price": "10.8135"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-21T20:20:00.000Z",
+      "price": "10.9645"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-21T20:20:00.000Z",
+      "price": "11.0615"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-21T20:50:00.000Z",
+      "price": "11.0615"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-21T20:50:00.000Z",
+      "price": "11.0895"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-21T20:50:00.000Z",
+      "price": "11.0615"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-21T21:05:00.000Z",
+      "price": "11.0615"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-21T21:20:00.000Z",
+      "price": "10.7265"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-21T21:20:00.000Z",
+      "price": "11.2425"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-21T21:20:00.000Z",
+      "price": "11.2325"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-21T21:20:00.000Z",
+      "price": "11.1995"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-21T22:05:00.000Z",
+      "price": "10.9385"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-22T00:35:00.000Z",
+      "price": "11.3465"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-22T00:50:00.000Z",
+      "price": "11.0775"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-22T00:50:00.000Z",
+      "price": "11.0615"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-22T00:50:00.000Z",
+      "price": "11.0775"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-22T00:50:00.000Z",
+      "price": "11.0775"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-22T01:50:00.000Z",
+      "price": "11.1915"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-22T02:35:00.000Z",
+      "price": "11.1915"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-22T02:50:00.000Z",
+      "price": "10.9975"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-22T03:20:00.000Z",
+      "price": "11.0675"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-22T03:20:00.000Z",
+      "price": "11.0675"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-22T03:35:00.000Z",
+      "price": "11.1965"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-22T03:35:00.000Z",
+      "price": "10.9975"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-22T03:35:00.000Z",
+      "price": "10.9645"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-22T03:35:00.000Z",
+      "price": "11.0675"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-22T04:05:00.000Z",
+      "price": "11.3465"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-22T04:05:00.000Z",
+      "price": "10.9385"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-22T04:50:00.000Z",
+      "price": "10.7005"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-22T04:50:00.000Z",
+      "price": "10.8135"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-22T05:20:00.000Z",
+      "price": "10.5225"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-22T05:20:00.000Z",
+      "price": "10.5265"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-22T05:50:00.000Z",
+      "price": "11.1555"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-22T06:05:00.000Z",
+      "price": "10.4935"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-22T06:20:00.000Z",
+      "price": "10.7275"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-22T06:20:00.000Z",
+      "price": "10.7275"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-22T06:20:00.000Z",
+      "price": "10.7275"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-22T06:50:00.000Z",
+      "price": "10.6295"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-22T07:20:00.000Z",
+      "price": "10.6295"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-22T07:35:00.000Z",
+      "price": "10.7465"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-22T08:05:00.000Z",
+      "price": "10.7465"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-22T08:05:00.000Z",
+      "price": "10.7465"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-22T08:20:00.000Z",
+      "price": "10.6175"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-22T08:35:00.000Z",
+      "price": "10.7965"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-22T08:35:00.000Z",
+      "price": "10.7965"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-22T08:35:00.000Z",
+      "price": "10.7965"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-22T08:50:00.000Z",
+      "price": "10.7465"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-22T09:20:00.000Z",
+      "price": "10.7965"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-22T10:20:00.000Z",
+      "price": "10.7965"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-22T11:50:00.000Z",
+      "price": "10.6985"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-22T12:05:00.000Z",
+      "price": "10.7465"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-22T12:50:00.000Z",
+      "price": "10.9385"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-22T13:05:00.000Z",
+      "price": "10.9385"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-22T13:20:00.000Z",
+      "price": "10.4935"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-22T13:20:00.000Z",
+      "price": "10.9385"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-22T14:05:00.000Z",
+      "price": "10.9385"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-22T14:20:00.000Z",
+      "price": "10.9385"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-22T14:35:00.000Z",
+      "price": "10.7085"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-22T14:50:00.000Z",
+      "price": "11.0615"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-22T14:50:00.000Z",
+      "price": "11.0675"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-22T14:50:00.000Z",
+      "price": "11.0615"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-22T15:20:00.000Z",
+      "price": "11.1555"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-22T16:20:00.000Z",
+      "price": "10.8665"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-22T17:20:00.000Z",
+      "price": "11.1935"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-22T17:35:00.000Z",
+      "price": "10.9715"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-22T17:50:00.000Z",
+      "price": "11.0375"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-22T18:05:00.000Z",
+      "price": "10.9715"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-22T18:05:00.000Z",
+      "price": "10.9885"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-22T18:05:00.000Z",
+      "price": "10.9885"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-22T18:05:00.000Z",
+      "price": "10.9885"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-22T18:35:00.000Z",
+      "price": "10.9885"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-22T18:50:00.000Z",
+      "price": "10.9885"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-22T18:50:00.000Z",
+      "price": "11.0345"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-22T19:05:00.000Z",
+      "price": "11.0375"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-22T19:05:00.000Z",
+      "price": "11.0345"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-22T19:20:00.000Z",
+      "price": "10.9155"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-22T19:50:00.000Z",
+      "price": "10.9155"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-22T20:05:00.000Z",
+      "price": "10.9155"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-22T20:35:00.000Z",
+      "price": "11.0605"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-22T21:20:00.000Z",
+      "price": "11.0135"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-22T21:20:00.000Z",
+      "price": "11.0135"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-22T21:35:00.000Z",
+      "price": "10.8725"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-22T21:35:00.000Z",
+      "price": "11.0605"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-22T21:50:00.000Z",
+      "price": "11.0135"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-22T22:20:00.000Z",
+      "price": "10.8665"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-22T22:20:00.000Z",
+      "price": "11.1935"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-22T23:20:00.000Z",
+      "price": "10.9555"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-22T23:50:00.000Z",
+      "price": "11.3365"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T00:20:00.000Z",
+      "price": "11.1325"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-23T00:35:00.000Z",
+      "price": "11.1325"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-23T00:50:00.000Z",
+      "price": "11.1325"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-23T01:05:00.000Z",
+      "price": "11.1325"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-23T01:35:00.000Z",
+      "price": "11.0135"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-23T01:50:00.000Z",
+      "price": "10.9555"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-23T02:05:00.000Z",
+      "price": "11.1325"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T02:05:00.000Z",
+      "price": "11.3085"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T03:05:00.000Z",
+      "price": "10.9545"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-23T03:20:00.000Z",
+      "price": "11.2495"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T03:20:00.000Z",
+      "price": "11.2495"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-23T03:35:00.000Z",
+      "price": "11.3365"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-23T03:35:00.000Z",
+      "price": "11.1835"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-23T03:35:00.000Z",
+      "price": "11.3085"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T04:35:00.000Z",
+      "price": "11.1835"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-23T04:35:00.000Z",
+      "price": "11.1835"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T05:05:00.000Z",
+      "price": "11.3655"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-23T05:20:00.000Z",
+      "price": "11.1835"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T05:50:00.000Z",
+      "price": "11.0775"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T06:05:00.000Z",
+      "price": "11.2385"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-23T06:35:00.000Z",
+      "price": "11.1175"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T06:35:00.000Z",
+      "price": "11.1175"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T07:05:00.000Z",
+      "price": "11.2265"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-23T07:35:00.000Z",
+      "price": "11.2385"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-23T07:35:00.000Z",
+      "price": "11.0775"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-23T07:35:00.000Z",
+      "price": "11.0905"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T07:35:00.000Z",
+      "price": "11.0905"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-23T07:35:00.000Z",
+      "price": "11.1175"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-23T07:35:00.000Z",
+      "price": "11.0905"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-23T07:50:00.000Z",
+      "price": "11.1175"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T08:05:00.000Z",
+      "price": "11.0575"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-23T08:20:00.000Z",
+      "price": "11.1195"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T08:20:00.000Z",
+      "price": "11.1195"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T08:35:00.000Z",
+      "price": "11.0115"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-23T08:50:00.000Z",
+      "price": "11.0115"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-23T08:50:00.000Z",
+      "price": "11.0905"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-23T09:05:00.000Z",
+      "price": "11.0905"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T09:05:00.000Z",
+      "price": "11.1365"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-23T09:35:00.000Z",
+      "price": "10.9545"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-23T10:05:00.000Z",
+      "price": "11.1365"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T10:05:00.000Z",
+      "price": "11.1295"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-23T10:05:00.000Z",
+      "price": "11.1615"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-23T10:20:00.000Z",
+      "price": "11.0435"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T10:20:00.000Z",
+      "price": "11.0435"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-23T10:35:00.000Z",
+      "price": "11.1785"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T10:35:00.000Z",
+      "price": "11.1785"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-23T10:35:00.000Z",
+      "price": "11.1365"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-23T10:35:00.000Z",
+      "price": "11.1785"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-23T10:35:00.000Z",
+      "price": "11.2265"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-23T10:50:00.000Z",
+      "price": "11.1365"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-23T11:05:00.000Z",
+      "price": "11.1365"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T11:20:00.000Z",
+      "price": "11.0185"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-23T11:20:00.000Z",
+      "price": "11.0185"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-23T11:50:00.000Z",
+      "price": "11.0185"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-23T11:50:00.000Z",
+      "price": "10.9545"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-23T12:05:00.000Z",
+      "price": "11.0185"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T12:05:00.000Z",
+      "price": "10.9785"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-23T12:05:00.000Z",
+      "price": "10.9785"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-23T12:05:00.000Z",
+      "price": "10.7085"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-23T12:50:00.000Z",
+      "price": "10.6985"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-23T13:05:00.000Z",
+      "price": "10.6175"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T13:50:00.000Z",
+      "price": "11.1225"
+    },
+    {
+      "kind": "CHOCH",
+      "side": "bear",
+      "time": "2026-09-23T14:05:00.000Z",
+      "price": "10.4935"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-23T14:05:00.000Z",
+      "price": "10.5395"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T14:05:00.000Z",
+      "price": "10.5395"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-23T14:05:00.000Z",
+      "price": "10.5395"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-23T14:05:00.000Z",
+      "price": "10.1085"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-23T14:05:00.000Z",
+      "price": "10.3625"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-23T14:20:00.000Z",
+      "price": "10.5395"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T19:05:00.000Z",
+      "price": "10.7845"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T19:20:00.000Z",
+      "price": "10.0425"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T19:35:00.000Z",
+      "price": "10.3335"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T19:50:00.000Z",
+      "price": "10.2265"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-23T20:05:00.000Z",
+      "price": "10.3335"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-23T20:05:00.000Z",
+      "price": "10.3075"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T20:05:00.000Z",
+      "price": "10.3075"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-23T20:05:00.000Z",
+      "price": "10.3075"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-23T20:20:00.000Z",
+      "price": "10.2365"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T21:35:00.000Z",
+      "price": "10.3365"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T21:50:00.000Z",
+      "price": "10.2345"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-23T22:05:00.000Z",
+      "price": "10.3475"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T22:05:00.000Z",
+      "price": "10.3475"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-23T22:05:00.000Z",
+      "price": "10.3335"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-23T22:05:00.000Z",
+      "price": "10.3365"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-23T22:05:00.000Z",
+      "price": "10.3475"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T22:20:00.000Z",
+      "price": "10.2765"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-23T22:20:00.000Z",
+      "price": "10.2765"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-23T22:50:00.000Z",
+      "price": "10.3915"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-23T23:35:00.000Z",
+      "price": "10.2515"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-23T23:35:00.000Z",
+      "price": "10.2515"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-23T23:35:00.000Z",
+      "price": "10.2765"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-23T23:35:00.000Z",
+      "price": "10.2515"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-23T23:35:00.000Z",
+      "price": "10.2265"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-23T23:35:00.000Z",
+      "price": "10.2345"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-23T23:50:00.000Z",
+      "price": "10.2515"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T00:35:00.000Z",
+      "price": "10.1825"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-24T00:35:00.000Z",
+      "price": "10.1825"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T01:05:00.000Z",
+      "price": "10.1515"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-24T01:20:00.000Z",
+      "price": "10.2045"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-24T01:35:00.000Z",
+      "price": "10.2045"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T01:50:00.000Z",
+      "price": "10.1285"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-24T02:05:00.000Z",
+      "price": "10.1285"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-24T02:05:00.000Z",
+      "price": "10.2235"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-24T02:20:00.000Z",
+      "price": "10.2235"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-24T02:20:00.000Z",
+      "price": "10.2365"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-24T02:35:00.000Z",
+      "price": "10.0425"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-24T02:35:00.000Z",
+      "price": "10.2765"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-24T02:35:00.000Z",
+      "price": "10.2515"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-24T02:35:00.000Z",
+      "price": "10.2235"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-24T02:50:00.000Z",
+      "price": "10.2235"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-24T02:50:00.000Z",
+      "price": "10.2395"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-24T02:50:00.000Z",
+      "price": "10.2395"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-24T02:50:00.000Z",
+      "price": "10.3025"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-24T03:05:00.000Z",
+      "price": "10.2395"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T03:05:00.000Z",
+      "price": "10.2105"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-24T03:20:00.000Z",
+      "price": "10.2235"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-24T03:20:00.000Z",
+      "price": "10.2105"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-24T03:20:00.000Z",
+      "price": "10.2105"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-24T03:50:00.000Z",
+      "price": "10.2105"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-24T04:05:00.000Z",
+      "price": "10.2105"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-24T04:05:00.000Z",
+      "price": "10.3065"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-24T04:50:00.000Z",
+      "price": "10.3065"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-24T04:50:00.000Z",
+      "price": "10.3065"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-24T05:05:00.000Z",
+      "price": "10.3065"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-24T05:20:00.000Z",
+      "price": "10.3065"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T05:20:00.000Z",
+      "price": "10.1565"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-24T06:05:00.000Z",
+      "price": "10.3695"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-24T06:50:00.000Z",
+      "price": "10.1795"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T06:50:00.000Z",
+      "price": "10.1795"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-24T07:20:00.000Z",
+      "price": "10.2525"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-24T07:20:00.000Z",
+      "price": "10.2525"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-24T08:20:00.000Z",
+      "price": "10.3695"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-24T08:20:00.000Z",
+      "price": "10.1575"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T08:20:00.000Z",
+      "price": "10.1575"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-24T08:20:00.000Z",
+      "price": "10.1575"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-24T08:20:00.000Z",
+      "price": "10.1565"
+    },
+    {
+      "kind": "BOS",
+      "side": "bear",
+      "time": "2026-09-24T08:35:00.000Z",
+      "price": "10.0425"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-24T08:35:00.000Z",
+      "price": "10.1575"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-24T08:35:00.000Z",
+      "price": "10.1085"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-24T08:50:00.000Z",
+      "price": "10.1575"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-24T08:50:00.000Z",
+      "price": "10.2535"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-24T09:20:00.000Z",
+      "price": "10.0275"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T09:20:00.000Z",
+      "price": "10.0275"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-24T09:20:00.000Z",
+      "price": "10.0275"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-24T10:35:00.000Z",
+      "price": "10.1925"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T11:35:00.000Z",
+      "price": "9.9885"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-24T12:20:00.000Z",
+      "price": "10.1175"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T12:20:00.000Z",
+      "price": "10.0545"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-24T12:35:00.000Z",
+      "price": "9.9885"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-24T12:50:00.000Z",
+      "price": "10.1175"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-24T13:05:00.000Z",
+      "price": "10.1175"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-24T13:20:00.000Z",
+      "price": "10.1675"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-24T13:20:00.000Z",
+      "price": "10.2535"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-24T13:20:00.000Z",
+      "price": "10.1925"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-24T13:35:00.000Z",
+      "price": "10.1175"
+    },
+    {
+      "kind": "CHOCH",
+      "side": "bull",
+      "time": "2026-09-24T14:20:00.000Z",
+      "price": "10.3915"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-24T14:20:00.000Z",
+      "price": "10.3915"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T14:35:00.000Z",
+      "price": "9.9445"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-24T14:50:00.000Z",
+      "price": "10.1175"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-24T15:05:00.000Z",
+      "price": "10.4685"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T15:50:00.000Z",
+      "price": "10.1155"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-24T16:05:00.000Z",
+      "price": "10.3865"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-24T16:20:00.000Z",
+      "price": "10.3865"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-24T16:20:00.000Z",
+      "price": "10.3865"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-24T16:35:00.000Z",
+      "price": "10.4685"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T16:50:00.000Z",
+      "price": "10.2565"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-24T17:50:00.000Z",
+      "price": "10.2565"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-24T17:50:00.000Z",
+      "price": "10.2565"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-24T18:05:00.000Z",
+      "price": "10.4865"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T20:05:00.000Z",
+      "price": "10.1955"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-24T21:20:00.000Z",
+      "price": "10.1155"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-24T21:20:00.000Z",
+      "price": "10.1955"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-24T21:20:00.000Z",
+      "price": "10.4675"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-24T21:20:00.000Z",
+      "price": "10.5395"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-24T21:20:00.000Z",
+      "price": "10.4675"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-24T21:20:00.000Z",
+      "price": "10.4675"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-24T21:20:00.000Z",
+      "price": "10.4865"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-24T21:35:00.000Z",
+      "price": "10.4675"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-24T21:50:00.000Z",
+      "price": "10.4675"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-24T22:05:00.000Z",
+      "price": "10.3295"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-24T22:20:00.000Z",
+      "price": "10.3295"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-24T22:20:00.000Z",
+      "price": "10.3295"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-24T22:35:00.000Z",
+      "price": "10.3295"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T00:05:00.000Z",
+      "price": "10.6565"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T00:20:00.000Z",
+      "price": "10.0795"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-25T01:05:00.000Z",
+      "price": "10.2545"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T01:05:00.000Z",
+      "price": "10.2545"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T01:20:00.000Z",
+      "price": "10.1325"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-25T01:50:00.000Z",
+      "price": "10.2735"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T01:50:00.000Z",
+      "price": "10.2735"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-25T01:50:00.000Z",
+      "price": "10.2545"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-25T01:50:00.000Z",
+      "price": "10.2735"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-25T02:05:00.000Z",
+      "price": "10.2545"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-25T02:20:00.000Z",
+      "price": "10.2545"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T02:20:00.000Z",
+      "price": "10.1825"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-25T02:35:00.000Z",
+      "price": "10.1825"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-25T02:35:00.000Z",
+      "price": "10.1825"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-25T02:50:00.000Z",
+      "price": "10.1825"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-25T03:05:00.000Z",
+      "price": "10.1325"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-25T03:20:00.000Z",
+      "price": "10.0795"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T03:35:00.000Z",
+      "price": "10.3025"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T03:50:00.000Z",
+      "price": "10.0675"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-25T04:05:00.000Z",
+      "price": "10.1595"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-25T04:05:00.000Z",
+      "price": "10.1825"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T04:05:00.000Z",
+      "price": "10.1595"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-25T04:05:00.000Z",
+      "price": "10.1595"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-25T04:20:00.000Z",
+      "price": "10.1595"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T04:50:00.000Z",
+      "price": "10.1245"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-25T05:05:00.000Z",
+      "price": "10.1595"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T05:35:00.000Z",
+      "price": "10.2695"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-25T06:05:00.000Z",
+      "price": "10.1295"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T06:05:00.000Z",
+      "price": "10.1295"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-25T06:05:00.000Z",
+      "price": "10.1245"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-25T06:20:00.000Z",
+      "price": "10.1875"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-25T06:20:00.000Z",
+      "price": "10.1245"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T06:35:00.000Z",
+      "price": "10.1135"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T06:50:00.000Z",
+      "price": "10.1995"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-25T07:20:00.000Z",
+      "price": "10.0925"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-25T07:35:00.000Z",
+      "price": "10.0675"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T07:35:00.000Z",
+      "price": "10.0925"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T07:50:00.000Z",
+      "price": "10.1955"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-25T08:05:00.000Z",
+      "price": "10.1995"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-25T08:05:00.000Z",
+      "price": "10.1955"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-25T08:05:00.000Z",
+      "price": "10.1955"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-25T08:05:00.000Z",
+      "price": "10.2695"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-25T08:20:00.000Z",
+      "price": "10.3295"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-25T08:20:00.000Z",
+      "price": "10.1955"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-25T08:20:00.000Z",
+      "price": "10.3025"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T09:35:00.000Z",
+      "price": "10.3795"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-25T09:35:00.000Z",
+      "price": "10.3795"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-25T09:50:00.000Z",
+      "price": "10.3795"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T09:50:00.000Z",
+      "price": "10.2995"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T10:20:00.000Z",
+      "price": "10.4405"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T10:50:00.000Z",
+      "price": "10.3115"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-25T11:05:00.000Z",
+      "price": "10.3115"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-25T11:05:00.000Z",
+      "price": "10.4405"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-25T11:05:00.000Z",
+      "price": "10.4275"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T11:05:00.000Z",
+      "price": "10.4275"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-25T11:05:00.000Z",
+      "price": "10.4275"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-25T11:20:00.000Z",
+      "price": "10.4275"
+    },
+    {
+      "kind": "BOS",
+      "side": "bull",
+      "time": "2026-09-25T11:50:00.000Z",
+      "price": "10.6565"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-25T11:50:00.000Z",
+      "price": "10.6565"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-25T12:05:00.000Z",
+      "price": "10.4275"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T13:20:00.000Z",
+      "price": "10.3545"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-25T13:20:00.000Z",
+      "price": "10.3545"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-25T13:35:00.000Z",
+      "price": "10.3545"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-25T13:35:00.000Z",
+      "price": "10.2995"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-25T13:50:00.000Z",
+      "price": "10.1955"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T13:50:00.000Z",
+      "price": "10.3485"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-25T13:50:00.000Z",
+      "price": "10.3485"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-25T14:05:00.000Z",
+      "price": "10.3545"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-25T14:05:00.000Z",
+      "price": "10.3485"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-25T14:35:00.000Z",
+      "price": "10.3545"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-25T14:35:00.000Z",
+      "price": "10.3485"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T16:05:00.000Z",
+      "price": "10.4885"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T16:20:00.000Z",
+      "price": "10.1615"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T17:35:00.000Z",
+      "price": "10.4385"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-25T18:05:00.000Z",
+      "price": "10.1615"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-25T18:05:00.000Z",
+      "price": "10.4385"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-25T18:05:00.000Z",
+      "price": "10.4385"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-25T18:05:00.000Z",
+      "price": "10.4885"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-25T18:20:00.000Z",
+      "price": "10.4385"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-25T18:50:00.000Z",
+      "price": "10.4385"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T19:05:00.000Z",
+      "price": "10.2615"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T20:05:00.000Z",
+      "price": "10.5295"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-25T20:20:00.000Z",
+      "price": "10.5295"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-25T20:20:00.000Z",
+      "price": "10.5295"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T20:50:00.000Z",
+      "price": "10.3805"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T22:15:00.000Z",
+      "price": "10.5655"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-25T22:30:00.000Z",
+      "price": "10.5655"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-25T22:30:00.000Z",
+      "price": "10.5655"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-25T22:45:00.000Z",
+      "price": "10.5295"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-25T23:00:00.000Z",
+      "price": "10.4055"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-25T23:15:00.000Z",
+      "price": "10.6145"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-25T23:15:00.000Z",
+      "price": "10.5655"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-25T23:15:00.000Z",
+      "price": "10.6145"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-25T23:15:00.000Z",
+      "price": "10.6145"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-26T00:15:00.000Z",
+      "price": "10.5655"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-26T00:15:00.000Z",
+      "price": "10.5355"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-26T00:30:00.000Z",
+      "price": "10.5295"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-26T00:30:00.000Z",
+      "price": "10.5355"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-26T00:45:00.000Z",
+      "price": "10.6665"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-26T01:00:00.000Z",
+      "price": "10.6665"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-26T01:15:00.000Z",
+      "price": "10.5105"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-26T01:15:00.000Z",
+      "price": "10.6045"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-26T01:15:00.000Z",
+      "price": "10.6045"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-26T01:15:00.000Z",
+      "price": "10.7085"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-26T01:30:00.000Z",
+      "price": "10.6045"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-26T01:30:00.000Z",
+      "price": "10.7845"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-26T02:45:00.000Z",
+      "price": "10.5485"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-26T03:30:00.000Z",
+      "price": "10.6045"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-26T04:15:00.000Z",
+      "price": "10.9305"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-26T04:30:00.000Z",
+      "price": "10.5765"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-26T04:30:00.000Z",
+      "price": "10.5765"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-26T04:45:00.000Z",
+      "price": "10.6695"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-26T05:00:00.000Z",
+      "price": "10.5755"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-26T05:30:00.000Z",
+      "price": "10.5755"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-26T05:30:00.000Z",
+      "price": "10.6445"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-26T06:00:00.000Z",
+      "price": "10.5755"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-26T06:15:00.000Z",
+      "price": "10.5765"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-26T06:15:00.000Z",
+      "price": "10.5755"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-26T06:15:00.000Z",
+      "price": "10.5485"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-26T06:45:00.000Z",
+      "price": "10.6625"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-26T07:00:00.000Z",
+      "price": "10.6695"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-26T07:00:00.000Z",
+      "price": "10.6625"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-26T07:45:00.000Z",
+      "price": "10.5355"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-26T08:30:00.000Z",
+      "price": "10.6935"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-26T08:30:00.000Z",
+      "price": "10.6935"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-26T08:45:00.000Z",
+      "price": "10.6215"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-26T09:00:00.000Z",
+      "price": "10.9305"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-26T09:00:00.000Z",
+      "price": "10.5355"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-26T09:00:00.000Z",
+      "price": "10.6215"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-26T09:00:00.000Z",
+      "price": "10.6215"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-26T09:15:00.000Z",
+      "price": "10.6215"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-26T09:45:00.000Z",
+      "price": "10.7135"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-26T10:00:00.000Z",
+      "price": "10.6215"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-26T10:30:00.000Z",
+      "price": "10.7135"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-26T11:00:00.000Z",
+      "price": "10.7135"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-26T12:30:00.000Z",
+      "price": "10.4755"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-26T13:15:00.000Z",
+      "price": "10.7135"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-26T13:15:00.000Z",
+      "price": "10.7525"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-26T13:15:00.000Z",
+      "price": "10.7525"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-26T13:30:00.000Z",
+      "price": "10.7525"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-26T13:45:00.000Z",
+      "price": "10.8245"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-26T13:45:00.000Z",
+      "price": "10.8245"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-26T14:00:00.000Z",
+      "price": "10.8245"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-26T14:30:00.000Z",
+      "price": "10.9755"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-26T14:30:00.000Z",
+      "price": "11.0185"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-26T14:30:00.000Z",
+      "price": "10.9785"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-26T14:45:00.000Z",
+      "price": "10.8245"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-26T15:30:00.000Z",
+      "price": "10.6705"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-26T16:30:00.000Z",
+      "price": "11.0985"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-26T17:00:00.000Z",
+      "price": "10.8935"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-26T17:15:00.000Z",
+      "price": "10.8935"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-26T17:15:00.000Z",
+      "price": "10.8935"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-26T17:30:00.000Z",
+      "price": "10.8935"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-26T17:45:00.000Z",
+      "price": "10.8245"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-26T18:15:00.000Z",
+      "price": "10.8215"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-26T18:30:00.000Z",
+      "price": "10.8215"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-26T18:45:00.000Z",
+      "price": "10.8215"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-26T19:00:00.000Z",
+      "price": "10.8765"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-26T19:30:00.000Z",
+      "price": "10.7325"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-26T19:30:00.000Z",
+      "price": "10.7325"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-26T19:30:00.000Z",
+      "price": "10.7325"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-26T19:45:00.000Z",
+      "price": "10.7325"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-26T20:00:00.000Z",
+      "price": "10.6705"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-26T20:15:00.000Z",
+      "price": "10.6995"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-26T20:15:00.000Z",
+      "price": "10.6995"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-26T20:30:00.000Z",
+      "price": "11.0985"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-26T20:45:00.000Z",
+      "price": "10.6995"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-27T00:05:00.000Z",
+      "price": "10.8215"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-27T00:05:00.000Z",
+      "price": "10.7245"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-27T00:05:00.000Z",
+      "price": "10.7245"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-27T00:05:00.000Z",
+      "price": "10.8015"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-27T00:05:00.000Z",
+      "price": "10.7245"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-27T00:20:00.000Z",
+      "price": "10.8935"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-27T00:20:00.000Z",
+      "price": "10.8765"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-27T00:50:00.000Z",
+      "price": "10.7245"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-27T00:50:00.000Z",
+      "price": "10.5105"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-27T01:50:00.000Z",
+      "price": "10.9135"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-27T02:20:00.000Z",
+      "price": "10.6985"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-27T03:20:00.000Z",
+      "price": "10.6985"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-27T03:20:00.000Z",
+      "price": "10.7245"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-27T03:20:00.000Z",
+      "price": "10.7245"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-27T03:35:00.000Z",
+      "price": "10.7245"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-27T04:05:00.000Z",
+      "price": "10.7245"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-27T04:20:00.000Z",
+      "price": "10.8235"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-27T04:20:00.000Z",
+      "price": "10.6755"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-27T04:20:00.000Z",
+      "price": "10.6755"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-27T05:05:00.000Z",
+      "price": "10.7355"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-27T05:05:00.000Z",
+      "price": "10.7355"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-27T05:05:00.000Z",
+      "price": "10.7355"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-27T05:20:00.000Z",
+      "price": "10.7355"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-27T05:35:00.000Z",
+      "price": "10.7965"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-27T06:20:00.000Z",
+      "price": "10.9135"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-27T06:50:00.000Z",
+      "price": "10.6365"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-27T07:05:00.000Z",
+      "price": "10.9635"
+    },
+    {
+      "kind": "BOS",
+      "side": "bull",
+      "time": "2026-09-27T07:20:00.000Z",
+      "price": "11.0985"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-27T07:20:00.000Z",
+      "price": "10.9635"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-27T07:20:00.000Z",
+      "price": "10.9635"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-27T07:20:00.000Z",
+      "price": "11.1225"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-27T07:20:00.000Z",
+      "price": "11.0315"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-27T07:35:00.000Z",
+      "price": "10.9635"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-27T08:20:00.000Z",
+      "price": "10.8905"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-27T09:05:00.000Z",
+      "price": "10.9635"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-27T12:50:00.000Z",
+      "price": "10.8905"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-27T12:50:00.000Z",
+      "price": "10.8905"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-27T13:05:00.000Z",
+      "price": "10.8905"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-27T13:20:00.000Z",
+      "price": "10.8905"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-27T13:20:00.000Z",
+      "price": "11.2465"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-27T14:20:00.000Z",
+      "price": "10.7765"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-27T14:50:00.000Z",
+      "price": "10.9965"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-27T15:20:00.000Z",
+      "price": "10.9235"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-27T15:20:00.000Z",
+      "price": "10.9235"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-27T15:50:00.000Z",
+      "price": "10.9965"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-27T15:50:00.000Z",
+      "price": "10.9235"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-27T16:20:00.000Z",
+      "price": "10.9235"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-27T16:20:00.000Z",
+      "price": "10.8395"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-27T17:05:00.000Z",
+      "price": "11.0035"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-27T17:35:00.000Z",
+      "price": "10.8825"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-27T17:35:00.000Z",
+      "price": "10.9215"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-27T17:50:00.000Z",
+      "price": "10.8825"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-27T18:05:00.000Z",
+      "price": "10.9795"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-27T18:05:00.000Z",
+      "price": "10.9795"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-27T18:35:00.000Z",
+      "price": "10.8325"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-27T18:35:00.000Z",
+      "price": "10.8655"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-27T18:35:00.000Z",
+      "price": "11.0035"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-27T18:35:00.000Z",
+      "price": "10.9795"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-27T18:50:00.000Z",
+      "price": "10.9955"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-27T19:05:00.000Z",
+      "price": "10.9565"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-27T19:20:00.000Z",
+      "price": "10.9795"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-27T19:20:00.000Z",
+      "price": "11.0225"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-27T19:50:00.000Z",
+      "price": "11.0225"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-27T19:50:00.000Z",
+      "price": "10.9695"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-27T19:50:00.000Z",
+      "price": "10.9795"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-27T20:05:00.000Z",
+      "price": "11.0215"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-27T20:20:00.000Z",
+      "price": "11.0525"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-27T20:20:00.000Z",
+      "price": "10.9565"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-27T20:20:00.000Z",
+      "price": "10.9565"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-27T20:20:00.000Z",
+      "price": "10.9565"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-27T20:50:00.000Z",
+      "price": "10.7765"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-27T21:20:00.000Z",
+      "price": "10.9705"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-27T21:20:00.000Z",
+      "price": "10.9255"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-27T21:20:00.000Z",
+      "price": "10.9075"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-27T21:50:00.000Z",
+      "price": "10.8395"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-27T22:05:00.000Z",
+      "price": "10.7355"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-27T22:05:00.000Z",
+      "price": "10.8555"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-27T22:05:00.000Z",
+      "price": "10.8555"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-27T22:20:00.000Z",
+      "price": "10.8555"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-27T23:05:00.000Z",
+      "price": "10.7145"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-27T23:20:00.000Z",
+      "price": "10.7975"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-27T23:20:00.000Z",
+      "price": "10.7975"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-27T23:20:00.000Z",
+      "price": "10.7975"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-27T23:35:00.000Z",
+      "price": "10.8555"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-27T23:50:00.000Z",
+      "price": "10.7975"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-28T00:05:00.000Z",
+      "price": "10.7975"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T00:35:00.000Z",
+      "price": "10.6655"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-28T00:50:00.000Z",
+      "price": "10.9405"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-28T00:50:00.000Z",
+      "price": "10.9405"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T01:05:00.000Z",
+      "price": "10.7455"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-28T01:35:00.000Z",
+      "price": "10.7455"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-28T01:35:00.000Z",
+      "price": "10.7455"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-28T02:05:00.000Z",
+      "price": "10.9415"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-28T02:35:00.000Z",
+      "price": "10.7075"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T02:35:00.000Z",
+      "price": "10.7075"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-28T03:20:00.000Z",
+      "price": "10.7075"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-28T03:20:00.000Z",
+      "price": "10.6365"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-28T03:20:00.000Z",
+      "price": "10.6655"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-28T04:05:00.000Z",
+      "price": "10.7455"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-28T04:05:00.000Z",
+      "price": "10.7075"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-28T04:20:00.000Z",
+      "price": "10.8975"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T04:35:00.000Z",
+      "price": "10.5575"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-28T05:05:00.000Z",
+      "price": "10.5575"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T05:05:00.000Z",
+      "price": "10.6255"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-28T05:05:00.000Z",
+      "price": "10.6255"
+    },
+    {
+      "kind": "CHOCH",
+      "side": "bear",
+      "time": "2026-09-28T05:20:00.000Z",
+      "price": "10.5105"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-28T05:20:00.000Z",
+      "price": "10.7055"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-28T05:20:00.000Z",
+      "price": "10.6255"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-28T05:20:00.000Z",
+      "price": "10.4755"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-28T05:20:00.000Z",
+      "price": "10.5105"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-28T05:50:00.000Z",
+      "price": "10.6255"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-28T05:50:00.000Z",
+      "price": "10.6965"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T06:20:00.000Z",
+      "price": "10.4185"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T07:05:00.000Z",
+      "price": "10.4905"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-28T07:20:00.000Z",
+      "price": "10.6635"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-28T07:20:00.000Z",
+      "price": "10.4185"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-28T07:20:00.000Z",
+      "price": "10.4905"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-28T07:20:00.000Z",
+      "price": "10.3805"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-28T07:20:00.000Z",
+      "price": "10.4055"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-28T07:35:00.000Z",
+      "price": "10.4905"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-28T08:05:00.000Z",
+      "price": "10.5735"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T08:35:00.000Z",
+      "price": "10.3115"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-28T09:05:00.000Z",
+      "price": "10.3115"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-28T09:05:00.000Z",
+      "price": "10.4655"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-28T10:35:00.000Z",
+      "price": "10.4905"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-28T10:35:00.000Z",
+      "price": "10.4655"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-28T10:35:00.000Z",
+      "price": "10.4655"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-28T11:05:00.000Z",
+      "price": "10.4655"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-28T11:05:00.000Z",
+      "price": "10.5155"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-28T11:05:00.000Z",
+      "price": "10.5155"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-28T11:35:00.000Z",
+      "price": "10.4655"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T11:35:00.000Z",
+      "price": "10.4605"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-28T11:35:00.000Z",
+      "price": "10.4605"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-28T12:05:00.000Z",
+      "price": "10.5585"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-28T12:05:00.000Z",
+      "price": "10.5585"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-28T12:05:00.000Z",
+      "price": "10.5585"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-28T12:05:00.000Z",
+      "price": "10.5735"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T12:35:00.000Z",
+      "price": "10.4295"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T13:05:00.000Z",
+      "price": "10.4885"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-28T13:05:00.000Z",
+      "price": "10.4885"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-28T13:20:00.000Z",
+      "price": "10.4295"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-28T13:35:00.000Z",
+      "price": "10.5815"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-28T13:50:00.000Z",
+      "price": "10.6895"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-28T13:50:00.000Z",
+      "price": "10.4145"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T13:50:00.000Z",
+      "price": "10.4145"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-28T13:50:00.000Z",
+      "price": "10.4145"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-28T14:05:00.000Z",
+      "price": "10.4885"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-28T14:20:00.000Z",
+      "price": "10.2615"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-28T14:20:00.000Z",
+      "price": "10.2975"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-28T14:35:00.000Z",
+      "price": "10.4145"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-28T15:05:00.000Z",
+      "price": "10.5295"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-28T15:20:00.000Z",
+      "price": "10.1325"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T15:20:00.000Z",
+      "price": "10.1325"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-28T15:35:00.000Z",
+      "price": "10.2935"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-28T15:35:00.000Z",
+      "price": "10.2935"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-28T15:35:00.000Z",
+      "price": "10.2935"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-28T16:20:00.000Z",
+      "price": "10.4885"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-28T16:20:00.000Z",
+      "price": "10.4145"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-28T16:20:00.000Z",
+      "price": "10.2935"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T16:35:00.000Z",
+      "price": "10.1145"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-28T17:05:00.000Z",
+      "price": "10.5075"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-28T17:05:00.000Z",
+      "price": "10.5815"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-28T17:05:00.000Z",
+      "price": "10.5295"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T19:20:00.000Z",
+      "price": "10.3615"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-28T19:20:00.000Z",
+      "price": "10.3615"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-28T19:35:00.000Z",
+      "price": "10.2935"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-28T19:35:00.000Z",
+      "price": "10.3615"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-28T19:50:00.000Z",
+      "price": "10.5845"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-28T20:05:00.000Z",
+      "price": "10.3615"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T20:50:00.000Z",
+      "price": "10.2335"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-28T21:05:00.000Z",
+      "price": "10.4595"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-28T21:05:00.000Z",
+      "price": "10.4595"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-28T21:05:00.000Z",
+      "price": "10.4595"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-28T21:20:00.000Z",
+      "price": "10.3815"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-28T21:35:00.000Z",
+      "price": "10.3815"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-28T21:35:00.000Z",
+      "price": "10.3815"
+    },
+    {
+      "kind": "OF xoa W",
+      "side": "S",
+      "time": "2026-09-28T21:35:00.000Z",
+      "price": "10.5845"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-28T21:50:00.000Z",
+      "price": "10.3815"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-28T22:20:00.000Z",
+      "price": "10.5215"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-28T22:35:00.000Z",
+      "price": "10.3815"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-28T22:50:00.000Z",
+      "price": "10.5215"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-28T22:50:00.000Z",
+      "price": "10.5215"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-28T23:20:00.000Z",
+      "price": "10.5215"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-28T23:50:00.000Z",
+      "price": "10.2335"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-29T00:05:00.000Z",
+      "price": "10.7455"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-29T00:05:00.000Z",
+      "price": "10.7075"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T00:05:00.000Z",
+      "price": "10.5875"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-29T00:05:00.000Z",
+      "price": "10.5875"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-29T00:05:00.000Z",
+      "price": "10.6965"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T00:35:00.000Z",
+      "price": "10.7655"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-29T00:50:00.000Z",
+      "price": "10.6115"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-29T01:05:00.000Z",
+      "price": "10.6115"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-29T01:05:00.000Z",
+      "price": "10.5215"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-29T01:05:00.000Z",
+      "price": "10.6115"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-29T01:05:00.000Z",
+      "price": "10.5385"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-29T01:20:00.000Z",
+      "price": "10.6115"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T03:20:00.000Z",
+      "price": "10.8615"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-29T03:50:00.000Z",
+      "price": "10.3005"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-29T04:20:00.000Z",
+      "price": "10.4485"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T04:20:00.000Z",
+      "price": "10.4485"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-29T04:35:00.000Z",
+      "price": "10.3105"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-29T04:50:00.000Z",
+      "price": "10.4715"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T04:50:00.000Z",
+      "price": "10.4715"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-29T05:05:00.000Z",
+      "price": "10.4485"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-29T05:05:00.000Z",
+      "price": "10.4715"
+    },
+    {
+      "kind": "OF xoa W",
+      "side": "D",
+      "time": "2026-09-29T05:05:00.000Z",
+      "price": "10.2765"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-29T05:35:00.000Z",
+      "price": "10.6115"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-29T05:50:00.000Z",
+      "price": "10.4485"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-29T05:50:00.000Z",
+      "price": "10.4715"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T05:50:00.000Z",
+      "price": "10.5575"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-29T05:50:00.000Z",
+      "price": "10.5575"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-29T06:35:00.000Z",
+      "price": "10.8975"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-29T06:35:00.000Z",
+      "price": "10.8615"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "D",
+      "time": "2026-09-29T06:50:00.000Z",
+      "price": "10.3005"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-29T06:50:00.000Z",
+      "price": "10.9555"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-29T06:50:00.000Z",
+      "price": "10.9415"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-29T07:20:00.000Z",
+      "price": "11.2475"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-29T07:20:00.000Z",
+      "price": "11.2465"
+    },
+    {
+      "kind": "CHOCH",
+      "side": "bull",
+      "time": "2026-09-29T07:35:00.000Z",
+      "price": "11.2465"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-29T07:50:00.000Z",
+      "price": "11.4645"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-29T07:50:00.000Z",
+      "price": "11.3655"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-29T08:20:00.000Z",
+      "price": "10.3825"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T08:50:00.000Z",
+      "price": "11.5075"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-29T09:35:00.000Z",
+      "price": "11.5075"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-29T09:35:00.000Z",
+      "price": "11.5075"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-29T09:35:00.000Z",
+      "price": "11.5075"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-29T10:05:00.000Z",
+      "price": "11.5075"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-29T10:35:00.000Z",
+      "price": "11.5075"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-29T10:35:00.000Z",
+      "price": "11.2005"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T11:20:00.000Z",
+      "price": "11.6425"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-29T11:35:00.000Z",
+      "price": "11.6425"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-29T11:35:00.000Z",
+      "price": "11.6425"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-29T11:35:00.000Z",
+      "price": "11.7215"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-29T11:50:00.000Z",
+      "price": "11.6425"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-29T12:50:00.000Z",
+      "price": "11.6425"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-29T12:50:00.000Z",
+      "price": "11.4425"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T13:05:00.000Z",
+      "price": "11.9735"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-29T13:35:00.000Z",
+      "price": "11.6165"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-29T13:35:00.000Z",
+      "price": "11.6165"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-29T13:35:00.000Z",
+      "price": "11.6165"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-29T14:05:00.000Z",
+      "price": "11.6165"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-29T14:20:00.000Z",
+      "price": "11.6165"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T14:20:00.000Z",
+      "price": "11.7295"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-29T14:50:00.000Z",
+      "price": "11.9735"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-29T14:50:00.000Z",
+      "price": "11.4865"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-29T14:50:00.000Z",
+      "price": "11.4865"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-29T14:50:00.000Z",
+      "price": "11.4865"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-29T14:50:00.000Z",
+      "price": "11.4425"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-29T15:05:00.000Z",
+      "price": "11.4865"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-29T15:20:00.000Z",
+      "price": "11.2005"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T15:35:00.000Z",
+      "price": "11.6875"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-29T15:50:00.000Z",
+      "price": "11.1085"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-29T15:50:00.000Z",
+      "price": "11.1085"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-29T16:20:00.000Z",
+      "price": "11.1085"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-29T16:35:00.000Z",
+      "price": "11.1075"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-29T16:35:00.000Z",
+      "price": "11.1075"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-29T17:20:00.000Z",
+      "price": "11.1085"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-29T17:20:00.000Z",
+      "price": "11.1075"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-29T17:50:00.000Z",
+      "price": "11.1085"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-29T17:50:00.000Z",
+      "price": "11.1075"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T18:05:00.000Z",
+      "price": "11.2655"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-29T18:35:00.000Z",
+      "price": "11.2655"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-29T18:35:00.000Z",
+      "price": "11.2865"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-29T18:35:00.000Z",
+      "price": "11.2655"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-29T19:20:00.000Z",
+      "price": "11.2655"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-29T19:35:00.000Z",
+      "price": "11.2655"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T20:05:00.000Z",
+      "price": "11.3395"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-29T20:05:00.000Z",
+      "price": "11.3395"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-29T20:20:00.000Z",
+      "price": "11.3395"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T20:50:00.000Z",
+      "price": "11.4285"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-29T21:05:00.000Z",
+      "price": "11.4865"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-29T21:20:00.000Z",
+      "price": "11.3605"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-29T21:20:00.000Z",
+      "price": "11.3395"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-29T21:20:00.000Z",
+      "price": "11.3605"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T21:50:00.000Z",
+      "price": "11.5165"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-29T22:20:00.000Z",
+      "price": "11.2905"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T23:05:00.000Z",
+      "price": "11.4985"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-29T23:20:00.000Z",
+      "price": "11.3735"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-29T23:35:00.000Z",
+      "price": "11.3735"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-29T23:50:00.000Z",
+      "price": "11.4845"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-30T00:05:00.000Z",
+      "price": "11.3415"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-30T00:05:00.000Z",
+      "price": "11.3735"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T01:05:00.000Z",
+      "price": "11.4335"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T01:20:00.000Z",
+      "price": "11.3165"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T02:05:00.000Z",
+      "price": "11.3505"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-30T02:05:00.000Z",
+      "price": "11.3505"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-30T02:20:00.000Z",
+      "price": "11.4505"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-30T02:20:00.000Z",
+      "price": "11.3165"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-30T02:20:00.000Z",
+      "price": "11.3735"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-30T02:35:00.000Z",
+      "price": "11.3735"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T02:35:00.000Z",
+      "price": "11.4365"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-30T03:05:00.000Z",
+      "price": "11.5165"
+    },
+    {
+      "kind": "OF huy H",
+      "side": "S",
+      "time": "2026-09-30T03:05:00.000Z",
+      "price": "11.4985"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-30T03:05:00.000Z",
+      "price": "11.2905"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-30T03:05:00.000Z",
+      "price": "11.2965"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-30T03:05:00.000Z",
+      "price": "11.3505"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T03:05:00.000Z",
+      "price": "11.2965"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-30T03:05:00.000Z",
+      "price": "11.2965"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-30T03:05:00.000Z",
+      "price": "11.2515"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-30T03:20:00.000Z",
+      "price": "11.2965"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-30T03:50:00.000Z",
+      "price": "11.2965"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-30T07:05:00.000Z",
+      "price": "10.9935"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T07:20:00.000Z",
+      "price": "11.3835"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T07:50:00.000Z",
+      "price": "10.9865"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-30T08:20:00.000Z",
+      "price": "10.9865"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T08:50:00.000Z",
+      "price": "11.1365"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-30T09:05:00.000Z",
+      "price": "11.1365"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-30T09:05:00.000Z",
+      "price": "11.1365"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T09:35:00.000Z",
+      "price": "10.9635"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T10:20:00.000Z",
+      "price": "11.2035"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-30T10:35:00.000Z",
+      "price": "11.1365"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-30T10:50:00.000Z",
+      "price": "11.1035"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-30T10:50:00.000Z",
+      "price": "11.1365"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T10:50:00.000Z",
+      "price": "11.1035"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-30T11:05:00.000Z",
+      "price": "11.1035"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T12:05:00.000Z",
+      "price": "11.0785"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-30T12:20:00.000Z",
+      "price": "11.2035"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-30T12:20:00.000Z",
+      "price": "11.1505"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-30T12:20:00.000Z",
+      "price": "11.1835"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T12:35:00.000Z",
+      "price": "11.1505"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-30T12:35:00.000Z",
+      "price": "11.1505"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T13:05:00.000Z",
+      "price": "11.0565"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-30T13:35:00.000Z",
+      "price": "10.9635"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-30T13:35:00.000Z",
+      "price": "11.0565"
+    },
+    {
+      "kind": "CHOCH",
+      "side": "bear",
+      "time": "2026-09-30T14:20:00.000Z",
+      "price": "10.9935"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-30T14:20:00.000Z",
+      "price": "11.0565"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T14:50:00.000Z",
+      "price": "11.3305"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-30T15:20:00.000Z",
+      "price": "10.7715"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T15:35:00.000Z",
+      "price": "10.8945"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-30T15:35:00.000Z",
+      "price": "10.8945"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-30T15:50:00.000Z",
+      "price": "10.8945"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T16:20:00.000Z",
+      "price": "10.7705"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-30T16:35:00.000Z",
+      "price": "10.9965"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T17:20:00.000Z",
+      "price": "10.9565"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-30T17:35:00.000Z",
+      "price": "11.0135"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T17:35:00.000Z",
+      "price": "11.0135"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-30T17:35:00.000Z",
+      "price": "11.0135"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T18:20:00.000Z",
+      "price": "10.9285"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "D",
+      "time": "2026-09-30T18:20:00.000Z",
+      "price": "10.9285"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-30T18:35:00.000Z",
+      "price": "10.8945"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-30T18:35:00.000Z",
+      "price": "10.9285"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T18:50:00.000Z",
+      "price": "11.0295"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-30T19:05:00.000Z",
+      "price": "10.8855"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T19:05:00.000Z",
+      "price": "10.8855"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-30T19:05:00.000Z",
+      "price": "10.8855"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "S",
+      "time": "2026-09-30T19:20:00.000Z",
+      "price": "10.9285"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "S",
+      "time": "2026-09-30T19:35:00.000Z",
+      "price": "10.9285"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T20:05:00.000Z",
+      "price": "10.9375"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-30T20:20:00.000Z",
+      "price": "10.9375"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T20:35:00.000Z",
+      "price": "10.8305"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T21:05:00.000Z",
+      "price": "10.9445"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-30T21:20:00.000Z",
+      "price": "10.8755"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T21:35:00.000Z",
+      "price": "10.9085"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-30T21:50:00.000Z",
+      "price": "10.8675"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T21:50:00.000Z",
+      "price": "10.8675"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-30T21:50:00.000Z",
+      "price": "10.8675"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-30T22:05:00.000Z",
+      "price": "10.8305"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T22:20:00.000Z",
+      "price": "10.9105"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "D",
+      "time": "2026-09-30T22:20:00.000Z",
+      "price": "10.9105"
+    },
+    {
+      "kind": "OF xoa Q",
+      "side": "S",
+      "time": "2026-09-30T22:20:00.000Z",
+      "price": "10.9105"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-30T22:35:00.000Z",
+      "price": "10.9445"
+    },
+    {
+      "kind": "OF roi vung",
+      "side": "D",
+      "time": "2026-09-30T22:35:00.000Z",
+      "price": "10.9105"
+    },
+    {
+      "kind": "OF khai thac",
+      "side": "D",
+      "time": "2026-09-30T22:50:00.000Z",
+      "price": "10.9105"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T23:05:00.000Z",
+      "price": "10.8275"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "S",
+      "time": "2026-09-30T23:20:00.000Z",
+      "price": "10.9595"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "D",
+      "time": "2026-09-30T23:20:00.000Z",
+      "price": "10.9595"
+    },
+    {
+      "kind": "OF sinh",
+      "side": "S",
+      "time": "2026-09-30T23:35:00.000Z",
+      "price": "10.9075"
+    },
+    {
+      "kind": "OF huy P",
+      "side": "D",
+      "time": "2026-09-30T23:50:00.000Z",
+      "price": "10.9075"
+    },
+    {
+      "kind": "OF ve box",
+      "side": "S",
+      "time": "2026-09-30T23:50:00.000Z",
+      "price": "10.9075"
+    }
+  ]
+}
