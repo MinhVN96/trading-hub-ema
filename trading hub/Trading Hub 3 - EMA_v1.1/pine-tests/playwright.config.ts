@@ -15,9 +15,12 @@ export default defineConfig({
   // Moi test them/xoa indicator tren CUNG mot chart layout => bat buoc chay tuan tu.
   fullyParallel: false,
   workers: 1,
-  retries: 0,
+  // 1 lan chay lai: TradingView hay loi tam thoi ("Failed to fetch", vuot 20s luc may chu tai nang).
+  // Test qua o lan 2 duoc bao rieng la FLAKY trong bao cao — khong bi giau di.
+  retries: 1,
   // TradingView tai cham, script 2000+ dong compile + chay 5000 nen mat kha lau.
-  timeout: 5 * 60_000,
+  // ~1 phut cho script tinh xong + ~1 phut doc Pine Logs + tai trang. 10 phut cho rong.
+  timeout: 10 * 60_000,
   expect: { timeout: 60_000 },
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {

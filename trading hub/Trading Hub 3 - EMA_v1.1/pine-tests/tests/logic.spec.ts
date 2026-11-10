@@ -21,7 +21,9 @@ for (const s of scenariosFor('logic')) {
 
     const { src, result } = await loadScript(s, { enableE2E: true });
     expect(result.ok, 'Compile loi — xem compile.spec.ts').toBe(true);
-    await chart.page.waitForTimeout(10_000);
+    await chart.waitForScriptIdle();
+    const rtErr = await chart.runtimeError(src.shortTitle);
+    expect(rtErr, `Indicator LOI RUNTIME tren chart: ${rtErr}`).toBeUndefined();
 
     await chart.openPineLogs();
     const lines = await chart.readPineLogs();

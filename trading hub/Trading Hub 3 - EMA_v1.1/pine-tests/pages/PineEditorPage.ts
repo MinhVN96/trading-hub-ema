@@ -12,9 +12,14 @@ export class PineEditorPage {
   async open() {
     const editor = sel.monaco(this.page);
     if (!(await editor.isVisible().catch(() => false))) {
-      await sel.pineEditorButton(this.page).click();
+      const btn = sel.pineEditorButton(this.page);
+      // Layout nho trang thai editor: sau khi tai trang nut co the da o trang thai BAT
+      // (aria-pressed=true) va bi khoa (disabled) trong luc editor dang tai — luc do chi can
+      // cho, bam vao se timeout (da gap that).
+      const pressed = (await btn.getAttribute('aria-pressed').catch(() => null)) === 'true';
+      if (!pressed) await btn.click();
     }
-    await expect(editor).toBeVisible();
+    await expect(editor).toBeVisible({ timeout: 90_000 });
   }
 
   /**

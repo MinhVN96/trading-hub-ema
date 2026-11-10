@@ -1,0 +1,39 @@
+# ===== Windows / OneDrive =====
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+*.lnk
+# File khoa / file tam cua Office khi dang mo tai lieu
+~$*
+*.tmp
+*.bak
+
+# ===== macOS (neu mo repo tren Mac) =====
+.DS_Store
+
+# ===== Editor =====
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+
+# ===== Claude Code — cau hinh rieng cua may nay =====
+.claude/settings.local.json
+
+# ===== Node / Playwright (moi thu muc test) =====
+node_modules/
+.env
+.env.*
+!.env.example
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+npm-debug.log*
+
+# ===== Bi mat — tuyet doi khong commit =====
+# Session dang nhap TradingView cua pine-tests
+**/auth/storageState.json
+**/auth/*.json

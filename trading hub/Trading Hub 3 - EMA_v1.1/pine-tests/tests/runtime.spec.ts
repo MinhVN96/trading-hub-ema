@@ -16,9 +16,10 @@ for (const s of scenariosFor('runtime')) {
     const { src, result } = await loadScript(s, { enableE2E: true });
     expect(result.ok, 'Compile loi — xem compile.spec.ts').toBe(true);
 
-    // Cho script chay xong toan bo lich su.
-    await chart.page.waitForTimeout(10_000);
-    expect(await chart.hasRuntimeError(src.shortTitle), 'Legend bao loi runtime').toBe(false);
+    // Cho script chay xong toan bo lich su (30-60s voi script nay).
+    await chart.waitForScriptIdle();
+    const rtErr = await chart.runtimeError(src.shortTitle);
+    expect(rtErr, `Indicator LOI RUNTIME tren chart: ${rtErr}`).toBeUndefined();
 
     await chart.openPineLogs();
     const lines = await chart.readPineLogs();

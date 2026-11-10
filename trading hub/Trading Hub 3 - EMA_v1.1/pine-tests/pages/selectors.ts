@@ -30,9 +30,8 @@ export const sel = {
   legendDelete: (item: Locator) => item.getByRole('button', { name: 'Remove', exact: true }),
   legendMore: (item: Locator) => item.getByRole('button', { name: 'More', exact: true }),
 
-  /** Bieu tuong loi do tren legend khi script loi runtime */
-  legendError: (item: Locator) =>
-    item.locator('[data-name="legend-error"], [class*="statusError"]').first(),
+  /** Dau "!" do tren legend khi script loi runtime. Da kiem 2026-11: button "Runtime error". */
+  legendError: (item: Locator) => item.getByRole('button', { name: 'Runtime error', exact: true }),
 
   // ---- Pine Editor ----
   // Da kiem 2026-10: nut "Pine" o thanh ben phai.
@@ -59,8 +58,12 @@ export const sel = {
   // ---- Pine Logs ----
   // Da kiem 2026-10: Pine Logs mo tu nut "More" (···) cua PINE EDITOR, khong phai cua legend
   // (nut More cua legend bi tooltip gia tri input che, va menu cua no khong co muc nay).
-  // Nut More cua editor la nut "More" CUOI CUNG tren trang (cac nut kia thuoc legend).
-  pineEditorMore: (p: Page) => p.getByRole('button', { name: 'More', exact: true }).last(),
+  // Nut "···" cua editor = nut NGAY SAU nut "Publish script". Khong dung "nut More cuoi trang":
+  // o che do split-view, khung Pine logs co nut "···" rieng nam sau editor (da gap 2026-11).
+  // Nut More cua editor = nut "More" nam CUNG HANG, ben phai nut "Publish script".
+  // Viec chon theo toa do lam o ChartPage.clickEditorMore().
+  moreButtons: (p: Page) => p.getByRole('button', { name: 'More', exact: true }),
+  publishButton: (p: Page) => p.getByRole('button', { name: /publish script/i }).first(),
 
   pineLogsMenuItem: (p: Page) =>
     p
@@ -76,13 +79,19 @@ export const sel = {
   // bang do thi ra thieu log ma khong bao loi gi.
   pineLogsScroller: (p: Page) => p.locator('[class*="logsList-"] > [class*="container-"]:visible').first(),
 
-  /** Vong xoay loading dang hien (legend "···" khi script dang tinh, nut compile dang quay). */
-  loaders: (p: Page) => p.locator('[class*="loader-"]:visible'),
+  /**
+   * Loading THAT cua script: dau "···" tren legend khi dang tinh, va nut compile o trang thai
+   * `pending-` (nut xam co "•••"). Da kiem 2026-11: script nay mat 30-60s moi tinh xong.
+   * KHONG dung `[class*="loader-"]` chung chung: goc duoi trai Pine Editor co mot icon loader
+   * TINH (`static-`) luon hien => cho mai khong het.
+   */
+  loaders: (p: Page) =>
+    p.locator('[class*="legend-"] [class*="loader-"]:visible, [class*="pending-"]:visible'),
 
   /** Hop thoai "Split the view?" hien khi mo Pine logs luc editor dang o dang overlay (2026-10). */
   splitViewButton: (p: Page) => p.getByRole('button', { name: /move editor to split-view/i }),
 
   // ---- Popup gay nhieu ----
-  dialogClose: (p: Page) =>
-    p.locator('[data-name="close"], button[aria-label="Close"], [data-name="close-button"]'),
+  /** Nut "Got it" cua bong goi y (vd "Indicator templates moved here"). */
+  popupGotIt: (p: Page) => p.getByRole('button', { name: /^got it$/i }).filter({ visible: true }),
 };

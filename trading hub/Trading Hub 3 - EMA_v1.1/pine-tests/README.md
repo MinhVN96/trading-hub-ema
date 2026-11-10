@@ -60,7 +60,11 @@ Những điều đã biết về giao diện TradingView:
 
 - **Script mẫu ghi đè code:** ngay sau khi tải trang, TradingView tự nạp script mẫu "My script" vào editor và có thể ghi đè code vừa dán. `PineEditorPage.setCode` kiểm tra lại dòng đầu của editor và dán lại tối đa 3 lần.
 - **Mở Pine Logs:** mở từ nút `···` của Pine Editor. Nút "More" trên legend thì không có mục này.
-- **Đọc Pine Logs:** bảng Pine Logs là danh sách ảo, phải cuộn từ đầu tới cuối mới đọc hết.
+- **Đọc Pine Logs:** bảng Pine Logs là danh sách ảo, phải cuộn từ đầu tới cuối mới đọc hết. Test đối chiếu số dòng `EVT` đọc được với `evt=` trong dòng `STAT`, thiếu một dòng là fail. Trước khi có bước này, test đã từng âm thầm tạo golden từ log đọc thiếu.
+- **Hộp thoại "Split the view?":** khi editor đang ở dạng overlay, mở Pine logs sẽ hiện hộp thoại này thay vì mở bảng. Test tự bấm "Move editor to split-view". Layout nhớ trạng thái này cho các lần sau.
+- **Đóng popup:** chỉ bấm nút "Got it". Không bấm nút "Close" chung chung, vì nút đóng Pine Editor cũng tên "Close".
+- **Thời gian tính của script:** script cần 30–60 giây để tính xong, và TradingView cảnh báo *"Heavy script — close to your plan's runtime limit (20s)"*. Test chờ đến khi legend và nút compile hết loading.
+- **Lỗi tạm thời từ máy chủ TradingView** ("Failed to fetch", "cannot compile script"): mỗi test được chạy lại 1 lần (`retries: 1`). Test qua ở lần 2 được báo là **flaky** trong báo cáo.
 
 ## Golden (test logic)
 
@@ -70,7 +74,7 @@ Những điều đã biết về giao diện TradingView:
 
 Khi bạn **cố ý** sửa logic OF/cấu trúc, test logic sẽ fail và liệt kê sự kiện MẤT/THỪA. Kiểm tra từng dòng có đúng là thay đổi bạn muốn không, rồi chạy lại bước 2.
 
-Chart chỉ tải một số nến giới hạn (hiện tại 15m tải từ 01/08/2026), nên theo thời gian `window` sẽ trôi ra ngoài vùng dữ liệu. Khi đó test sẽ báo rõ, và bạn tạo golden cho một đoạn gần hơn.
+Chart chỉ tải một số nến giới hạn (15m trên IC Markets: khoảng 6080 nến, ngày 04/11/2026 tải từ 31/08/2026), nên theo thời gian `window` sẽ trôi ra ngoài vùng dữ liệu. Khi đó test sẽ báo rõ, và bạn tạo golden cho một đoạn gần hơn.
 
 ## Liên hệ với file Pine
 
