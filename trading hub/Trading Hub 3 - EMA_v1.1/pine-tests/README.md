@@ -1,0 +1,98 @@
+# pine-tests
+
+Test E2E cho các file `.pine` trong thư mục cha. Bộ test dùng Playwright, chạy trên TradingView thật.
+
+| Test | Kiểm tra gì | Thời gian |
+|---|---|---|
+| `compile.spec.ts` | Script compile không có lỗi (Monaco không có gạch đỏ, indicator xuất hiện trên legend) | ~1,5 phút/file |
+| `runtime.spec.ts` | Script chạy hết lịch sử (có dòng `STAT` trong Pine Logs), số line/label/box chưa chạm quota 500 | ~2 phút/case |
+| `logic.spec.ts` | Sự kiện CHoCH/BOS/OF trong một khoảng thời gian cố định khớp với `golden/*.json` | ~2,5 phút/case |
+
+## Tài khoản TradingView dùng cho test
+
+Test chạy bằng **tài khoản riêng `minhvn_itwork`** (gói Basic), không dùng tài khoản trade `ngocminh0596`. Lý do:
+
+- Gói Basic chỉ cho lưu 1 chart layout, nên không tạo được layout test riêng trong tài khoản trade.
+- Mỗi test sẽ đổi symbol/khung, thêm indicator rồi gỡ indicator trên layout. Chạy trên tài khoản trade sẽ làm hỏng layout đang dùng.
+
+Layout test: `TV_CHART_URL` trong `.env`.
+
+## Cài đặt (một lần)
+
+1. Cài [Node.js LTS](https://nodejs.org/), rồi mở terminal tại thư mục `pine-tests`:
+   ```
+   npm install
+   npx playwright install chromium
+   ```
+   Máy cần có Google Chrome. Test chạy trên Chrome thật (`browser.ts`), vì TradingView dễ chặn đăng nhập trên Chromium tự động.
+2. Copy `.env.example` thành `.env` rồi điền `TV_CHART_URL` là link layout của tài khoản test.
+3. Đăng nhập **tài khoản test** bằng email và mật khẩu (Google login thường bị chặn trong trình duyệt tự động):
+   ```
+   npm run login
+   ```
+   Đăng nhập xong, đợi trang hiện avatar rồi **tự đóng cửa sổ trình duyệt**. Script chỉ lưu session khi cửa sổ đóng.
+4. Kiểm tra session (in ra username, phải là tài khoản test):
+   ```
+   npm run check-login
+   ```
+   Session hết hạn sau vài tuần. Khi test báo lỗi đăng nhập thì chạy lại bước 3.
+
+## Chạy test
+
+```
+npm run test:compile        # nhanh, nên chạy trước mỗi commit
+npm run test:runtime
+npm run test:logic
+npm test                    # tất cả (~12 phút)
+npm run test:headed         # xem trình duyệt chạy, dùng khi sửa selector
+npm run report              # xem báo cáo HTML + trace khi fail
+```
+
+## Khi TradingView đổi giao diện
+
+Mọi selector nằm trong `pages/selectors.ts`. Các mục ghi "Da kiem 2026-10" đã được kiểm tra trên TradingView thật vào tháng 10/2026. Khi gặp lỗi "không tìm thấy phần tử":
+
+1. Mở ảnh chụp lỗi và `error-context.md` trong `test-results/`. File đó có cây accessibility của cả trang.
+2. Hoặc chạy `npm run codegen` để mở chart đã đăng nhập, click vào phần tử cần dùng, codegen sẽ in ra locator.
+3. Chỉ sửa trong `pages/selectors.ts`, không sửa trong file test.
+
+Những điều đã biết về giao diện TradingView:
+
+- **Script mẫu ghi đè code:** ngay sau khi tải trang, TradingView tự nạp script mẫu "My script" vào editor và có thể ghi đè code vừa dán. `PineEditorPage.setCode` kiểm tra lại dòng đầu của editor và dán lại tối đa 3 lần.
+- **Bản nháp cũ ghi đè code (gặp 2026-11):** TradingView có thể nạp lại bản nháp cũ đè lên code vừa dán. Bản nháp có cùng dòng đầu nên kiểm dòng đầu là không đủ: chart đã từng chạy code khác mà test vẫn xanh (cả 4 mutant "sống sót" giả). Hiện có hai chốt chặn. `setCode` đọc lại toàn bộ editor và so từng ký tự. Script còn ghi dòng `RUN|<mã băm của code>` vào Pine Logs, test đối chiếu mã này để chứng minh log đến từ đúng bản code đã dán.
+- **Mở Pine Logs:** mở từ nút `···` của Pine Editor. Nút "More" trên legend thì không có mục này.
+- **Đọc Pine Logs:** bảng Pine Logs là danh sách ảo, phải cuộn từ đầu tới cuối mới đọc hết. Test đối chiếu số dòng `EVT` đọc được với `evt=` trong dòng `STAT`, thiếu một dòng là fail. Trước khi có bước này, test đã từng âm thầm tạo golden từ log đọc thiếu.
+- **Hộp thoại "Split the view?":** khi editor đang ở dạng overlay, mở Pine logs sẽ hiện hộp thoại này thay vì mở bảng. Test tự bấm "Move editor to split-view". Layout nhớ trạng thái này cho các lần sau.
+- **Đóng popup:** chỉ bấm nút "Got it". Không bấm nút "Close" chung chung, vì nút đóng Pine Editor cũng tên "Close".
+- **Thời gian tính của script:** script cần 30–60 giây để tính xong, và TradingView cảnh báo *"Heavy script — close to your plan's runtime limit (20s)"*. Test chờ đến khi legend và nút compile hết loading.
+- **Lỗi tạm thời từ máy chủ TradingView** ("Failed to fetch", "cannot compile script"): mỗi test được chạy lại 1 lần (`retries: 1`). Test qua ở lần 2 được báo là **flaky** trong báo cáo.
+
+## Golden (test logic)
+
+1. Trong `config/scenarios.ts`, sửa `window` thành một đoạn bạn đã tự kiểm tra trên chart.
+2. Chạy `npm run test:update-golden`. Lệnh này ghi file `golden/<tên>.json`.
+3. **Mở file golden, đối chiếu sự kiện với chart**. Chỉ commit khi chắc chắn đúng: golden sai thì test chỉ còn bảo vệ cái sai.
+
+Khi bạn **cố ý** sửa logic OF/cấu trúc, test logic sẽ fail và liệt kê sự kiện MẤT/THỪA. Kiểm tra từng dòng có đúng là thay đổi bạn muốn không, rồi chạy lại bước 2.
+
+Chart chỉ tải một số nến giới hạn (15m trên IC Markets: khoảng 6080 nến, ngày 04/11/2026 tải từ 31/08/2026), nên theo thời gian `window` sẽ trôi ra ngoài vùng dữ liệu. Khi đó test sẽ báo rõ, và bạn tạo golden cho một đoạn gần hơn.
+
+## Kiểm tra chéo: test có đúng không?
+
+Golden chỉ chứng minh "hôm nay giống hôm trước". Nếu lúc tạo golden Pine đã sai thì golden sai theo, và test vẫn xanh. Vì vậy có thêm ba lớp kiểm chính bộ test:
+
+| Lớp | Lệnh | Bắt được gì |
+|---|---|---|
+| **Oracle** (`utils/oracle.ts`) | chạy chung trong `test:logic` | Pine ghi kèm dữ liệu nến thô (dòng `BARS`). TypeScript **tính lại CHoCH/BOS** từ các nến đó, không dùng code Pine, rồi so từng sự kiện trên toàn bộ lịch sử. Oracle cũng soi luật OF trên từng nến: rời vùng = nến đầu tiên nằm trọn ngoài vùng, khai thác = lần chạm đầu tiên sau khi rời, vòng đời đúng thứ tự. Khi tạo golden, oracle là điều kiện bắt buộc: Pine sai luật thì không ghi golden. |
+| **Unit test** (`tests/unit/`) | `npm run test:unit` (offline, ~1 giây) | Kiểm oracle bằng chuỗi nến đã tính tay. Kiểm phần đọc log có bắt được log thiếu dòng, dòng trùng, dòng bị cắt cụt. Kiểm phần so golden có bắt được lệch 1 tick. |
+| **Mutation** (`config/mutants.ts`) | `npm run test:mutation` (~3 phút/mutant) | Cố ý cài lỗi vào bản sao code Pine (đảo tên CHoCH/BOS, lệch leg swing, rời vùng bằng thân nến...). Mỗi mutant phải bị ít nhất một lớp bắt được. Mutant nào sống sót là lỗ hổng của bộ test. |
+
+Khi oracle và Pine lệch nhau thì một trong hai đang sai. Đọc thông báo lỗi rồi đối chiếu với chart. Log thô của lần chạy gần nhất nằm ở `.cache/pine-logs/`. Chạy lại oracle trên log đó mà không cần mở TradingView:
+
+```
+npm run oracle -- v1.11_IC-BNBUSD_15m
+```
+
+## Liên hệ với file Pine
+
+Test bật công tắc `e2eLog` bằng cách sửa dòng `e2eLog = input.bool(false, ...)` thành `true` trước khi dán code. Đừng đổi tên biến hay định dạng của dòng đó. Định dạng log được ghi ngay trên dòng đó, và `utils/parseLogs.ts` đọc đúng định dạng này.

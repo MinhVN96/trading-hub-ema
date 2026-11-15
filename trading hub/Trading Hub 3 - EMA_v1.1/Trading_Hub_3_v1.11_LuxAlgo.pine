@@ -237,6 +237,15 @@ ofDbgLog      = input.bool(false, "DEBUG - Nhat ky su kien OF", inline = "dbgg",
              + "Tra loi duoc 'vung do chet luc nao, vi cai gi' ma khong phai zoom di tim bia mo. "
              + "Ve bang table nen KHONG ton quota 500 nhan.")
 ofDbgLogN     = input.int(12, "dong", inline = "dbgg", minval = 1, maxval = 40, group = "Debug")
+// Cong tac cho bo test tu dong pine-tests/. Test BAT no bang cach sua chu `false` ngay tren
+// dong nay truoc khi dan code vao Pine Editor — dung doi ten bien hay doi dinh dang dong nay.
+// Dinh dang log (pine-tests/utils/parseLogs.ts doc dung dinh dang nay):
+//   EVT|<loai>|<D/S hoac bull/bear>|<time ms>|<gia>|<id OF, 0 neu khong co>
+//   BARS|<so thu tu dong>|<time ms>,<open>,<high>,<low>,<close>;...   (30 nen / dong, moi nen da dong)
+//   STAT|lines=<n>|labels=<n>|boxes=<n>|bars=<n>|first=<time ms nen dau>|evt=<so dong EVT da ghi>|last=<time ms nen nay>|bl=<so dong BARS>|tick=<mintick>
+//        (mot lan, o nen lich su cuoi cung)
+// Chi QUAN SAT, khong tham gia quyet dinh nao.
+e2eLog        = input.bool(false, "E2E - log.info su kien cho pine-tests", group = "Debug")
 
 // CHE DO SOI = bat BAT KY mot cong tac debug nao o tren.
 // Khi do khoi (A3) VE RA HET moi vung OF con trong bo nho, khong loc top N. Ly do phai gop
@@ -496,7 +505,19 @@ var logBl  = array.new_bool(0)
 var logId  = array.new_int(0)
 var logLvl = array.new_float(0)
 const int LOG_KEEP = 60
+// Chi ghi o nen DA DONG: nen realtime chay lai moi tick, log.info thi khong bi rollback.
+// Dem so dong EVT da ghi — STAT in con so nay de test kiem tra DA DOC DU log chua
+// (bang Pine Logs la danh sach ao, doc thieu la chuyen da xay ra). Mang 1 phan tu = thu
+// thuat bien dem ghi duoc tu trong ham, giong ofSeq.
+var e2eCnt = array.new_int(1, 0)
+e2eEvt(string kind, string side, float price, int id) =>
+    if e2eLog and barstate.isconfirmed
+        array.set(e2eCnt, 0, array.get(e2eCnt, 0) + 1)
+        log.info("EVT|" + kind + "|" + side + "|" + str.tostring(time) + "|"
+             + str.tostring(price, format.mintick) + "|" + str.tostring(id))
+
 logOF(string ev, bool isBull, int id, float lvl) =>
+    e2eEvt("OF " + ev, isBull ? "D" : "S", lvl, id)
     if ofDbgLog
         array.push(logBar, time)
         array.push(logEv , ev)
@@ -795,27 +816,29 @@ ofDist(box z) =>
 // chi AN vung chu KHONG xoa.
 // Nguong dat rat rong so voi maxOFShow/maxOFMit nen gan nhu khong bao gio cham toi.
 trimOF(bool isBull, int maxKeep) =>
-    int n = 0
-    if array.size(ofZone) > 0
-        for i = 0 to array.size(ofZone) - 1
-            if array.get(ofBull, i) == isBull
-                n += 1
-    while n > maxKeep and array.size(ofZone) > 0
-        int   worst = -1
-        float far   = -1.0
-        for i = 0 to array.size(ofZone) - 1
-            if array.get(ofBull, i) == isBull
-                float d = ofDist(array.get(ofZone, i))
-                if d > far
-                    far   := d
-                    worst := i
-        if worst == -1
-            break
-        // Khau nay truoc day KHONG duoc dem => vung bien mat vi nap cung khong de lai dau vet
-        // nao trong pheu, chi con moi cai bia mo D!K neu tinh co dang bat dung bo loc.
-        bumpStat(6, isBull)
-        removeOF(worst, "K")
-        n -= 1
+    // TOI UU: tong so vung chua vuot nap thi moi chieu cung chua vuot => khong can dem.
+    if array.size(ofZone) > maxKeep
+        int n = 0
+        if array.size(ofZone) > 0
+            for i = 0 to array.size(ofZone) - 1
+                if array.get(ofBull, i) == isBull
+                    n += 1
+        while n > maxKeep and array.size(ofZone) > 0
+            int   worst = -1
+            float far   = -1.0
+            for i = 0 to array.size(ofZone) - 1
+                if array.get(ofBull, i) == isBull
+                    float d = ofDist(array.get(ofZone, i))
+                    if d > far
+                        far   := d
+                        worst := i
+            if worst == -1
+                break
+            // Khau nay truoc day KHONG duoc dem => vung bien mat vi nap cung khong de lai dau vet
+            // nao trong pheu, chi con moi cai bia mo D!K neu tinh co dang bat dung bo loc.
+            bumpStat(6, isBull)
+            removeOF(worst, "K")
+            n -= 1
 
 // ===== DIEU KIEN #2 CUA TAI LIEU ==========================================
 // BankTrap trang 26: "Mot OF hop le phai thoa 2 dieu kien: Gia phai pha khoi day cua OF
@@ -1278,6 +1301,7 @@ if array.size(idmLvlArr) > 0
 // nên không cần chốt arm fractal như bản "Market Structure w/ Inducements" nữa.
 if not na(chTop) and close > chTop and not topCrossed
     txt = os == 0 ? CHOCH_TEXT : BOS_TEXT     // phải tính TRƯỚC khi đổi os
+    e2eEvt(txt == CHOCH_TEXT ? "CHOCH" : "BOS", "bull", chTop, 0)
     if txt == CHOCH_TEXT ? showChoCh : showBOS
         drawStrc(txt, chTopBar, chTop, true)
     topCrossed := true
@@ -1290,6 +1314,7 @@ if not na(chTop) and close > chTop and not topCrossed
 
 if not na(chBtm) and close < chBtm and not btmCrossed
     txt = os == 1 ? CHOCH_TEXT : BOS_TEXT
+    e2eEvt(txt == CHOCH_TEXT ? "CHOCH" : "BOS", "bear", chBtm, 0)
     if txt == CHOCH_TEXT ? showChoCh : showBOS
         drawStrc(txt, chBtmBar, chBtm, false)
     btmCrossed := true
@@ -1419,10 +1444,15 @@ if array.size(ofZone) > 0
                 float exOld = array.get(ofExtr, i)
                 float exNow = bl ? low : high
                 array.set(ofExtr, i, na(exOld) ? exNow : (bl ? math.min(exOld, exNow) : math.max(exOld, exNow)))
+            int e2eId = i < array.size(ofId) ? array.get(ofId, i) : 0
             if away
+                if not leftYet
+                    e2eEvt("OF roi vung", bl ? "D" : "S", bl ? t : b, e2eId)
                 if i < array.size(ofLeft)
                     array.set(ofLeft, i, true)
             else if leftYet and high >= b and low <= t
+                if not array.get(ofMit, i)
+                    e2eEvt("OF khai thac", bl ? "D" : "S", bl ? t : b, e2eId)
                 // HAI MUC DO KHAI THAC, CO Y TACH RIENG — moi thu nuoi mot thu khac:
                 //
                 //  (1) CHAM  — rau cham vao la du. Dieu khien MAU: vung chuyen XAM ngay.
@@ -1478,7 +1508,11 @@ if array.size(ofZone) > 0
 //      tu dien giai lai bo luat mot lan nua.
 array.clear(ofVisA)
 array.clear(ofRankA)
-if array.size(ofZone) > 0
+// TOI UU: ca khoi (A3) chi TO MAU / XEP HANG / VIET NHAN — khong ghi trang thai nao ma nen sau
+// doc lai. Nen sau ghi de toan bo, nen chi ket qua o nen cuoi la thu hien tren chart.
+// Chay o moi nen lich su la 3,4 trieu luot lap vo ich (do 2026-11) => loi RE10110 tren goi Basic.
+// He qua: ofVisA / ofRankA RONG o cac nen lich su; bang soi chi doc chung tai barstate.islast.
+if barstate.islast and array.size(ofZone) > 0
     for i = 0 to array.size(ofZone) - 1
         box   zOF  = array.get(ofZone, i)
         bool  bl2  = array.get(ofBull, i)
@@ -1978,49 +2012,51 @@ if htfActive and array.size(hzTop) > 0
         array.push(hzLive, alive)
     // Buoc 2 — han ngach, to mau, keo dai mep phai.
     array.clear(hzRank)
-    for i = 0 to array.size(hzTop) - 1
-        box   z  = array.get(hzBox, i)
-        bool  bl = array.get(hzBull, i)
-        bool  lv = array.get(hzLive, i)
-        float d  = ofDist(z)
-        int rank = 0
-        for j = 0 to array.size(hzTop) - 1
-            if j != i and array.get(hzBull, j) == bl and array.get(hzLive, j)
-                float dj = ofDist(array.get(hzBox, j))
-                if dj < d or (dj == d and j < i)
-                    rank += 1
-        array.push(hzRank, rank)
-        bool  vis   = lv and rank < htfOFMax
-        color cBase = bl ? htfColD : htfColS
-        box.set_right(z, time)
-        box.set_bgcolor(z, vis ? color.new(cBase, htfOFTr) : transp)
-        box.set_border_color(z, vis ? color.new(cBase, 35) : transp)
-        // CHE DO SOI: vung dang bi AN van phai hien NHAN (mo, co dau `!` o dau). Khong co
-        // cho nay thi dung cai vung ban dang thac mac lai la cai KHONG the di chuot vao —
-        // nhan cua no vo hinh nen tooltip giai thich ly do cung khong voi toi duoc.
-        label lb    = array.get(hzLbl, i)
-        bool  lblOn = ofLabelOn and (vis or ofDbgTip)
-        label.set_text(lb, lblOn ? (vis ? "" : "! ") + htfOFTf + " " + (bl ? OFD_TEXT : OFS_TEXT) : "")
-        label.set_textcolor(lb, lblOn ? (vis ? cBase : color.new(color.gray, 25)) : na)
-        // Ho so vung khung lon — de doi chieu TUNG CON SO voi chart khung lon that, va de
-        // biet chinh xac vung dang hien nho dau: con nguyen, hay duoc OF khung nho cuu.
-        if ofDbgTip
-            label.set_tooltip(lb, htfOFTf + "  " + (bl ? OFD_TEXT : OFS_TEXT)
-                 + "\ndinh " + str.tostring(array.get(hzTop, i), format.mintick)
-                 + "  /  day " + str.tostring(array.get(hzBot, i), format.mintick)
-                 + "\ntuoi " + str.tostring(int((time - array.get(hzLeft, i)) / hLen)) + " nen khung lon"
-                 + "\nthu hang " + str.tostring(rank) + "  (nguong " + str.tostring(htfOFMax) + ")"
-                 + (not array.get(hzMit, i) ? "\nCON NGUYEN — chua bi khai thac"
-                   : lv ? "\nDA BI KHAI THAC nhung duoc CUU: ben trong con OF cung chieu chua bi khai thac"
-                       : array.get(hzDead, i) ? "\nCHET HAN — da tung co OF cung chieu con nguyen ben trong, va da bi an het"
-                           : "\nTAM AN — da khai thac, nhung CHUA TUNG co OF cung chieu nao con nguyen ben trong. Chua chot chet: co OF 15m moi trong vung la hien lai.")
-                 + (array.get(hzAway, i) ? "" : "\n(chua co nen " + htfOFTf + " nao nam HAN ngoai vung"
-                       + " => buoc 1 cua phep thu khai thac chua chay)")
-                 + ("\nkhai thac can: 1 nen " + htfOFTf + " DONG CUA hoac MO CUA nam trong ["
-                       + str.tostring(array.get(hzBot, i), format.mintick) + " ; "
-                       + str.tostring(array.get(hzTop, i), format.mintick) + "]"
-                       + (htfWickEnds ? "" : " - rau " + htfOFTf + " thoc vao KHONG tinh"))
-                 + (lv and rank >= htfOFMax ? "\nDANG BI AN vi qua han ngach" : ""))
+    // TOI UU: chi hien thi => chi can chay o nen cuoi (xem ghi chu o khoi A3).
+    if barstate.islast
+        for i = 0 to array.size(hzTop) - 1
+            box   z  = array.get(hzBox, i)
+            bool  bl = array.get(hzBull, i)
+            bool  lv = array.get(hzLive, i)
+            float d  = ofDist(z)
+            int rank = 0
+            for j = 0 to array.size(hzTop) - 1
+                if j != i and array.get(hzBull, j) == bl and array.get(hzLive, j)
+                    float dj = ofDist(array.get(hzBox, j))
+                    if dj < d or (dj == d and j < i)
+                        rank += 1
+            array.push(hzRank, rank)
+            bool  vis   = lv and rank < htfOFMax
+            color cBase = bl ? htfColD : htfColS
+            box.set_right(z, time)
+            box.set_bgcolor(z, vis ? color.new(cBase, htfOFTr) : transp)
+            box.set_border_color(z, vis ? color.new(cBase, 35) : transp)
+            // CHE DO SOI: vung dang bi AN van phai hien NHAN (mo, co dau `!` o dau). Khong co
+            // cho nay thi dung cai vung ban dang thac mac lai la cai KHONG the di chuot vao —
+            // nhan cua no vo hinh nen tooltip giai thich ly do cung khong voi toi duoc.
+            label lb    = array.get(hzLbl, i)
+            bool  lblOn = ofLabelOn and (vis or ofDbgTip)
+            label.set_text(lb, lblOn ? (vis ? "" : "! ") + htfOFTf + " " + (bl ? OFD_TEXT : OFS_TEXT) : "")
+            label.set_textcolor(lb, lblOn ? (vis ? cBase : color.new(color.gray, 25)) : na)
+            // Ho so vung khung lon — de doi chieu TUNG CON SO voi chart khung lon that, va de
+            // biet chinh xac vung dang hien nho dau: con nguyen, hay duoc OF khung nho cuu.
+            if ofDbgTip
+                label.set_tooltip(lb, htfOFTf + "  " + (bl ? OFD_TEXT : OFS_TEXT)
+                     + "\ndinh " + str.tostring(array.get(hzTop, i), format.mintick)
+                     + "  /  day " + str.tostring(array.get(hzBot, i), format.mintick)
+                     + "\ntuoi " + str.tostring(int((time - array.get(hzLeft, i)) / hLen)) + " nen khung lon"
+                     + "\nthu hang " + str.tostring(rank) + "  (nguong " + str.tostring(htfOFMax) + ")"
+                     + (not array.get(hzMit, i) ? "\nCON NGUYEN — chua bi khai thac"
+                       : lv ? "\nDA BI KHAI THAC nhung duoc CUU: ben trong con OF cung chieu chua bi khai thac"
+                           : array.get(hzDead, i) ? "\nCHET HAN — da tung co OF cung chieu con nguyen ben trong, va da bi an het"
+                               : "\nTAM AN — da khai thac, nhung CHUA TUNG co OF cung chieu nao con nguyen ben trong. Chua chot chet: co OF 15m moi trong vung la hien lai.")
+                     + (array.get(hzAway, i) ? "" : "\n(chua co nen " + htfOFTf + " nao nam HAN ngoai vung"
+                           + " => buoc 1 cua phep thu khai thac chua chay)")
+                     + ("\nkhai thac can: 1 nen " + htfOFTf + " DONG CUA hoac MO CUA nam trong ["
+                           + str.tostring(array.get(hzBot, i), format.mintick) + " ; "
+                           + str.tostring(array.get(hzTop, i), format.mintick) + "]"
+                           + (htfWickEnds ? "" : " - rau " + htfOFTf + " thoc vao KHONG tinh"))
+                     + (lv and rank >= htfOFMax ? "\nDANG BI AN vi qua han ngach" : ""))
 
 // ===== DO DEM THEO TUNG NEN (debug) =======================================
 // Bang dem ben duoi chi ve duoc tai NEN CUOI CUNG (barstate.islast) — no khong tra loi duoc
@@ -2033,7 +2069,9 @@ int dwDL = 0
 int dwDM = 0
 int dwSL = 0
 int dwSM = 0
-if array.size(ofZone) > 0
+// TOI UU: chi dem khi co BAT mot cong tac debug. Tat het debug thi cac dong "dbg OF..." trong
+// Data Window hien 0. Rieng "an-ngach" chi dung o nen cuoi (ofVisA rong o nen lich su).
+if ofDbgOn and array.size(ofZone) > 0
     for i = 0 to array.size(ofZone) - 1
         bool bW = array.get(ofBull, i)
         bool mW = array.get(ofMit , i)
@@ -2047,7 +2085,7 @@ if array.size(ofZone) > 0
             dwSL += 1
 int dwCD = 0
 int dwCS = 0
-if array.size(ofCBull) > 0
+if ofDbgOn and array.size(ofCBull) > 0
     for i = 0 to array.size(ofCBull) - 1
         if array.get(ofCBull, i)
             dwCD += 1
@@ -2058,7 +2096,7 @@ if array.size(ofCBull) > 0
 // khoi (B), co the ngan hon ofZone dung bang so vung vua sinh tren chinh nen nay.
 int dwQD = 0
 int dwQS = 0
-if array.size(ofVisA) > 0
+if ofDbgOn and array.size(ofVisA) > 0
     for i = 0 to array.size(ofVisA) - 1
         if not array.get(ofVisA, i)
             if array.get(ofBull, i)
@@ -2355,3 +2393,35 @@ if ofDbgLog and barstate.islast
 // Chấm swing giờ vẽ bằng label trong khối cấu trúc (addSwingDot) — không còn plot nào.
 // Nhờ dùng xloc.bar_time nên cũng không cần tách 2 cặp plot theo khung như trước.
 //#endregion
+
+// ===== E2E — tong ket cho pine-tests ======================================
+// Mot dong duy nhat o nen lich su cuoi cung. Dong nay CO MAT trong Pine Logs = script da chay
+// het lich su ma khong loi runtime. So line/label/box cham 500 = da het quota, Pine bat dau
+// xoa ngam doi tuong cu nhat (xem ghi chu quota 500 line).
+// `first` = time cua nen dau tien chart tai ve: test logic dung no de biet khoang so sanh
+// co nam trong du lieu (va da qua giai doan khoi dong cua engine) hay chua.
+// BARS = du lieu nen THO cho bo kiem CHEO (pine-tests/utils/oracle.ts). Bo do TINH LAI
+// CHoCH/BOS bang TypeScript tu chinh cac nen nay, va soi luat roi vung / khai thac OF tren
+// tung nen — doc lap voi code Pine o tren. Pine sai ma golden cung sai theo thi oracle van bat.
+// Gia ghi bang str.tostring mac dinh (khong lam tron mintick) de so sanh dung nhu Pine so.
+// Phai dat TRUOC dong STAT: test doc log toi khi thay STAT o cuoi bang.
+var string e2eBarBuf   = ""
+var int    e2eBarInBuf = 0
+var int    e2eBarLines = 0
+if e2eLog and barstate.isconfirmed
+    e2eBarBuf := e2eBarBuf + (e2eBarInBuf == 0 ? "" : ";") + str.tostring(time) + ","
+         + str.tostring(open) + "," + str.tostring(high) + "," + str.tostring(low) + "," + str.tostring(close)
+    e2eBarInBuf += 1
+    if e2eBarInBuf >= 30 or barstate.islastconfirmedhistory
+        log.info("BARS|" + str.tostring(e2eBarLines) + "|" + e2eBarBuf)
+        e2eBarLines += 1
+        e2eBarBuf   := ""
+        e2eBarInBuf := 0
+
+var int e2eFirstTime = time
+if e2eLog and barstate.islastconfirmedhistory
+    log.info("STAT|lines=" + str.tostring(array.size(line.all)) + "|labels=" + str.tostring(array.size(label.all))
+         + "|boxes=" + str.tostring(array.size(box.all)) + "|bars=" + str.tostring(bar_index + 1)
+         + "|first=" + str.tostring(e2eFirstTime)
+         + "|evt=" + str.tostring(array.get(e2eCnt, 0)) + "|last=" + str.tostring(time)
+         + "|bl=" + str.tostring(e2eBarLines) + "|tick=" + str.tostring(syminfo.mintick))
