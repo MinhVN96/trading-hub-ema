@@ -39,9 +39,22 @@ export class PineEditorPage {
       // "My script" vao editor ngay sau khi tai trang — no co the ghi de len code vua dan
       // (da gap that: test add nham "My script" len chart).
       await this.page.waitForTimeout(3000);
-      if ((await this.firstVisibleLine()) === firstLine) return;
+      // Doi chieu TOAN BO noi dung, khong chi dong dau: ban nhap cu TradingView nap lai co
+      // cung dong dau "//@version=5" nen kiem dong dau la khong du (da lot that 2026-11).
+      if ((await this.firstVisibleLine()) === firstLine && (await this.readAll()) === norm(code)) return;
     }
-    throw new Error(`Dan code that bai 3 lan: dong dau editor khong phai "${firstLine}"`);
+    throw new Error(`Dan code that bai 3 lan: noi dung editor khong khop code can dan (dong dau "${firstLine}")`);
+  }
+
+  /** Toan bo noi dung editor (qua clipboard). */
+  async readAll(): Promise<string> {
+    await sel.monaco(this.page).click();
+    await this.page.keyboard.press('Control+A');
+    await this.page.keyboard.press('Control+C');
+    await this.page.waitForTimeout(400);
+    const text = await this.page.evaluate(() => navigator.clipboard.readText());
+    await this.page.keyboard.press('Control+Home');
+    return norm(text);
   }
 
   /** Dong DAU TIEN cua editor (Monaco chi render dong dang hien nen phai cuon len dau truoc). */
@@ -81,3 +94,5 @@ export class PineEditorPage {
     return { ok: false, errors: n, console: consoleText };
   }
 }
+
+const norm = (t: string) => t.replace(/\r\n/g, '\n');

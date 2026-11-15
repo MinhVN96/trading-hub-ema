@@ -31,7 +31,9 @@ export const sel = {
   legendMore: (item: Locator) => item.getByRole('button', { name: 'More', exact: true }),
 
   /** Dau "!" do tren legend khi script loi runtime. Da kiem 2026-11: button "Runtime error". */
-  legendError: (item: Locator) => item.getByRole('button', { name: 'Runtime error', exact: true }),
+  // Ten nut co kem ma loi: "Runtime error: RE10110 · Opened in Pine Editor" (da gap 2026-11).
+  // Truoc day khop CHINH XAC "Runtime error" nen loi co ma bi lot qua am tham.
+  legendError: (item: Locator) => item.getByRole('button', { name: /^Runtime error/ }),
 
   // ---- Pine Editor ----
   // Da kiem 2026-10: nut "Pine" o thanh ben phai.

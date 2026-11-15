@@ -59,6 +59,7 @@ Mọi selector nằm trong `pages/selectors.ts`. Các mục ghi "Da kiem 2026-10
 Những điều đã biết về giao diện TradingView:
 
 - **Script mẫu ghi đè code:** ngay sau khi tải trang, TradingView tự nạp script mẫu "My script" vào editor và có thể ghi đè code vừa dán. `PineEditorPage.setCode` kiểm tra lại dòng đầu của editor và dán lại tối đa 3 lần.
+- **Bản nháp cũ ghi đè code (gặp 2026-11):** TradingView có thể nạp lại bản nháp cũ đè lên code vừa dán. Bản nháp có cùng dòng đầu nên kiểm dòng đầu là không đủ: chart đã từng chạy code khác mà test vẫn xanh (cả 4 mutant "sống sót" giả). Hiện có hai chốt chặn. `setCode` đọc lại toàn bộ editor và so từng ký tự. Script còn ghi dòng `RUN|<mã băm của code>` vào Pine Logs, test đối chiếu mã này để chứng minh log đến từ đúng bản code đã dán.
 - **Mở Pine Logs:** mở từ nút `···` của Pine Editor. Nút "More" trên legend thì không có mục này.
 - **Đọc Pine Logs:** bảng Pine Logs là danh sách ảo, phải cuộn từ đầu tới cuối mới đọc hết. Test đối chiếu số dòng `EVT` đọc được với `evt=` trong dòng `STAT`, thiếu một dòng là fail. Trước khi có bước này, test đã từng âm thầm tạo golden từ log đọc thiếu.
 - **Hộp thoại "Split the view?":** khi editor đang ở dạng overlay, mở Pine logs sẽ hiện hộp thoại này thay vì mở bảng. Test tự bấm "Move editor to split-view". Layout nhớ trạng thái này cho các lần sau.
@@ -75,6 +76,22 @@ Những điều đã biết về giao diện TradingView:
 Khi bạn **cố ý** sửa logic OF/cấu trúc, test logic sẽ fail và liệt kê sự kiện MẤT/THỪA. Kiểm tra từng dòng có đúng là thay đổi bạn muốn không, rồi chạy lại bước 2.
 
 Chart chỉ tải một số nến giới hạn (15m trên IC Markets: khoảng 6080 nến, ngày 04/11/2026 tải từ 31/08/2026), nên theo thời gian `window` sẽ trôi ra ngoài vùng dữ liệu. Khi đó test sẽ báo rõ, và bạn tạo golden cho một đoạn gần hơn.
+
+## Kiểm tra chéo: test có đúng không?
+
+Golden chỉ chứng minh "hôm nay giống hôm trước". Nếu lúc tạo golden Pine đã sai thì golden sai theo, và test vẫn xanh. Vì vậy có thêm ba lớp kiểm chính bộ test:
+
+| Lớp | Lệnh | Bắt được gì |
+|---|---|---|
+| **Oracle** (`utils/oracle.ts`) | chạy chung trong `test:logic` | Pine ghi kèm dữ liệu nến thô (dòng `BARS`). TypeScript **tính lại CHoCH/BOS** từ các nến đó, không dùng code Pine, rồi so từng sự kiện trên toàn bộ lịch sử. Oracle cũng soi luật OF trên từng nến: rời vùng = nến đầu tiên nằm trọn ngoài vùng, khai thác = lần chạm đầu tiên sau khi rời, vòng đời đúng thứ tự. Khi tạo golden, oracle là điều kiện bắt buộc: Pine sai luật thì không ghi golden. |
+| **Unit test** (`tests/unit/`) | `npm run test:unit` (offline, ~1 giây) | Kiểm oracle bằng chuỗi nến đã tính tay. Kiểm phần đọc log có bắt được log thiếu dòng, dòng trùng, dòng bị cắt cụt. Kiểm phần so golden có bắt được lệch 1 tick. |
+| **Mutation** (`config/mutants.ts`) | `npm run test:mutation` (~3 phút/mutant) | Cố ý cài lỗi vào bản sao code Pine (đảo tên CHoCH/BOS, lệch leg swing, rời vùng bằng thân nến...). Mỗi mutant phải bị ít nhất một lớp bắt được. Mutant nào sống sót là lỗ hổng của bộ test. |
+
+Khi oracle và Pine lệch nhau thì một trong hai đang sai. Đọc thông báo lỗi rồi đối chiếu với chart. Log thô của lần chạy gần nhất nằm ở `.cache/pine-logs/`. Chạy lại oracle trên log đó mà không cần mở TradingView:
+
+```
+npm run oracle -- v1.11_IC-BNBUSD_15m
+```
 
 ## Liên hệ với file Pine
 

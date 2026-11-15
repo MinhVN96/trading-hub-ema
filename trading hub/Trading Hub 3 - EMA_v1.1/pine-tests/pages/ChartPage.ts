@@ -43,6 +43,8 @@ export class ChartPage {
   async runtimeError(title: string): Promise<string | undefined> {
     const btn = sel.legendError(this.legendItem(title));
     if (!(await btn.isVisible().catch(() => false))) return undefined;
+    // Ten nut chua ma loi (vd "Runtime error: RE10110 · ...") — giu lai phong khi popup rong.
+    const name = (await btn.getAttribute('aria-label').catch(() => null)) ?? (await btn.innerText().catch(() => ''));
     await btn.click({ force: true });
     await this.page.waitForTimeout(1500);
     // Popup loi nam trong overlap-manager-root (lop noi cua TradingView).
@@ -51,7 +53,7 @@ export class ChartPage {
       .innerText()
       .catch(() => '');
     await this.page.keyboard.press('Escape');
-    return text.replace(/\s+/g, ' ').trim() || '(co dau "!" nhung khong doc duoc noi dung loi)';
+    return [name, text.replace(/\s+/g, ' ').trim()].filter(Boolean).join(' | ') || '(co dau "!" nhung khong doc duoc noi dung loi)';
   }
 
   /** Go MOI ban sao cua indicator khoi chart — de lan test sau bat dau tu chart sach. */

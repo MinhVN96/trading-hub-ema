@@ -7,10 +7,13 @@
     "login": "tsx scripts/save-login.ts",
     "check-login": "tsx scripts/check-login.ts",
     "test": "playwright test",
+    "test:unit": "playwright test -c playwright.unit.config.ts",
     "test:compile": "playwright test tests/compile.spec.ts",
     "test:runtime": "playwright test tests/runtime.spec.ts",
     "test:logic": "playwright test tests/logic.spec.ts",
     "test:update-golden": "cross-env UPDATE_GOLDEN=1 playwright test tests/logic.spec.ts",
+    "test:mutation": "tsx scripts/mutation.ts",
+    "oracle": "tsx scripts/oracle-offline.ts",
     "test:headed": "playwright test --headed",
     "codegen": "playwright codegen --load-storage=auth/storageState.json https://www.tradingview.com/chart/",
     "report": "playwright show-report"

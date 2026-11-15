@@ -7,6 +7,7 @@
 // bien mat ma nhan chu van con). Nen o day canh bao khi so doi tuong dang song cham tran.
 import { test, expect } from '../fixtures/tv.fixture';
 import { scenariosFor } from '../config/scenarios';
+import { checkRun } from '../utils/readPineFile';
 import { parseEvents, parseStat, checkComplete } from '../utils/parseLogs';
 
 const QUOTA = 500;
@@ -25,6 +26,8 @@ for (const s of scenariosFor('runtime')) {
     const lines = await chart.readPineLogs();
     const stat = parseStat(lines);
     expect(stat, 'Khong thay dong STAT trong Pine Logs => script khong chay toi nen cuoi (loi runtime?)').toBeDefined();
+    const runErr = checkRun(lines, src);
+    expect(runErr, runErr).toBeUndefined();
 
     console.log(`[${s.name}] STAT lines=${stat!.lines} labels=${stat!.labels} boxes=${stat!.boxes} bars=${stat!.bars} first=${new Date(stat!.first).toISOString()} evt=${stat!.evt} | log doc duoc: ${lines.length} dong`);
     // Doc thieu log thi khong ket luan duoc gi — fail ngay.

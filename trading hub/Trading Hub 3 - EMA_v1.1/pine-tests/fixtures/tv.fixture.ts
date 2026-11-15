@@ -37,6 +37,10 @@ export const test = base.extend<TvFixtures>({
       await pine.setCode(src.code);
       const result = await pine.addToChart(src.shortTitle);
       loaded.push(src.shortTitle);
+      // Editor bi ghi de giua luc dan va luc Add to chart => chart dang chay code khac.
+      if ((await pine.readAll()) !== src.code.replace(/\r\n/g, '\n')) {
+        throw new Error('Noi dung Pine Editor da bi thay doi sau khi dan — chart co the dang chay code khac.');
+      }
       return { src, result };
     });
     for (const title of loaded) await chart.removeStudy(title).catch(() => {});
