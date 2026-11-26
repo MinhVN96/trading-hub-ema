@@ -547,7 +547,7 @@ Mỗi giai đoạn đi qua cùng một chu trình:
 5. **Trình diễn**: Claude chỉ cho bạn kết quả thật (bảng so sánh, ảnh dashboard, tin Telegram).
 6. **Qua cổng**: đạt "Điều kiện xong" → đánh dấu `[x]` trong ROADMAP → bạn quyết định commit/merge.
 
-Claude không tự commit; chỉ commit khi bạn nói rõ.
+Claude được commit trên nhánh `feat/*` (chốt 26/11/2026, để dùng Superpowers). Trên nhánh khác thì chỉ commit khi bạn nói rõ. Push, merge, mở PR luôn do bạn quyết. Cách dùng Superpowers theo chu trình này: [huong-dan-superpowers.md](huong-dan-superpowers.md).
 
 ---
 
@@ -555,10 +555,10 @@ Claude không tự commit; chỉ commit khi bạn nói rõ.
 
 ### GĐ 0 — Yêu cầu và chuẩn bị
 - [x] (B) Chốt nguồn tín hiệu, mức tự động, quyền AI, nhóm sản phẩm
-- [ ] (B) Đăng ký tài khoản broker thật ở IC Markets (khu vực khách hàng); trong đó tạo tài khoản MT5 con loại **demo**; cài terminal MT5 của IC Markets, bật Algo Trading
+- [ ] (B) Đăng ký tài khoản broker thật ở IC Markets (khu vực khách hàng); trong đó tạo tài khoản MT5 con loại **demo**; cài terminal MT5 của IC Markets, bật Algo Trading — 26/11/2026: đã đăng ký; demo MT5 Standard, USD, **netting**, server `ICMarketsSC-Demo`; terminal "MetaTrader 5 IC Markets Global" build 6333 đã cài, Algo Trading đã bật. Còn: terminal đăng nhập thất bại ("Invalid account"), chạy lại `trading-bot/scripts/check_mt5.py` sau khi đăng nhập được
 - [ ] (B) Ghi chú: IC Markets xoá tài khoản demo sau khoảng 20–30 ngày không mở lệnh. Bot giao dịch đều thì tài khoản vẫn sống; tạm dừng lâu thì phải tạo lại
-- [ ] (B) Cài Python 3.11+; đưa Node vào PATH
-- [ ] (B) Quyết định số phận các thay đổi chưa commit trên nhánh `test/e2e`
+- [x] (B) Cài Python 3.11+; đưa Node vào PATH — kiểm 26/11/2026: Python 3.14.0, Node v24.20.0 trong PATH. Môi trường ảo `%USERPROFILE%\.venvs\trading-bot` (ngoài OneDrive) đã cài `MetaTrader5` 5.0.6231
+- [x] (B) Quyết định số phận các thay đổi chưa commit trên nhánh `test/e2e` — 26/11/2026: đã nằm trong commit `e50dd79` (mutation test, oracle offline, unit test); quyết mở PR `test/e2e` → `develop`. Unit test offline 32/32 đạt; E2E TradingView chưa chạy (RE10110)
 - [x] (C) Tạo thư mục `trading-bot/`, chép lộ trình này thành `docs/ROADMAP.md`
 - [ ] (B+C) Viết `docs/requirements.md`
 

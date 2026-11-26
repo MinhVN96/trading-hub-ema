@@ -31,6 +31,16 @@ blob-report/
 playwright/.cache/
 npm-debug.log*
 
+# ===== Python (trading-bot) =====
+# Moi truong ao dat ngoai OneDrive: %USERPROFILE%\.venvs\trading-bot
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
 # ===== Bi mat — tuyet doi khong commit =====
 # Session dang nhap TradingView cua pine-tests
 **/auth/storageState.json
