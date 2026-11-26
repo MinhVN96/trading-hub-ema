@@ -556,7 +556,7 @@ Claude được commit trên nhánh `feat/*` (chốt 26/11/2026, để dùng Sup
 ### GĐ 0 — Yêu cầu và chuẩn bị
 - [x] (B) Chốt nguồn tín hiệu, mức tự động, quyền AI, nhóm sản phẩm
 - [x] (B) Đăng ký tài khoản broker thật ở IC Markets (khu vực khách hàng); trong đó tạo tài khoản MT5 con loại **demo**; cài terminal MT5 của IC Markets, bật Algo Trading — 26/11/2026: tài khoản demo dùng cho bot là loại **hedging**, đòn bẩy 1:20, 1.000 USD, server `ICMarketsSC-Demo` (công ty Raw Trading Ltd); terminal "MetaTrader 5 IC Markets Global" build 6333, Algo Trading bật. Tài khoản demo netting tạo trước đó không dùng. Web IC Markets cần VPN ở Việt Nam, nhưng terminal kết nối máy chủ giao dịch được
-- [ ] (B) Ghi chú: IC Markets xoá tài khoản demo sau khoảng 20–30 ngày không mở lệnh. Bot giao dịch đều thì tài khoản vẫn sống; tạm dừng lâu thì phải tạo lại
+- [x] (B) Ghi chú: IC Markets xoá tài khoản demo sau khoảng 20–30 ngày không mở lệnh. Bot giao dịch đều thì tài khoản vẫn sống; tạm dừng lâu thì phải tạo lại
 - [x] (B) Cài Python 3.11+; đưa Node vào PATH — kiểm 26/11/2026: Python 3.14.0, Node v24.20.0 trong PATH. Môi trường ảo `%USERPROFILE%\.venvs\trading-bot` (ngoài OneDrive) đã cài `MetaTrader5` 5.0.6231
 - [x] (B) Quyết định số phận các thay đổi chưa commit trên nhánh `test/e2e` — 26/11/2026: đã nằm trong commit `e50dd79` (mutation test, oracle offline, unit test); quyết mở PR `test/e2e` → `develop`. Unit test offline 32/32 đạt; E2E TradingView chưa chạy (RE10110)
 - [x] (C) Tạo thư mục `trading-bot/`, chép lộ trình này thành `docs/ROADMAP.md`
